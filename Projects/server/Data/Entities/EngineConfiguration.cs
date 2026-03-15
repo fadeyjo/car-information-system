@@ -1,0 +1,32 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
+namespace server.Models.Entities
+{
+    [Table("engine_configurations")]
+    public class EngineConfiguration
+    {
+        [Key]
+        [Column("engine_config_id")]
+        public uint EngineConfigId { get; set; }
+
+        [Column("engine_power_hp")]
+        public ushort EnginePowerHP { get; set; }
+
+        [Column("engine_power_kW")]
+        public float EnginePowerKW { get; set; }
+
+        [Column("engine_capacity_l")]
+        public float EngineCapacityL { get; set; }
+
+        [Column("tank_capacity_l")]
+        public byte TankCapacityL { get; set; }
+
+        [Column("fuel_type_id")]
+        public byte FuelTypeId { get; set; }
+
+        [ForeignKey(nameof(FuelTypeId))]
+        public FuelType FuelType { get; set; } = null!;
+    }
+}
