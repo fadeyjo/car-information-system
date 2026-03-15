@@ -1,38 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
-
-namespace server.Models.Entities
+﻿namespace server.Models.Entities
 {
-    [Table("GPS_data")]
     public class GPSData
     {
-        [Key]
-        [Column("rec_id")]
         public ulong RecId { get; set; }
-
-        [Column("rec_datetime")]
         public DateTime RecDatetime { get; set; }
-
-        [Column("trip_id")]
         public ulong TripId { get; set; }
-
-        [Column("latitude_deg")]
-        public float LatitudeDEG { get; set; }
-
-        [Column("longitude_deg")]
-        public float LongitudeDEG { get; set; }
-
-        [Column("accuracy_m")]
+        public float LatitudeDeg { get; set; }
+        public float LongitudeDeg { get; set; }
         public float? AccuracyM { get; set; }
-
-        [Column("speed_kmh")]
-        public float? SpeedKMH { get; set; }
-
-        [Column("bearing_deg")]
-        public ushort? BearingDEG { get; set; }
-
-        [ForeignKey(nameof(TripId))]
+        public float? SpeedKmh { get; set; }
+        public ushort? BearingDeg { get; set; }
         public Trip Trip { get; set; } = null!;
     }
 }

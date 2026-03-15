@@ -52,3 +52,4 @@ C:\Users\komra\Desktop\car-information-system\Projects\server\obj\Debug\net8.0\r
 C:\Users\komra\Desktop\car-information-system\Projects\server\obj\Debug\net8.0\server.pdb
 C:\Users\komra\Desktop\car-information-system\Projects\server\obj\Debug\net8.0\server.genruntimeconfig.cache
 C:\Users\komra\Desktop\car-information-system\Projects\server\obj\Debug\net8.0\ref\server.dll
+C:\Users\komra\Desktop\car-information-system\Projects\server\obj\Debug\net8.0\server.sourcelink.json

@@ -1,36 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
-
-namespace server.Models.Entities
+﻿namespace server.Models.Entities
 {
-    [Table("cars")]
     public class Car
     {
-        [Key]
-        [Column("car_id")]
         public uint CarId { get; set; }
-
-        [Column("created_at")]
         public DateTime CreatedAt { get; set; }
-
-        [Column("person_id")]
         public uint PersonId { get; set; }
-
-        [Column("VIN_number")]
-        public string VINNumber { get; set; } = null!;
-
-        [Column("state_number")]
+        public string VinNumber { get; set; } = null!;
         public string? StateNumber { get; set; }
-
-        [Column("car_config_id")]
         public uint CarConfigId { get; set; }
-
-        [ForeignKey(nameof(PersonId))]
         public Person Person { get; set; } = null!;
-
-        [ForeignKey(nameof(CarConfigId))]
         public CarConfiguration CarConfiguration { get; set; } = null!;
     }
 }

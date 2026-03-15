@@ -140,14 +140,14 @@ create table persons
     patronymic varchar(50),
     birth date not null,
     hashed_password varchar(500) not null,
-    drive_lisense char(10) unique,
+    drive_liсense char(10) unique,
     role_id tinyint unsigned not null,
 
     foreign key (role_id) references roles (role_id) on delete cascade,
 
     check (email regexp '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'),
     check (phone regexp '^\\+7[0-9]{10}$'),
-    check (drive_lisense is null or drive_lisense regexp '^[0-9]{10}$')
+    check (drive_liсense is null or drive_liсense regexp '^[0-9]{10}$')
 );
 
 create table avatars
@@ -158,9 +158,7 @@ create table avatars
     person_id mediumint unsigned not null,
     content_type varchar(50) not null,
 
-    foreign key (person_id) references persons (person_id) on delete cascade,
-
-    constraint unique_avatar_url_person_id unique (avatar_url , person_id)
+    foreign key (person_id) references persons (person_id) on delete cascade
 );
 
 create table engine_configurations
@@ -236,9 +234,7 @@ create table car_photos
     car_id int unsigned not null,
     content_type varchar(50) not null,
 
-    foreign key (car_id) references cars (car_id) on delete cascade,
-
-    constraint unique_photo_url_car_id unique (photo_url , car_id)
+    foreign key (car_id) references cars (car_id) on delete cascade
 );
 
 create table trips
@@ -315,7 +311,7 @@ insert into persons
     patronymic,
     birth,
     hashed_password,
-    drive_lisense,
+    drive_liсense,
     role_id
 ) value (
     '2026-02-28 13:46:22',
