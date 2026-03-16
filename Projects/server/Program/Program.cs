@@ -34,6 +34,7 @@ namespace server.Program
             // Services for interfaces for services
             builder.Services.AddScoped<IPersonsService, PersonsService>();
             builder.Services.AddScoped<IRefreshTokensService, RefreshTokensService>();
+            builder.Services.AddScoped<ICarsService, CarsService>();
 
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 

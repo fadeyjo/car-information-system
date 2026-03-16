@@ -5,11 +5,13 @@ using server.Contracts.Requests;
 using server.Models.Entities;
 using server.Services.Interfaces;
 using server.Utils;
+using System.Security.Claims;
 
 namespace server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class PersonsController : ControllerBase
     {
         private readonly IPersonsService _service;
@@ -27,13 +29,22 @@ namespace server.Controllers
             );
         }
 
-        [HttpGet("{id}")]
-        [Authorize]
-        public async Task<IActionResult> GetPersonById(uint id)
+        [HttpGet]
+        public async Task<IActionResult> GetPersonById()
         {
             try
             {
-                var person = await _service.GetPersonById(id);
+                var userData = User.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userData == null)
+                    return Problem(
+                        title: "Не авторизован",
+                        statusCode: StatusCodes.Status401Unauthorized
+                    );
+
+                uint personId = uint.Parse(userData.Value);
+
+                var person = await _service.GetPersonById(personId);
 
                 return Ok(person);
             }
@@ -44,6 +55,7 @@ namespace server.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> SignUp(SignUpRequest body)
         {
             try
@@ -62,6 +74,31 @@ namespace server.Controllers
                     title: er.Title,
                     statusCode: er.StatusCode
                 );
+            }
+            catch
+            {
+                return ServerError();
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdatePersonInfo(UpdatePersonInfoRequest body)
+        {
+            try
+            {
+                var userData = User.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userData == null)
+                    return Problem(
+                        title: "Не авторизован",
+                        statusCode: StatusCodes.Status401Unauthorized
+                    );
+
+                uint personId = uint.Parse(userData.Value);
+
+                await _service.UpdatePersonInfo(body, personId);
+
+                return NoContent();
             }
             catch
             {

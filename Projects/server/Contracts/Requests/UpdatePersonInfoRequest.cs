@@ -1,16 +1,13 @@
-﻿namespace server.Contracts.Responses
+﻿namespace server.Contracts.Requests
 {
-    public class PersonDto
+    public class UpdatePersonInfoRequest
     {
-        public uint PersonId { get; set; }
         public string Email { get; set; } = null!;
         public string Phone { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string FirstName { get; set; } = null!;
         public string? Patronymic { get; set; }
-        public DateOnly Birth {  get; set; }
+        public DateOnly Birth { get; set; }
         public string? DriveLicense { get; set; }
-        public byte RoleId { get; set; }
-        public uint AvatarId { get; set; }
     }
 }

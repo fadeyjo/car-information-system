@@ -8,6 +8,5 @@ namespace server.Services.Interfaces
         Task<TokensDto> LogIn(string email, string password);
         Task<TokensDto> Refresh(string oldRefreshToken);
         Task<LogOutDto> LogOut(uint personId);
-        Task<bool> RefreshTokenHashExists(string hashedRefreshToken);
     }
 }

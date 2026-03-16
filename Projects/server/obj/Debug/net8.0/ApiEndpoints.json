@@ -1,5 +1,78 @@
 [
   {
+    "ContainingType": "server.Controllers.CarsController",
+    "Method": "CreateCar",
+    "RelativePath": "api/Cars",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "server.Contracts.Requests.CreateCarRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.CarsController",
+    "Method": "UpdateCarInfo",
+    "RelativePath": "api/Cars/{carId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "server.Contracts.Requests.UpdateCarInfoRequest",
+        "IsRequired": true
+      },
+      {
+        "Name": "carId",
+        "Type": "System.UInt32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.CarsController",
+    "Method": "GetCarById",
+    "RelativePath": "api/Cars/{carId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "carId",
+        "Type": "System.UInt32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.CarsController",
+    "Method": "GetCarsByPersonId",
+    "RelativePath": "api/Cars/my-cars",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.PersonsController",
+    "Method": "GetPersonById",
+    "RelativePath": "api/Persons",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "server.Controllers.PersonsController",
     "Method": "SignUp",
     "RelativePath": "api/Persons",
@@ -17,15 +90,15 @@
   },
   {
     "ContainingType": "server.Controllers.PersonsController",
-    "Method": "GetPersonById",
-    "RelativePath": "api/Persons/{id}",
-    "HttpMethod": "GET",
+    "Method": "UpdatePersonInfo",
+    "RelativePath": "api/Persons",
+    "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "id",
-        "Type": "System.UInt32",
+        "Name": "body",
+        "Type": "server.Contracts.Requests.UpdatePersonInfoRequest",
         "IsRequired": true
       }
     ],

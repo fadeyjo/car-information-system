@@ -7,5 +7,6 @@ namespace server.Services.Interfaces
     {
         Task<PersonDto> SignUp(SignUpRequest body);
         Task<PersonDto> GetPersonById(uint personId);
+        Task UpdatePersonInfo(UpdatePersonInfoRequest body, uint personId);
     }
 }

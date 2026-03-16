@@ -5,14 +5,85 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/Persons/{id}": {
-      "get": {
+    "/api/Cars": {
+      "post": {
         "tags": [
-          "Persons"
+          "Cars"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCarRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCarRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCarRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Cars/{carId}": {
+      "put": {
+        "tags": [
+          "Cars"
         ],
         "parameters": [
           {
-            "name": "id",
+            "name": "carId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCarInfoRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCarInfoRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCarInfoRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Cars"
+        ],
+        "parameters": [
+          {
+            "name": "carId",
             "in": "path",
             "required": true,
             "schema": {
@@ -28,7 +99,29 @@
         }
       }
     },
+    "/api/Cars/my-cars": {
+      "get": {
+        "tags": [
+          "Cars"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Persons": {
+      "get": {
+        "tags": [
+          "Persons"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
       "post": {
         "tags": [
           "Persons"
@@ -48,6 +141,35 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/SignUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Persons"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePersonInfoRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePersonInfoRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePersonInfoRequest"
               }
             }
           }
@@ -136,6 +258,68 @@
   },
   "components": {
     "schemas": {
+      "CreateCarRequest": {
+        "type": "object",
+        "properties": {
+          "vinNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "brandName": {
+            "type": "string",
+            "nullable": true
+          },
+          "modelName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bodyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gearboxName": {
+            "type": "string",
+            "nullable": true
+          },
+          "driveName": {
+            "type": "string",
+            "nullable": true
+          },
+          "vehicleWeightKg": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enginePowerHp": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enginePowerKw": {
+            "type": "number",
+            "format": "float"
+          },
+          "engineCapacityL": {
+            "type": "number",
+            "format": "float"
+          },
+          "tankCapacityL": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fuelTypeName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "LoginRequest": {
         "required": [
           "email",
@@ -210,6 +394,102 @@
           "roleId": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateCarInfoRequest": {
+        "type": "object",
+        "properties": {
+          "vinNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "stateNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "brandName": {
+            "type": "string",
+            "nullable": true
+          },
+          "modelName": {
+            "type": "string",
+            "nullable": true
+          },
+          "bodyName": {
+            "type": "string",
+            "nullable": true
+          },
+          "releaseYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gearboxName": {
+            "type": "string",
+            "nullable": true
+          },
+          "driveName": {
+            "type": "string",
+            "nullable": true
+          },
+          "vehicleWeightKg": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enginePowerHp": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enginePowerKw": {
+            "type": "number",
+            "format": "float"
+          },
+          "engineCapacityL": {
+            "type": "number",
+            "format": "float"
+          },
+          "tankCapacityL": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fuelTypeName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePersonInfoRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "patronymic": {
+            "type": "string",
+            "nullable": true
+          },
+          "birth": {
+            "type": "string",
+            "format": "date"
+          },
+          "driveLicense": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
