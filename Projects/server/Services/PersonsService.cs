@@ -3,6 +3,8 @@ using server.Contracts.Requests;
 using server.Contracts.Responses;
 using server.Data;
 using server.Services.Interfaces;
+using server.Utils;
+using System.Numerics;
 
 namespace server.Services
 {
@@ -15,9 +17,9 @@ namespace server.Services
             _context = context;
         }
 
-        public async Task<PersonDto?> GetPersonById(uint personId)
+        public async Task<PersonDto> GetPersonById(uint personId)
         {
-            return
+            var person =
                 await _context.Persons
                     .Select(p => new PersonDto()
                     {
@@ -33,34 +35,27 @@ namespace server.Services
                     })
                     .Where(p => p.PersonId == personId)
                     .FirstOrDefaultAsync();
-        }
 
-        public async Task<bool> PersonExistsByDriveLicense(string driveLicense)
-        {
-            return
-                await _context.Persons.AnyAsync(p => p.DriveLicense == driveLicense);
-        }
+            if (person == null)
+                throw new HttpError("Пользователь не найден", StatusCodes.Status404NotFound);
 
-        public async Task<bool> PersonExistsByEmail(string email)
-        {
-            return
-                await _context.Persons.AnyAsync(p => p.Email == email);
-        }
-
-        public async Task<bool> PersonExistsById(uint personId)
-        {
-            return
-                await _context.Persons.AnyAsync(p => p.PersonId == personId);
-        }
-
-        public async Task<bool> PersonExistsByPhone(string phone)
-        {
-            return
-                await _context.Persons.AnyAsync(p => p.Phone == phone);
+            return person;
         }
 
         public async Task<PersonDto> SignUp(SignUpRequest body)
         {
+            bool exists = await _context.Persons.AnyAsync(p => p.Email == body.Email);
+            if (exists)
+                throw new HttpError("Пользователь с данным email уже существует", StatusCodes.Status409Conflict);
+
+            exists = await _context.Persons.AnyAsync(p => p.Phone == body.Phone);
+            if (exists)
+                throw new HttpError("Пользователь с данным номером телефона уже существует", StatusCodes.Status409Conflict);
+
+            exists = !string.IsNullOrWhiteSpace(body.DriveLicense) && await _context.Persons.AnyAsync(p => p.DriveLicense == body.DriveLicense);
+            if (exists)
+                throw new HttpError("Пользователь с данным водительским удостоверением уже существует", StatusCodes.Status409Conflict);
+
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(body.Password);
 
             var newPerson = new Models.Entities.Person()
@@ -73,7 +68,8 @@ namespace server.Services
                 Birth = body.Birth,
                 DriveLicense = body.DriveLicense,
                 HashedPassword = hashedPassword,
-                RoleId = body.RoleId
+                RoleId = body.RoleId,
+                Phone = body.Phone
             };
 
             _context.Persons.Add(newPerson);

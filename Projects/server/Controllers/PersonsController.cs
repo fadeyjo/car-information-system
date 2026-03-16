@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using server.Contracts.Requests;
+using server.Models.Entities;
 using server.Services.Interfaces;
+using server.Utils;
 
 namespace server.Controllers
 {
@@ -12,7 +16,7 @@ namespace server.Controllers
 
         public PersonsController(IPersonsService service)
         {
-            _service=service;
+            _service = service;
         }
 
         private ObjectResult ServerError()
@@ -24,19 +28,14 @@ namespace server.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetPersonById(uint id)
         {
             try
             {
                 var person = await _service.GetPersonById(id);
 
-                return
-                    person == null ?
-                        Problem(
-                            title: "Пользователь не найден",
-                            statusCode: StatusCodes.Status404NotFound
-                        ) :
-                        Ok(person);
+                return Ok(person);
             }
             catch
             {
@@ -49,33 +48,19 @@ namespace server.Controllers
         {
             try
             {
-                bool exists = await _service.PersonExistsByEmail(body.Email);
-                if (exists)
-                    return Problem(
-                        title: "Пользователь с данным email уже существует",
-                        statusCode: StatusCodes.Status409Conflict
-                    );
-
-                exists = await _service.PersonExistsByPhone(body.Phone);
-                if (exists)
-                    return Problem(
-                        title: "Пользователь с данным номером телефона уже существует",
-                        statusCode: StatusCodes.Status409Conflict
-                    );
-
-                exists = !string.IsNullOrWhiteSpace(body.DriveLicense) && await _service.PersonExistsByEmail(body.DriveLicense);
-                if (exists)
-                    return Problem(
-                        title: "Пользователь с данным водительским удостоверением уже существует",
-                        statusCode: StatusCodes.Status409Conflict
-                    );
-
-                var person = await _service.SignUp(body);
+                var res = await _service.SignUp(body);
 
                 return CreatedAtAction(
                     nameof(GetPersonById),
-                    new { id = person.PersonId },
-                    person
+                    new { id = res.PersonId },
+                    res
+                );
+            }
+            catch (HttpError er)
+            {
+                return Problem(
+                    title: er.Title,
+                    statusCode: er.StatusCode
                 );
             }
             catch
