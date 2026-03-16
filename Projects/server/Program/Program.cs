@@ -1,5 +1,9 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using server.Contracts.Requests;
 using server.Data;
+using server.Services;
+using server.Services.Interfaces;
 
 namespace server.Program
 {
@@ -22,10 +26,18 @@ namespace server.Program
                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
             );
 
+            // Services for interfaces for services
+            builder.Services.AddScoped<IPersonsService, PersonsService>();
+
             builder.Services.AddControllers();
+
+            // Services for validators
+            builder.Services.AddValidatorsFromAssemblyContaining<SignUpRequestValidator>();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
 
             var app = builder.Build();
 

@@ -200,19 +200,19 @@ namespace server.Data
 
                 entity.Property(cc => cc.CarConfigId).HasColumnName("car_config_id");
 
-                entity.Property(cc => cc.CarBrandModel).HasColumnName("car_config_id");
+                entity.Property(cc => cc.CarBrandModelId).HasColumnName("car_brand_model_id");
 
-                entity.Property(cc => cc.BodyId).HasColumnName("car_config_id");
+                entity.Property(cc => cc.BodyId).HasColumnName("body_id");
 
-                entity.Property(cc => cc.ReleaseYear).HasColumnName("car_config_id");
+                entity.Property(cc => cc.ReleaseYear).HasColumnName("release_year");
 
-                entity.Property(cc => cc.GearboxId).HasColumnName("car_config_id");
+                entity.Property(cc => cc.GearboxId).HasColumnName("gearbox_id");
 
-                entity.Property(cc => cc.DriveId).HasColumnName("car_config_id");
+                entity.Property(cc => cc.DriveId).HasColumnName("drive_id");
 
-                entity.Property(cc => cc.EngineConfId).HasColumnName("car_config_id");
+                entity.Property(cc => cc.EngineConfId).HasColumnName("engine_conf_id");
 
-                entity.Property(cc => cc.VehicleWeightKg).HasColumnName("car_config_id");
+                entity.Property(cc => cc.VehicleWeightKg).HasColumnName("vehicle_weight_kg");
 
                 entity.HasKey(cc => cc.CarConfigId);
 

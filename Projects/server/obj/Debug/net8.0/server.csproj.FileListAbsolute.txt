@@ -53,3 +53,6 @@ C:\Users\komra\Desktop\car-information-system\Projects\server\obj\Debug\net8.0\s
 C:\Users\komra\Desktop\car-information-system\Projects\server\obj\Debug\net8.0\server.genruntimeconfig.cache
 C:\Users\komra\Desktop\car-information-system\Projects\server\obj\Debug\net8.0\ref\server.dll
 C:\Users\komra\Desktop\car-information-system\Projects\server\obj\Debug\net8.0\server.sourcelink.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\FluentValidation.dll
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
