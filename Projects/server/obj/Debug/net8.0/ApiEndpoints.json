@@ -32,6 +32,43 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "server.Controllers.CarPhotosController",
+    "Method": "CreateCarPhoto",
+    "RelativePath": "api/CarPhotos/{carId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "file",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "carId",
+        "Type": "System.UInt32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.CarPhotosController",
+    "Method": "GetCarPhotoById",
+    "RelativePath": "api/CarPhotos/{photoId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "photoId",
+        "Type": "System.UInt32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "server.Controllers.CarsController",
     "Method": "CreateCar",
     "RelativePath": "api/Cars",
