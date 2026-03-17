@@ -214,5 +214,53 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.TripsController",
+    "Method": "StartTrip",
+    "RelativePath": "api/Trips",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "server.Contracts.Requests.StartTripRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.TripsController",
+    "Method": "EndTrip",
+    "RelativePath": "api/Trips",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "server.Contracts.Requests.EndTripRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.TripsController",
+    "Method": "GetTripById",
+    "RelativePath": "api/Trips/{tripId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tripId",
+        "Type": "System.UInt64",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   }
 ]

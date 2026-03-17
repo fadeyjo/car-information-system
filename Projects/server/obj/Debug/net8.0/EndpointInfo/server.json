@@ -375,6 +375,89 @@
           }
         }
       }
+    },
+    "/api/Trips": {
+      "post": {
+        "tags": [
+          "Trips"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartTripRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartTripRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartTripRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Trips"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndTripRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndTripRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndTripRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Trips/{tripId}": {
+      "get": {
+        "tags": [
+          "Trips"
+        ],
+        "parameters": [
+          {
+            "name": "tripId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -437,6 +520,20 @@
           "fuelTypeName": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EndTripRequest": {
+        "type": "object",
+        "properties": {
+          "tripId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "endDatetime": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "additionalProperties": false
@@ -513,6 +610,24 @@
             "nullable": true
           },
           "roleId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StartTripRequest": {
+        "type": "object",
+        "properties": {
+          "startDatetime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "macAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "carId": {
             "type": "integer",
             "format": "int32"
           }

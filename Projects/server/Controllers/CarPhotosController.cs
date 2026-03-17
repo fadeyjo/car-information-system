@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using server.Services.Interfaces;
 using server.Utils;
-using System.Security.Claims;
 
 namespace server.Controllers
 {

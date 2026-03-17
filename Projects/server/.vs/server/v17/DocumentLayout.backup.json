@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\carphotoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\carphotoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\contracts\\requests\\validations\\starttriprequestvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:contracts\\requests\\validations\\starttriprequestvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\services\\avatarsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:services\\avatarsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\tripscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\tripscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -23,27 +23,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "CarPhotosController.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\CarPhotosController.cs",
-              "RelativeDocumentMoniker": "Controllers\\CarPhotosController.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\CarPhotosController.cs",
-              "RelativeToolTip": "Controllers\\CarPhotosController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEwAAAARAAAAAAAAAA==",
+              "Title": "StartTripRequestValidator.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
+              "RelativeDocumentMoniker": "Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
+              "RelativeToolTip": "Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T11:05:11.186Z",
+              "WhenOpened": "2026-03-17T11:52:33.41Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "AvatarsService.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\AvatarsService.cs",
-              "RelativeDocumentMoniker": "Services\\AvatarsService.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\AvatarsService.cs*",
-              "RelativeToolTip": "Services\\AvatarsService.cs*",
-              "ViewState": "AgIAAFsAAAAAAAAAAAAAAGcAAABVAAAAAAAAAA==",
+              "Title": "TripsController.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\TripsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\TripsController.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\TripsController.cs",
+              "RelativeToolTip": "Controllers\\TripsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFgAAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T10:58:09.513Z",
+              "WhenOpened": "2026-03-17T11:42:56.457Z",
               "EditorCaption": ""
             }
           ]

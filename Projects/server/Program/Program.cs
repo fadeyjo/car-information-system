@@ -37,6 +37,7 @@ namespace server.Program
             builder.Services.AddScoped<ICarsService, CarsService>();
             builder.Services.AddScoped<IAvatarsService, AvatarsService>();
             builder.Services.AddScoped<ICarPhotosService, CarPhotosService>();
+            builder.Services.AddScoped<ITripsService, TripsService>();
 
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
