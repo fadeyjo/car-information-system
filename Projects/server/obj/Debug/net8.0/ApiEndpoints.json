@@ -1,5 +1,37 @@
 [
   {
+    "ContainingType": "server.Controllers.AvatarsController",
+    "Method": "CreateAvatar",
+    "RelativePath": "api/Avatars",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "file",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.AvatarsController",
+    "Method": "GetAvatarById",
+    "RelativePath": "api/Avatars/{avatarId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "avatarId",
+        "Type": "System.UInt32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "server.Controllers.CarsController",
     "Method": "CreateCar",
     "RelativePath": "api/Cars",
