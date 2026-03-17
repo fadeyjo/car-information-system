@@ -232,6 +232,60 @@
         }
       }
     },
+    "/api/gps-data": {
+      "post": {
+        "tags": [
+          "GpsData"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGpsDataRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGpsDataRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGpsDataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/gps-data/{recordId}": {
+      "get": {
+        "tags": [
+          "GpsData"
+        ],
+        "parameters": [
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Persons": {
       "get": {
         "tags": [
@@ -376,7 +430,61 @@
         }
       }
     },
-    "/api/Trips": {
+    "/api/telemetry-data": {
+      "post": {
+        "tags": [
+          "TelemetryData"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTelemetryDataRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTelemetryDataRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTelemetryDataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/telemetry-data/{recordId}": {
+      "get": {
+        "tags": [
+          "TelemetryData"
+        ],
+        "parameters": [
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Trips/start": {
       "post": {
         "tags": [
           "Trips"
@@ -405,7 +513,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Trips/{tripId}": {
+      "get": {
+        "tags": [
+          "Trips"
+        ],
+        "parameters": [
+          {
+            "name": "tripId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Trips/end": {
       "put": {
         "tags": [
           "Trips"
@@ -429,29 +562,6 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Trips/{tripId}": {
-      "get": {
-        "tags": [
-          "Trips"
-        ],
-        "parameters": [
-          {
-            "name": "tripId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -520,6 +630,79 @@
           "fuelTypeName": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateGpsDataRequest": {
+        "type": "object",
+        "properties": {
+          "recDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tripId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "latitudeDeg": {
+            "type": "number",
+            "format": "float"
+          },
+          "longitudeDeg": {
+            "type": "number",
+            "format": "float"
+          },
+          "accuracyM": {
+            "type": "number",
+            "format": "float",
+            "nullable": true
+          },
+          "speedKmh": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "bearingDeg": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateTelemetryDataRequest": {
+        "type": "object",
+        "properties": {
+          "recDatetime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "serviceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pid": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ecuId": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "responseDlc": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "response": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "tripId": {
+            "type": "integer",
+            "format": "int64"
           }
         },
         "additionalProperties": false

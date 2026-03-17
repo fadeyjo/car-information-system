@@ -13,10 +13,8 @@ insert into roles (role_name) values
 create table OBDII_services
 (
     service_id tinyint unsigned primary key,
-    service_description varchar(300) not null unique
+    service_description varchar(300) not null
 );
-
-insert into OBDII_services value (0, 'Неизвестный сервис');
 
 insert into OBDII_services value (1, 'Текущие параметры систем управления');
 
@@ -25,15 +23,12 @@ create table OBDII_PIDs
     OBDII_PID_id mediumint unsigned auto_increment primary key,
     service_id tinyint unsigned not null,
     PID smallint unsigned not null,
-    PID_description varchar(300) not null unique,
+    PID_description varchar(300) not null,
 
     foreign key (service_id) references OBDII_services (service_id) on delete cascade,
 
     constraint unique_service_id_PID unique (service_id, PID)
 );
-
-insert into OBDII_PIDs (OBDII_PID_id, service_id, PID, PID_description) value
-    (0, 0, 65535, "Неизвестный PID");
 
 insert into OBDII_PIDs (service_id, PID, PID_description) values
     (1, 0, 'Список поддерживаемых PID’ов (0-20)'), (1, 1, 'Состояние после устранения кодов неисправностей'),

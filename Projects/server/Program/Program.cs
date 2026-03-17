@@ -38,6 +38,8 @@ namespace server.Program
             builder.Services.AddScoped<IAvatarsService, AvatarsService>();
             builder.Services.AddScoped<ICarPhotosService, CarPhotosService>();
             builder.Services.AddScoped<ITripsService, TripsService>();
+            builder.Services.AddScoped<ITelemetryDataService, TelemetryDataService>();
+            builder.Services.AddScoped<IGpsDataService, GpsDataService>();
 
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 

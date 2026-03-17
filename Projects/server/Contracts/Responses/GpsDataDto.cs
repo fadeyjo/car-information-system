@@ -1,6 +1,6 @@
-﻿namespace server.Models.Entities
+﻿namespace server.Contracts.Responses
 {
-    public class GPSData
+    public class GpsDataDto
     {
         public ulong RecId { get; set; }
         public DateTime RecDatetime { get; set; }
@@ -10,6 +10,5 @@
         public float? AccuracyM { get; set; }
         public uint? SpeedKmh { get; set; }
         public ushort? BearingDeg { get; set; }
-        public Trip Trip { get; set; } = null!;
     }
 }

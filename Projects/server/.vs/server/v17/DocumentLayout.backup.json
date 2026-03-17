@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\contracts\\requests\\validations\\starttriprequestvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:contracts\\requests\\validations\\starttriprequestvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\contracts\\requests\\validations\\creategpsdatarequestvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:contracts\\requests\\validations\\creategpsdatarequestvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\tripscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\tripscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\gpsdatacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\gpsdatacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\services\\interfaces\\igpsdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:services\\interfaces\\igpsdataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -23,27 +27,40 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "StartTripRequestValidator.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
-              "RelativeDocumentMoniker": "Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
-              "RelativeToolTip": "Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAJAAAAAAAAAA==",
+              "Title": "CreateGpsDataRequestValidator.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\CreateGpsDataRequestValidator.cs",
+              "RelativeDocumentMoniker": "Contracts\\Requests\\Validations\\CreateGpsDataRequestValidator.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\CreateGpsDataRequestValidator.cs*",
+              "RelativeToolTip": "Contracts\\Requests\\Validations\\CreateGpsDataRequestValidator.cs*",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAQwBQAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T11:52:33.41Z",
+              "WhenOpened": "2026-03-17T14:23:48.488Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IGpsDataService.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\Interfaces\\IGpsDataService.cs",
+              "RelativeDocumentMoniker": "Services\\Interfaces\\IGpsDataService.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\Interfaces\\IGpsDataService.cs",
+              "RelativeToolTip": "Services\\Interfaces\\IGpsDataService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-17T14:17:19.964Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "TripsController.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\TripsController.cs",
-              "RelativeDocumentMoniker": "Controllers\\TripsController.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\TripsController.cs",
-              "RelativeToolTip": "Controllers\\TripsController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFgAAAAjAAAAAAAAAA==",
+              "Title": "GpsDataController.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\GpsDataController.cs",
+              "RelativeDocumentMoniker": "Controllers\\GpsDataController.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\GpsDataController.cs",
+              "RelativeToolTip": "Controllers\\GpsDataController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEAAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T11:42:56.457Z",
+              "WhenOpened": "2026-03-17T14:16:06.118Z",
               "EditorCaption": ""
             }
           ]

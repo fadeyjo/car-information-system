@@ -132,6 +132,38 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "server.Controllers.GpsDataController",
+    "Method": "CreateGpsData",
+    "RelativePath": "api/gps-data",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "server.Contracts.Requests.CreateGpsDataRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.GpsDataController",
+    "Method": "GetGpsDataById",
+    "RelativePath": "api/gps-data/{recordId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "recordId",
+        "Type": "System.UInt64",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "server.Controllers.PersonsController",
     "Method": "GetPersonById",
     "RelativePath": "api/Persons",
@@ -216,32 +248,32 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "server.Controllers.TripsController",
-    "Method": "StartTrip",
-    "RelativePath": "api/Trips",
+    "ContainingType": "server.Controllers.TelemetryDataController",
+    "Method": "CreateTelemetryData",
+    "RelativePath": "api/telemetry-data",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "body",
-        "Type": "server.Contracts.Requests.StartTripRequest",
+        "Type": "server.Contracts.Requests.CreateTelemetryDataRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "server.Controllers.TripsController",
-    "Method": "EndTrip",
-    "RelativePath": "api/Trips",
-    "HttpMethod": "PUT",
+    "ContainingType": "server.Controllers.TelemetryDataController",
+    "Method": "GetTelemtryDataById",
+    "RelativePath": "api/telemetry-data/{recordId}",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "body",
-        "Type": "server.Contracts.Requests.EndTripRequest",
+        "Name": "recordId",
+        "Type": "System.UInt64",
         "IsRequired": true
       }
     ],
@@ -258,6 +290,38 @@
       {
         "Name": "tripId",
         "Type": "System.UInt64",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.TripsController",
+    "Method": "EndTrip",
+    "RelativePath": "api/Trips/end",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "server.Contracts.Requests.EndTripRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.TripsController",
+    "Method": "StartTrip",
+    "RelativePath": "api/Trips/start",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "server.Contracts.Requests.StartTripRequest",
         "IsRequired": true
       }
     ],

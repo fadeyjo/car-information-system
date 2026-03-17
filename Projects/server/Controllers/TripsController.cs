@@ -27,7 +27,7 @@ namespace server.Controllers
             );
         }
 
-        [HttpPost]
+        [HttpPost("start")]
         public async Task<IActionResult> StartTrip(StartTripRequest body)
         {
             try
@@ -79,7 +79,7 @@ namespace server.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("end")]
         public async Task<IActionResult> EndTrip(EndTripRequest body)
         {
             try

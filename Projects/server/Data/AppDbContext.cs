@@ -273,8 +273,6 @@ namespace server.Data
                 entity.Property(s => s.ServiceDescription).HasColumnName("service_description");
 
                 entity.HasKey(s => s.ServiceId);
-
-                entity.HasIndex(s => s.ServiceDescription).IsUnique();
             });
 
             modelBuilder.Entity<OBDIIPID>(entity =>
@@ -292,8 +290,6 @@ namespace server.Data
                 entity.HasKey(p => p.OBDIIPIDId);
 
                 entity.HasOne(p => p.OBDIIService).WithMany().HasForeignKey(p => p.ServiceId).OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasIndex(p => p.PIDDescription).IsUnique();
 
                 entity.HasIndex(p => new
                 {
@@ -348,9 +344,9 @@ namespace server.Data
 
                 entity.Property(t => t.OBDIIPIDId).HasColumnName("OBDII_PID_id");
 
-                entity.Property(t => t.ECUId).HasColumnName("ECU_id");
+                entity.Property(t => t.EcuId).HasColumnName("ECU_id");
 
-                entity.Property(t => t.ResponseDLC).HasColumnName("response_dlc");
+                entity.Property(t => t.ResponseDlc).HasColumnName("response_dlc");
 
                 entity.Property(t => t.Response).HasColumnName("response");
 
