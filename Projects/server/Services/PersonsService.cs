@@ -20,6 +20,20 @@ namespace server.Services
             _context = context;
         }
 
+        public async Task DeletePersonById(uint personId)
+        {
+            var person =
+                await _context.Persons.
+                    FirstOrDefaultAsync(p => p.PersonId == personId);
+
+            if (person == null)
+                throw new HttpError("Пользователь не найден", StatusCodes.Status404NotFound);
+
+            _context.Persons.Remove(person);
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<PersonDto> GetPersonById(uint personId)
         {
             var person =

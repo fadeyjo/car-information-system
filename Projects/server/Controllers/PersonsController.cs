@@ -100,6 +100,36 @@ namespace server.Controllers
 
                 return NoContent();
             }
+            catch (HttpError er)
+            {
+                return Problem(
+                    title: er.Title,
+                    statusCode: er.StatusCode
+                );
+            }
+            catch
+            {
+                return ServerError();
+            }
+        }
+
+        [HttpDelete("{personId}")]
+        [Authorize(Roles = "OPERATOR")]
+        public async Task<IActionResult> DeletePersonById(uint personId)
+        {
+            try
+            {
+                await _service.DeletePersonById(personId);
+
+                return NoContent();
+            }
+            catch (HttpError er)
+            {
+                return Problem(
+                    title: er.Title,
+                    statusCode: er.StatusCode
+                );
+            }
             catch
             {
                 return ServerError();

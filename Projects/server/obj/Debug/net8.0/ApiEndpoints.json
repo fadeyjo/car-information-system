@@ -206,6 +206,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "server.Controllers.PersonsController",
+    "Method": "DeletePersonById",
+    "RelativePath": "api/Persons/{personId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personId",
+        "Type": "System.UInt32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "server.Controllers.RefreshTokensController",
     "Method": "LogIn",
     "RelativePath": "api/refresh-tokens/login",

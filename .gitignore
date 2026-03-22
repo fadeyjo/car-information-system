@@ -2,3 +2,8 @@
 /Предыдущие года/
 /Projects/server_data/
 /Projects/server/appsettings.json
+/Projects/api_test_app/.pytest_cache/
+/Projects/api_test_app/__pycache__/
+/Projects/api_test_app/venv/
+/Projects/api_test_app/tests/__pycache__/
+/Projects/api_test_app/tests/api/__pycache__/

@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using server.Auth;
 using server.Contracts.Requests;
-using server.Contracts.Responses;
-using server.Data;
 using server.Services.Interfaces;
 using server.Utils;
 using System.Security.Claims;
