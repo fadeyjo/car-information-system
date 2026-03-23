@@ -4,7 +4,7 @@ from tests.schemas import PersonDto
 import pytest
 
 class TestPerson:
-    def test_person_registration(self, client: httpx.Client, authorized_operator: dict, body_to_sign_up: e.SignUpRequest):
+    def test_person_registration(self, client: httpx.Client, operator_tokens: dict, body_to_sign_up: e.SignUpRequest):
         person_json = body_to_sign_up.to_dict()
 
         response = client.post("/persons", json=person_json)
@@ -13,7 +13,7 @@ class TestPerson:
         PersonDto.model_validate(new_person_data)
         new_person_id = int(new_person_data["personId"])
 
-        access_token = authorized_operator["access_token"]
+        access_token = operator_tokens["access_token"]
         headers = {"Authorization": f"Bearer {access_token}"}
 
         delete_response = client.delete(f"/persons/{new_person_id}", headers=headers)

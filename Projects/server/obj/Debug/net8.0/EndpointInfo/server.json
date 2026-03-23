@@ -60,7 +60,7 @@
         }
       }
     },
-    "/api/CarPhotos/{carId}": {
+    "/api/car-photos/{carId}": {
       "post": {
         "tags": [
           "CarPhotos"
@@ -103,7 +103,7 @@
         }
       }
     },
-    "/api/CarPhotos/{photoId}": {
+    "/api/car-photos/{photoId}": {
       "get": {
         "tags": [
           "CarPhotos"
@@ -388,17 +388,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
+                "$ref": "#/components/schemas/SignInRequest"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
+                "$ref": "#/components/schemas/SignInRequest"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
+                "$ref": "#/components/schemas/SignInRequest"
               }
             }
           }
@@ -744,11 +744,17 @@
         },
         "additionalProperties": false
       },
-      "LoginRequest": {
-        "required": [
-          "email",
-          "password"
-        ],
+      "RefreshTokensRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SignInRequest": {
         "type": "object",
         "properties": {
           "email": {
@@ -756,24 +762,6 @@
             "nullable": true
           },
           "password": {
-            "type": "string",
-            "nullable": true
-          },
-          "twoFactorCode": {
-            "type": "string",
-            "nullable": true
-          },
-          "twoFactorRecoveryCode": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RefreshTokensRequest": {
-        "type": "object",
-        "properties": {
-          "refreshToken": {
             "type": "string",
             "nullable": true
           }

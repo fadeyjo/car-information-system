@@ -34,7 +34,7 @@
   {
     "ContainingType": "server.Controllers.CarPhotosController",
     "Method": "CreateCarPhoto",
-    "RelativePath": "api/CarPhotos/{carId}",
+    "RelativePath": "api/car-photos/{carId}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -55,7 +55,7 @@
   {
     "ContainingType": "server.Controllers.CarPhotosController",
     "Method": "GetCarPhotoById",
-    "RelativePath": "api/CarPhotos/{photoId}",
+    "RelativePath": "api/car-photos/{photoId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -231,7 +231,7 @@
     "Parameters": [
       {
         "Name": "body",
-        "Type": "Microsoft.AspNetCore.Identity.Data.LoginRequest",
+        "Type": "server.Contracts.Requests.SignInRequest",
         "IsRequired": true
       }
     ],

@@ -1,7 +1,13 @@
 /Тестирование отчёта ВКР/
 /Предыдущие года/
+
 /Projects/server_data/
 /Projects/server/appsettings.json
+/Projects/DataProviderApp/.idea/
+/Projects/server/.vs/
+/Projects/server/bin/
+/Projects/server/obj/
+
 /Projects/api_test_app/.pytest_cache/
 /Projects/api_test_app/__pycache__/
 /Projects/api_test_app/venv/

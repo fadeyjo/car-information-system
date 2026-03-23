@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using server.Contracts.Requests;
 using server.Services.Interfaces;
@@ -28,7 +27,7 @@ namespace server.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LogIn(LoginRequest body)
+        public async Task<IActionResult> LogIn(SignInRequest body)
         {
             try
             {

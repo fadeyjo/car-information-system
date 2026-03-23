@@ -60,7 +60,7 @@ def body_to_sign_up(random_email, random_phone, random_password, random_drive_li
     )
 
 @pytest.fixture(scope="session")
-def authorized_operator(client: httpx.Client):
+def operator_tokens(client: httpx.Client):
     body = dict()
     body["email"] = "test@mail.com"
     body["password"] = "12345678"
@@ -78,7 +78,7 @@ def authorized_operator(client: httpx.Client):
     return tokens
 
 @pytest.fixture
-def registered_user(client: httpx.Client, authorized_operator: dict, body_to_sign_up: e.SignUpRequest):
+def registered_user(client: httpx.Client, operator_tokens: dict, body_to_sign_up: e.SignUpRequest):
         person_json = body_to_sign_up.to_dict()
 
         response = client.post("/persons", json=person_json)
@@ -89,7 +89,7 @@ def registered_user(client: httpx.Client, authorized_operator: dict, body_to_sig
 
         yield new_person_data
 
-        access_token = authorized_operator["access_token"]
+        access_token = operator_tokens["access_token"]
         headers = {"Authorization": f"Bearer {access_token}"}
 
         delete_response = client.delete(f"/persons/{new_person_id}", headers=headers)

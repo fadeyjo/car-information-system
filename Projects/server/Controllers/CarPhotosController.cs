@@ -6,7 +6,7 @@ using server.Utils;
 namespace server.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/car-photos")]
     [Authorize]
     public class CarPhotosController : ControllerBase
     {
