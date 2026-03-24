@@ -14,9 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DataProviderApp">
         <activity
-            android:name=".ui.Nav.Fragments.Profile.ProfileActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.Nav.NavActivity"
             android:exported="false" />
         <activity

@@ -56,3 +56,10 @@ C:\Users\komra\Desktop\car-information-system\Projects\server\obj\Debug\net8.0\s
 C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\BCrypt.Net-Next.dll
 C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\FluentValidation.dll
 C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\web.config
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\appsettings.Production.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\appsettings.Development.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\appsettings.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\server.deps.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\server.runtimeconfig.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\server.staticwebassets.endpoints.json

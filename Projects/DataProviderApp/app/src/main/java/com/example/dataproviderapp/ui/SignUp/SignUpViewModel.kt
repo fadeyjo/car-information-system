@@ -53,6 +53,10 @@ class SignUpViewModel : ViewModel() {
             }
         }
     }
+
+    fun resetState() {
+        _signUpState.value = SignUpState.Idle
+    }
 }
 
 sealed class SignUpState() {

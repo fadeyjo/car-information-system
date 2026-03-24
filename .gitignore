@@ -6,6 +6,9 @@
 /Projects/server/.vs/
 /Projects/server/bin/
 /Projects/server/obj/
+/Projects/server/publish/
+/Projects/server/appsettings.Development.json
+/Projects/server/appsettings.Production.json
 
 /Projects/api_test_app/.pytest_cache/
 /Projects/api_test_app/__pycache__/

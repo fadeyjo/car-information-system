@@ -14,6 +14,7 @@ import com.example.dataproviderapp.R
 import com.example.dataproviderapp.jwtutils.TokenStorage
 import com.example.dataproviderapp.ui.Nav.NavActivity
 import com.example.dataproviderapp.ui.SignIn.SignInActivity
+import com.example.dataproviderapp.ui.SignUp.SignUpActivity
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
@@ -46,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startSignInActivity() {
-        val intent = Intent(this, SignInActivity::class.java)
+        val intent = Intent(this, SignUpActivity::class.java)
         startActivity(intent)
     }
 
