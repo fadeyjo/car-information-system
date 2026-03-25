@@ -68,4 +68,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.lifecycle.livedata)
     implementation(libs.lifecycle.runtime)
+
+    implementation(libs.glide)
+    implementation(libs.glide.okhttp3)
 }

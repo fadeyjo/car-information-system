@@ -8,6 +8,7 @@ import com.example.dataproviderapp.dto.requests.UpdateCarInfoRequest
 import com.example.dataproviderapp.dto.requests.UpdatePersonInfoRequest
 import com.example.dataproviderapp.dto.responses.CarDto
 import com.example.dataproviderapp.dto.responses.PersonDto
+import com.example.dataproviderapp.repositories.AuthRepository
 import com.example.dataproviderapp.repositories.CarsRepository
 import com.example.dataproviderapp.repositories.PersonsRepository
 import com.example.dataproviderapp.ui.Nav.ProfileDataState.*
@@ -31,6 +32,9 @@ class NavViewModel : ViewModel() {
 
     private val _createCarState = MutableStateFlow<CreateCarState>(CreateCarState.Idle)
     val createCarState: StateFlow<CreateCarState> = _createCarState
+
+    private val _logoutState = MutableStateFlow<LogOutState>(LogOutState.Idle)
+    val logoutState: StateFlow<LogOutState> = _logoutState
 
 
     fun getPersonData() {
@@ -235,6 +239,20 @@ class NavViewModel : ViewModel() {
             }
         }
     }
+
+    fun logout() {
+        viewModelScope.launch {
+            _logoutState.value = LogOutState.Loading
+
+            val response = AuthRepository.logOut()
+
+            _logoutState.value = when (response) {
+                is ApiResult.Success<*> -> LogOutState.LogOuted
+
+                else -> LogOutState.SomeError
+            }
+        }
+    }
 }
 
 sealed class ProfileDataState {
@@ -302,4 +320,11 @@ sealed class CreateCarState {
         val errors: List<Map<String, String>>
     ) : CreateCarState()
     object Created : CreateCarState()
+}
+
+sealed class LogOutState {
+    object Idle : LogOutState()
+    object Loading : LogOutState()
+    object SomeError : LogOutState()
+    object LogOuted: LogOutState()
 }

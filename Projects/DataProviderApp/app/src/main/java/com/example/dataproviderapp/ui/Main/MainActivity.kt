@@ -26,11 +26,6 @@ class MainActivity : AppCompatActivity() {
         TokenStorage.init(this)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         val accessToken = TokenStorage.getAccessToken()
         val refreshToken = TokenStorage.getRefreshToken()
@@ -44,10 +39,16 @@ class MainActivity : AppCompatActivity() {
         observeViewModel()
 
         viewModel.checkPersonAuthorized()
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
     }
 
     private fun startSignInActivity() {
-        val intent = Intent(this, SignUpActivity::class.java)
+        val intent = Intent(this, SignInActivity::class.java)
         startActivity(intent)
     }
 

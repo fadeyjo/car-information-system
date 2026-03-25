@@ -46,6 +46,10 @@ class SignInViewModel : ViewModel() {
             }
         }
     }
+
+    fun resetState() {
+        _signInState.value = SignInState.Idle
+    }
 }
 
 sealed class SignInState() {
