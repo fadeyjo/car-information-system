@@ -1,60 +1,126 @@
 package com.example.dataproviderapp.ui.Nav.Fragments.Profile
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.Glide
+import com.example.dataproviderapp.BuildConfig
 import com.example.dataproviderapp.R
+import com.example.dataproviderapp.databinding.FragmentProfileBinding
+import com.example.dataproviderapp.dto.responses.PersonDto
+import com.example.dataproviderapp.jwtutils.TokenStorage
+import com.example.dataproviderapp.ui.Nav.NavViewModel
+import com.example.dataproviderapp.ui.Nav.ProfileDataState
+import com.example.dataproviderapp.ui.SignIn.SignInActivity
+import com.google.android.material.imageview.ShapeableImageView
+import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ProfileFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ProfileFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private var _binding: FragmentProfileBinding? = null
+    private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private val viewModel: NavViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false)
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ProfileFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ProfileFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        observeViewModel()
+        viewModel.getPersonData()
+
+        binding.btnEdit.setOnClickListener {
+            redactPerson()
+        }
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.profileDataState.collect { state ->
+                        when (state) {
+                            is ProfileDataState.Person -> {
+                                renderPerson(state.person)
+                            }
+                            else -> Unit
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    private fun renderPerson(person: PersonDto) {
+        val fio = if (person.patronymic.isNullOrEmpty()) {
+            "${person.lastName} ${person.firstName}"
+        } else {
+            "${person.lastName} ${person.firstName} ${person.patronymic}"
+        }
+
+        val birthFormatted = person.birth.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+        val driveLicenseFormatted = formatDriveLicense(person.driveLicense)
+
+        binding.tvProfileFullName.text = fio
+        binding.tvProfileBirth.text = birthFormatted
+        binding.tvProfileEmail.text = person.email
+        binding.tvProfilePhone.text = person.phone
+        binding.tvProfileDriveLicense.text = driveLicenseFormatted
+
+        loadAvatarIntoProfile(binding.ivProfileAvatar, person.avatarId)
+    }
+
+    private fun formatDriveLicense(raw: String?): String {
+        val normalized = raw?.trim().orEmpty()
+        if (normalized.isBlank()) return "-"
+        return if (normalized.length >= 10) {
+            val first = normalized.substring(0, 4)
+            val last = normalized.substring(4, 10)
+            "$first $last"
+        } else {
+            normalized
+        }
+    }
+
+    private fun loadAvatarIntoProfile(target: ShapeableImageView, avatarId: UInt) {
+        if (TokenStorage.getAccessToken().isNullOrBlank()) {
+            target.setImageResource(R.drawable.ic_avatar_placeholder)
+            return
+        }
+
+        val url = "${BuildConfig.BASE_URL}avatars/${avatarId}"
+
+        Glide.with(this)
+            .load(url)
+            .placeholder(R.drawable.ic_avatar_placeholder)
+            .error(R.drawable.ic_avatar_placeholder)
+            .into(target)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun redactPerson() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, UpdatePersonFragment())
+            .addToBackStack(null)
+            .commit()
     }
 }

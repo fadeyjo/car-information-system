@@ -36,18 +36,18 @@ namespace server.Services
             if (!exists)
                 throw new HttpError("Пользователь не найден", StatusCodes.Status404NotFound);
 
-            string basePath = _configuration.GetValue<string>("Store:AvatarsPath");
+            string basePath = _configuration.GetValue<string>("Store:AvatarsPath").Replace("\\", "/");
 
             if (string.IsNullOrWhiteSpace(basePath))
                 throw new Exception();
 
-            string personFolder = Path.Combine(basePath, personid.ToString());
+            string personFolder = Path.Combine(basePath, personid.ToString()).Replace("\\", "/");
 
             if (!Directory.Exists(personFolder))
                 Directory.CreateDirectory(personFolder);
 
             var uniqueFileName = Guid.NewGuid().ToString() + ext;
-            var filePath = Path.Combine(personFolder, uniqueFileName);
+            var filePath = Path.Combine(personFolder, uniqueFileName).Replace("\\", "/");
 
             using (var stream = new FileStream(filePath, FileMode.Create))
                 await file.CopyToAsync(stream);
@@ -89,12 +89,13 @@ namespace server.Services
             if (avatarData == null)
                 throw new HttpError("Аватар не найден", StatusCodes.Status404NotFound);
 
-            var basePath = _configuration.GetValue<string>("Store:AvatarsPath");
+            var basePath = _configuration.GetValue<string>("Store:AvatarsPath").Replace("\\", "/");
 
             if (string.IsNullOrWhiteSpace(basePath))
                 throw new Exception();
 
-            var avatarPath = Path.Combine(basePath, avatarData.AvatarUrl);
+            var avatarPath = Path.Combine(basePath, avatarData.AvatarUrl).Replace("\\", "/");
+            Console.Write(avatarPath);
 
             if (!File.Exists(avatarPath))
                 throw new HttpError("Аватар не найден", StatusCodes.Status404NotFound);

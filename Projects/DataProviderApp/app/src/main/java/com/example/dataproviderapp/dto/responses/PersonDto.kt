@@ -8,7 +8,7 @@ data class PersonDto(
     val phone: String,
     val lastName: String,
     val firstName: String,
-    val patronymic: String,
+    val patronymic: String?,
     val birth: LocalDate,
     val driveLicense: String?,
     val roleId: UByte,

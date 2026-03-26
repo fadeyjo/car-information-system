@@ -163,7 +163,7 @@ class NavActivity : AppCompatActivity() {
                                 val tvFullName = headerView.findViewById<TextView>(R.id.tvFullName)
                                 val ivAvatar = headerView.findViewById<ShapeableImageView>(R.id.ivAvatar)
 
-                                val FIO = if (state.person.patronymic.isEmpty()) {
+                                val FIO = if (state.person.patronymic.isNullOrEmpty()) {
                                     "${state.person.lastName} ${state.person.firstName}"
                                 } else {
                                     "${state.person.lastName} ${state.person.firstName} ${state.person.patronymic}"

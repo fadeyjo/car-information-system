@@ -71,4 +71,6 @@ dependencies {
 
     implementation(libs.glide)
     implementation(libs.glide.okhttp3)
+
+    implementation(libs.androidx.fragment.ktx)
 }

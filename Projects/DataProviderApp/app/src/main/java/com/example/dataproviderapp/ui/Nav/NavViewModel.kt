@@ -9,15 +9,19 @@ import com.example.dataproviderapp.dto.requests.UpdatePersonInfoRequest
 import com.example.dataproviderapp.dto.responses.CarDto
 import com.example.dataproviderapp.dto.responses.PersonDto
 import com.example.dataproviderapp.repositories.AuthRepository
+import com.example.dataproviderapp.repositories.AvatarsRepository
 import com.example.dataproviderapp.repositories.CarsRepository
 import com.example.dataproviderapp.repositories.PersonsRepository
 import com.example.dataproviderapp.ui.Nav.ProfileDataState.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
 import java.time.LocalDate
 
 class NavViewModel : ViewModel() {
+    lateinit var person: PersonDto
+
     private val _profileDataState = MutableStateFlow<ProfileDataState>(ProfileDataState.Idle)
     val profileDataState: StateFlow<ProfileDataState> = _profileDataState
 
@@ -56,6 +60,7 @@ class NavViewModel : ViewModel() {
                     if (response.data == null) {
                         ProfileDataState.UnknownError
                     } else {
+                        person = response.data
                         Person(response.data)
                     }
                 }
@@ -95,10 +100,10 @@ class NavViewModel : ViewModel() {
         email: String, phone: String,
         lastName: String, firstName: String,
         patronymic: String?, birth: LocalDate,
-        driveLicense: String?
+        driveLicense: String?, file: MultipartBody.Part?
     ) {
         viewModelScope.launch {
-            _updatePersonState.value = UpdatePersonState.Idle
+            _updatePersonState.value = UpdatePersonState.Loading
 
             val body = UpdatePersonInfoRequest(
                 email, phone,
@@ -109,31 +114,53 @@ class NavViewModel : ViewModel() {
 
             val response = PersonsRepository.updatePersonInfo(body)
 
-            _updatePersonState.value = when (response) {
+            when (response) {
                 is ApiResult.Error -> {
                     if (response.code == 404) {
-                        UpdatePersonState.PersonNotFound
+                        _updatePersonState.value = UpdatePersonState.PersonNotFound
                     }
                     else if (response.code == 409) {
                         if (response.error == "Пользователь с данным email уже существует") {
-                            UpdatePersonState.PersonExistsByEmail
+                            _updatePersonState.value = UpdatePersonState.PersonExistsByEmail
                         } else if (response.error == "Пользователь с данным номером телефона уже существует") {
-                            UpdatePersonState.PersonExistsByPhone
+                            _updatePersonState.value = UpdatePersonState.PersonExistsByPhone
                         } else if (response.error == "Пользователь с данным водительским удостоверением уже существует") {
-                            UpdatePersonState.PersonExistsByDriveLicense
+                            _updatePersonState.value = UpdatePersonState.PersonExistsByDriveLicense
+                        } else if (response.error == "Вы не можете очистить информацию о водительском удостоверении, так как у вас имеются автомобили") {
+                            _updatePersonState.value = UpdatePersonState.CannotClearDriveLicense
                         } else {
-                            UpdatePersonState.UnknownError
+                            _updatePersonState.value = UpdatePersonState.UnknownError
                         }
                     } else {
-                        UpdatePersonState.UnknownError
+                        _updatePersonState.value = UpdatePersonState.UnknownError
                     }
                 }
-                ApiResult.NetworkError -> UpdatePersonState.NetworkError
+                ApiResult.NetworkError -> _updatePersonState.value = UpdatePersonState.NetworkError
+                is ApiResult.Success<*> -> {}
+                ApiResult.UnknownError -> _updatePersonState.value = UpdatePersonState.UnknownError
+                is ApiResult.ValidationError -> _updatePersonState.value = UpdatePersonState.ValidationError(response.errors)
+            }
+
+            if (_updatePersonState.value != UpdatePersonState.Loading)
+                return@launch
+
+            if (file == null) {
+                _updatePersonState.value = UpdatePersonState.Updated
+                return@launch
+            }
+
+            val responseAvatar = AvatarsRepository.createAvatar(file)
+
+            _updatePersonState.value = when (responseAvatar) {
                 is ApiResult.Success<*> -> UpdatePersonState.Updated
-                ApiResult.UnknownError -> UpdatePersonState.UnknownError
-                is ApiResult.ValidationError -> UpdatePersonState.ValidationError(response.errors)
+
+                else -> UpdatePersonState.SomeErrorToCreateAvatar
             }
         }
+    }
+
+    fun resetUpdatePersonState() {
+        _updatePersonState.value = UpdatePersonState.Idle
     }
 
     fun updateCar(
@@ -291,6 +318,7 @@ sealed class UpdatePersonState {
         val errors: List<Map<String, String>>
     ) : UpdatePersonState()
     object Updated : UpdatePersonState()
+    object SomeErrorToCreateAvatar: UpdatePersonState()
 }
 
 sealed class UpdateCarState {
