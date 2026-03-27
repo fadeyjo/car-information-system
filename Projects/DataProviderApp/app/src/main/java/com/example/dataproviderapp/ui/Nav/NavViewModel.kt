@@ -21,6 +21,7 @@ import java.time.LocalDate
 
 class NavViewModel : ViewModel() {
     lateinit var person: PersonDto
+    var selectedCar: CarDto? = null
 
     private val _profileDataState = MutableStateFlow<ProfileDataState>(ProfileDataState.Idle)
     val profileDataState: StateFlow<ProfileDataState> = _profileDataState
@@ -43,6 +44,7 @@ class NavViewModel : ViewModel() {
 
     fun getPersonData() {
         viewModelScope.launch {
+            _updatePersonState.value = UpdatePersonState.Idle
             _profileDataState.value = ProfileDataState.Loading
 
             val response = PersonsRepository.getPersonById()

@@ -3,16 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\services\\avatarsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:services\\avatarsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\fueltypescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\fueltypescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\avatarscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\avatarscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\services\\personsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:services\\personsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\contracts\\requests\\createcarrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:contracts\\requests\\createcarrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,41 +22,29 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "PersonsService.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\PersonsService.cs",
-              "RelativeDocumentMoniker": "Services\\PersonsService.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\PersonsService.cs",
-              "RelativeToolTip": "Services\\PersonsService.cs",
-              "ViewState": "AgIAAEkAAAAAAAAAAAA5wCMAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "CreateCarRequest.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\CreateCarRequest.cs",
+              "RelativeDocumentMoniker": "Contracts\\Requests\\CreateCarRequest.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\CreateCarRequest.cs",
+              "RelativeToolTip": "Contracts\\Requests\\CreateCarRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T17:25:08.665Z",
+              "WhenOpened": "2026-03-27T18:23:45.676Z",
+              "IsPinned": true,
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "AvatarsService.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\AvatarsService.cs",
-              "RelativeDocumentMoniker": "Services\\AvatarsService.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\AvatarsService.cs",
-              "RelativeToolTip": "Services\\AvatarsService.cs",
-              "ViewState": "AgIAACkAAAAAAAAAAAAcwEoAAAAJAAAAAAAAAA==",
+              "Title": "FuelTypesController.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\FuelTypesController.cs",
+              "RelativeDocumentMoniker": "Controllers\\FuelTypesController.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\FuelTypesController.cs",
+              "RelativeToolTip": "Controllers\\FuelTypesController.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABAAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T16:32:29.885Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "AvatarsController.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\AvatarsController.cs",
-              "RelativeDocumentMoniker": "Controllers\\AvatarsController.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\AvatarsController.cs*",
-              "RelativeToolTip": "Controllers\\AvatarsController.cs*",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAYwBwAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T17:46:12.342Z",
+              "WhenOpened": "2026-03-27T19:02:29.925Z",
               "EditorCaption": ""
             }
           ]

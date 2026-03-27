@@ -40,6 +40,12 @@ namespace server.Program
             builder.Services.AddScoped<ITripsService, TripsService>();
             builder.Services.AddScoped<ITelemetryDataService, TelemetryDataService>();
             builder.Services.AddScoped<IGpsDataService, GpsDataService>();
+            builder.Services.AddScoped<ICarBrandsService, CarBrandsService>();
+            builder.Services.AddScoped<ICarModelsService, CarModelsService>();
+            builder.Services.AddScoped<ICarDrivesService, CarDrivesService>();
+            builder.Services.AddScoped<ICarGearboxesService, CarGearboxesService>();
+            builder.Services.AddScoped<IFuelTypesService, FuelTypesService>();
+            builder.Services.AddScoped<ICarBodiesService, CarBodiesService>();
 
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 

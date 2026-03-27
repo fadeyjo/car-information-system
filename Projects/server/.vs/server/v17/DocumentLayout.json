@@ -3,28 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\carmodelscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\carmodelscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\cargearboxescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\cargearboxescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\services\\avatarsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:services\\avatarsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\carbrandscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\carbrandscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\services\\personsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:services\\personsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\fueltypescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\fueltypescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\controllers\\avatarscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:controllers\\avatarscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\appsettings.production.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:appsettings.production.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\contracts\\responses\\fueltypedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:contracts\\responses\\fueltypedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -39,79 +35,66 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-03-26T18:37:26.566Z",
+              "Title": "CarModelsController.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\CarModelsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CarModelsController.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\CarModelsController.cs",
+              "RelativeToolTip": "Controllers\\CarModelsController.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAYwBsAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T19:18:39.515Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "launchSettings.json",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Properties\\launchSettings.json",
-              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Properties\\launchSettings.json",
-              "RelativeToolTip": "Properties\\launchSettings.json",
+              "Title": "CarGearboxesController.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\CarGearboxesController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CarGearboxesController.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\CarGearboxesController.cs",
+              "RelativeToolTip": "Controllers\\CarGearboxesController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-03-26T18:37:08.059Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "appsettings.Production.json",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\appsettings.Production.json",
-              "RelativeDocumentMoniker": "appsettings.Production.json",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\appsettings.Production.json",
-              "RelativeToolTip": "appsettings.Production.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAvAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-03-26T18:08:52.786Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "PersonsService.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\PersonsService.cs",
-              "RelativeDocumentMoniker": "Services\\PersonsService.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\PersonsService.cs",
-              "RelativeToolTip": "Services\\PersonsService.cs",
-              "ViewState": "AgIAAEkAAAAAAAAAAAA5wCMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T17:25:08.665Z",
+              "WhenOpened": "2026-03-27T19:18:02.478Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "AvatarsService.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\AvatarsService.cs",
-              "RelativeDocumentMoniker": "Services\\AvatarsService.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\AvatarsService.cs",
-              "RelativeToolTip": "Services\\AvatarsService.cs",
-              "ViewState": "AgIAAEwAAAAAAAAAAAAYwGEAAAAmAAAAAAAAAA==",
+              "Title": "CarBrandsController.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\CarBrandsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CarBrandsController.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\CarBrandsController.cs",
+              "RelativeToolTip": "Controllers\\CarBrandsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T16:32:29.885Z",
+              "WhenOpened": "2026-03-27T19:16:52.452Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FuelTypesController.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\FuelTypesController.cs",
+              "RelativeDocumentMoniker": "Controllers\\FuelTypesController.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\FuelTypesController.cs",
+              "RelativeToolTip": "Controllers\\FuelTypesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-27T19:16:19.254Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "AvatarsController.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\AvatarsController.cs",
-              "RelativeDocumentMoniker": "Controllers\\AvatarsController.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\AvatarsController.cs",
-              "RelativeToolTip": "Controllers\\AvatarsController.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAYwBwAAAAIAAAAAAAAAA==",
+              "Title": "FuelTypeDto.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Responses\\FuelTypeDto.cs",
+              "RelativeDocumentMoniker": "Contracts\\Responses\\FuelTypeDto.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Responses\\FuelTypeDto.cs",
+              "RelativeToolTip": "Contracts\\Responses\\FuelTypeDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T17:46:12.342Z",
+              "WhenOpened": "2026-03-27T19:15:04.506Z",
               "EditorCaption": ""
             }
           ]

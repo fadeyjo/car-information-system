@@ -1,60 +1,121 @@
 package com.example.dataproviderapp.ui.Nav.Fragments.MyCars
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.dataproviderapp.R
+import com.example.dataproviderapp.databinding.FragmentMyCarsBinding
+import com.example.dataproviderapp.ui.Nav.NavViewModel
+import com.example.dataproviderapp.ui.Nav.CarsState
+import kotlinx.coroutines.launch
+import kotlin.getValue
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [MyCarsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class MyCarsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentMyCarsBinding? = null
+    private val binding get() = _binding!!
+
+    private val viewModel: NavViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_cars, container, false)
+    ): View {
+        _binding = FragmentMyCarsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment MyCarsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            MyCarsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val carsAdapter = MyCarsAdapter { car ->
+            viewModel.selectedCar = car
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, CarDetailsFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        binding.recyclerViewCars.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = carsAdapter
+        }
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_my_cars, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.action_add_car -> {
+                        onAddCarClicked()
+                        true
+                    }
+                    else -> false
                 }
             }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+        observeViewModel(carsAdapter)
+        viewModel.getPersonCars()
+    }
+
+    private fun onAddCarClicked() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, CreateCarFragment())
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun observeViewModel(carsAdapter: MyCarsAdapter) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.carsState.collect { state ->
+                        when (state) {
+                            is CarsState.Cars -> {
+                                val hasCars = state.cars.isNotEmpty()
+                                binding.recyclerViewCars.visibility = if (hasCars) View.VISIBLE else View.GONE
+                                binding.tvEmptyCars.visibility = if (hasCars) View.GONE else View.VISIBLE
+                                carsAdapter.submitList(state.cars)
+                            }
+
+                            CarsState.PersonNotFound -> showErrorDialog("Пользователь не найден.")
+                            CarsState.NetworkError -> showErrorDialog("Нет подключения к интернету.")
+                            CarsState.UnknownError -> showErrorDialog("Произошла неизвестная ошибка.")
+                            else -> Unit
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showErrorDialog(message: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Ошибка")
+            .setMessage(message)
+            .setPositiveButton("ОК") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

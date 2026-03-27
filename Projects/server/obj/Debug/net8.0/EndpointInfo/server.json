@@ -60,6 +60,76 @@
         }
       }
     },
+    "/api/car-bodies": {
+      "get": {
+        "tags": [
+          "CarBodies"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/car-brands": {
+      "get": {
+        "tags": [
+          "CarBrands"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/car-drives": {
+      "get": {
+        "tags": [
+          "CarDrives"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/car-gearboxes": {
+      "get": {
+        "tags": [
+          "CarGearboxes"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/car-models/{brandName}": {
+      "get": {
+        "tags": [
+          "CarModels"
+        ],
+        "parameters": [
+          {
+            "name": "brandName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/car-photos/{carId}": {
       "post": {
         "tags": [
@@ -224,6 +294,18 @@
       "get": {
         "tags": [
           "Cars"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/fuel-types": {
+      "get": {
+        "tags": [
+          "FuelTypes"
         ],
         "responses": {
           "200": {

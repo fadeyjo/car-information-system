@@ -115,7 +115,6 @@ class UpdatePersonFragment : Fragment() {
                         UpdatePersonState.UnknownError -> showErrorDialog("Неизвестная ошибка")
                         UpdatePersonState.Updated -> {
                             requireActivity().supportFragmentManager.popBackStack()
-                            viewModel.getPersonData()
                         }
                         is UpdatePersonState.ValidationError -> {
                             state.errors.forEach { fieldErrorMap ->

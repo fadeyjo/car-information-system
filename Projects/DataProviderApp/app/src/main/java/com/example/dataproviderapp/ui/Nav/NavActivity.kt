@@ -1,7 +1,9 @@
 package com.example.dataproviderapp.ui.Nav
 
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.OnBackPressedCallback
@@ -16,6 +18,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.example.dataproviderapp.BuildConfig
 import com.example.dataproviderapp.R
 import com.example.dataproviderapp.databinding.ActivityNavBinding
@@ -217,6 +222,28 @@ class NavActivity : AppCompatActivity() {
             .load(url)
             .placeholder(R.drawable.ic_avatar_placeholder)
             .error(R.drawable.ic_avatar_placeholder)
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: com.bumptech.glide.request.target.Target<Drawable>,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    Log.e("GlideError", "Ошибка загрузки", e)
+                    e?.logRootCauses("GlideError")
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable,
+                    model: Any,
+                    target: com.bumptech.glide.request.target.Target<Drawable>?,
+                    dataSource: DataSource,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+            })
             .into(target)
     }
 

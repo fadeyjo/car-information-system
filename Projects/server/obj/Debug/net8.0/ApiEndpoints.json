@@ -32,6 +32,62 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "server.Controllers.CarBodiesController",
+    "Method": "GetAllCarBodies",
+    "RelativePath": "api/car-bodies",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.CarBrandsController",
+    "Method": "GetAllBrands",
+    "RelativePath": "api/car-brands",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.CarDrivesController",
+    "Method": "GetAllCarDrives",
+    "RelativePath": "api/car-drives",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.CarGearboxesController",
+    "Method": "GetAllCarGearboxes",
+    "RelativePath": "api/car-gearboxes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.CarModelsController",
+    "Method": "GetAllModelsByBrandName",
+    "RelativePath": "api/car-models/{brandName}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "brandName",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "server.Controllers.CarPhotosController",
     "Method": "CreateCarPhoto",
     "RelativePath": "api/car-photos/{carId}",
@@ -125,6 +181,16 @@
     "ContainingType": "server.Controllers.CarsController",
     "Method": "GetCarsByPersonId",
     "RelativePath": "api/Cars/my-cars",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.FuelTypesController",
+    "Method": "GetAllBrands",
+    "RelativePath": "api/fuel-types",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,

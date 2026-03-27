@@ -9,9 +9,10 @@
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivAvatar"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="15dp"
         android:contentDescription="Аватар"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_avatar_placeholder"
