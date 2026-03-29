@@ -11,7 +11,7 @@ object FuelTypesRepository {
         RetrofitClient.auth_retrofit.create(FuelTypesApi::class.java)
     }
 
-    suspend fun getAllBodies(): ApiResult<List<FuelTypeDto>> {
+    suspend fun getAllFuelTypes(): ApiResult<List<FuelTypeDto>> {
         return ApiHandler.handleResponse(api.getAllFuelTypes())
     }
 }

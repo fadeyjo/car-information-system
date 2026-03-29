@@ -10,7 +10,13 @@ import com.example.dataproviderapp.dto.responses.CarDto
 import com.example.dataproviderapp.dto.responses.PersonDto
 import com.example.dataproviderapp.repositories.AuthRepository
 import com.example.dataproviderapp.repositories.AvatarsRepository
+import com.example.dataproviderapp.repositories.CarBodiesRepository
+import com.example.dataproviderapp.repositories.CarBrandsRepository
+import com.example.dataproviderapp.repositories.CarDrivesRepository
+import com.example.dataproviderapp.repositories.CarGearboxesRepository
+import com.example.dataproviderapp.repositories.CarModelsRepository
 import com.example.dataproviderapp.repositories.CarsRepository
+import com.example.dataproviderapp.repositories.FuelTypesRepository
 import com.example.dataproviderapp.repositories.PersonsRepository
 import com.example.dataproviderapp.ui.Nav.ProfileDataState.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,10 +47,19 @@ class NavViewModel : ViewModel() {
     private val _logoutState = MutableStateFlow<LogOutState>(LogOutState.Idle)
     val logoutState: StateFlow<LogOutState> = _logoutState
 
+    private val _checkBoxesDataState = MutableStateFlow<CheckBoxesDataState>(CheckBoxesDataState.Idle)
+    val checkBoxesDataState: StateFlow<CheckBoxesDataState> = _checkBoxesDataState
+
+    private val _brandsState = MutableStateFlow<BrandsState>(BrandsState.Idle)
+    val brandsState: StateFlow<BrandsState> = _brandsState
+
+    private val _modelsState = MutableStateFlow<ModelsState>(ModelsState.Idle)
+    val modelsState: StateFlow<ModelsState> = _modelsState
+
 
     fun getPersonData() {
         viewModelScope.launch {
-            _updatePersonState.value = UpdatePersonState.Idle
+            resetUpdatePersonState()
             _profileDataState.value = ProfileDataState.Loading
 
             val response = PersonsRepository.getPersonById()
@@ -73,6 +88,7 @@ class NavViewModel : ViewModel() {
 
     fun getPersonCars() {
         viewModelScope.launch {
+            resetCreateCarState()
             _carsState.value = CarsState.Loading
 
             val response = CarsRepository.getCarsByPersonId()
@@ -220,10 +236,10 @@ class NavViewModel : ViewModel() {
 
     fun createCar(
         vinNumber: String, stateNumber: String?,
-        brandModel: String, modelName: String,
+        brandName: String, modelName: String,
         bodyName: String, releaseYear: UShort,
         gearboxName: String, driveName: String,
-        vehicleWeightKg: UShort, enginePowerHw: UShort,
+        vehicleWeightKg: UShort, enginePowerHp: UShort,
         enginePowerKw: Float, engineCapacityL: Float,
         tankCapacityL: UByte, fuelTypeName: String
     ) {
@@ -232,10 +248,10 @@ class NavViewModel : ViewModel() {
 
             val body = CreateCarRequest(
                 vinNumber, stateNumber,
-                brandModel, modelName,
+                brandName, modelName,
                 bodyName, releaseYear,
                 gearboxName, driveName,
-                vehicleWeightKg, enginePowerHw,
+                vehicleWeightKg, enginePowerHp,
                 enginePowerKw, engineCapacityL,
                 tankCapacityL, fuelTypeName
             )
@@ -279,6 +295,156 @@ class NavViewModel : ViewModel() {
                 is ApiResult.Success<*> -> LogOutState.LogOuted
 
                 else -> LogOutState.SomeError
+            }
+        }
+    }
+
+    fun getCheckboxesData() {
+        viewModelScope.launch {
+            _checkBoxesDataState.value = CheckBoxesDataState.Loading
+
+            val resBodies = CarBodiesRepository.getAllBodies()
+
+            val bodies: List<String>? = when (resBodies) {
+                is ApiResult.Success -> {
+                    resBodies.data?.map{ it.bodyName }
+                }
+                else -> null
+            }
+
+            if (bodies == null) {
+                _checkBoxesDataState.value = CheckBoxesDataState.SomeError
+                return@launch
+            }
+
+            val resGearboxes = CarGearboxesRepository.getAllGearboxes()
+
+            val gearboxes: List<String>? = when (resGearboxes) {
+                is ApiResult.Success -> {
+                    resGearboxes.data?.map{ it.gearboxName }
+                }
+                else -> null
+            }
+
+            if (gearboxes == null) {
+                _checkBoxesDataState.value = CheckBoxesDataState.SomeError
+                return@launch
+            }
+
+            val resDrives = CarDrivesRepository.getAllDrives()
+
+            val drives: List<String>? = when (resDrives) {
+                is ApiResult.Success -> {
+                    resDrives.data?.map{ it.driveName }
+                }
+                else -> null
+            }
+
+            if (drives == null) {
+                _checkBoxesDataState.value = CheckBoxesDataState.SomeError
+                return@launch
+            }
+
+            val resFuelTypes = FuelTypesRepository.getAllFuelTypes()
+
+            val fuelTypes: List<String>? = when (resFuelTypes) {
+                is ApiResult.Success -> {
+                    resFuelTypes.data?.map{ it.typeName }
+                }
+                else -> null
+            }
+
+            if (fuelTypes == null) {
+                _checkBoxesDataState.value = CheckBoxesDataState.SomeError
+                return@launch
+            }
+
+            _checkBoxesDataState.value = CheckBoxesDataState.Data(
+                bodies, gearboxes, drives, fuelTypes
+            )
+        }
+    }
+
+    fun getBrandsByText(text: String) {
+        viewModelScope.launch {
+            _brandsState.value = BrandsState.Loading
+
+            val res = CarBrandsRepository.getAllBrandsByText(text)
+
+            _brandsState.value = when (res) {
+                is ApiResult.Success -> {
+                    if (res.data != null) {
+                        BrandsState.Data(res.data.map { it.brandName })
+                    } else {
+                        BrandsState.SomeError
+                    }
+                }
+
+                else -> BrandsState.SomeError
+            }
+        }
+    }
+
+    fun getModelsByText(brandName: String, text: String) {
+        viewModelScope.launch {
+            _modelsState.value = ModelsState.Loading
+
+            val res = CarModelsRepository.getAllBrandsByText(brandName, text)
+
+            _modelsState.value = when (res) {
+                is ApiResult.Success -> {
+                    if (res.data != null) {
+                        ModelsState.Data(res.data.map { it.modelName })
+                    } else {
+                        ModelsState.SomeError
+                    }
+                }
+
+                else -> ModelsState.SomeError
+            }
+        }
+    }
+
+    fun resetCreateCarState() {
+        _createCarState.value = CreateCarState.Idle
+    }
+
+    fun getAllBrands() {
+        viewModelScope.launch {
+            _brandsState.value = BrandsState.Loading
+
+            val res = CarBrandsRepository.getAllBrands()
+
+            _brandsState.value = when (res) {
+                is ApiResult.Success -> {
+                    if (res.data != null) {
+                        BrandsState.Data(res.data.map { it.brandName })
+                    } else {
+                        BrandsState.SomeError
+                    }
+                }
+
+                else -> BrandsState.SomeError
+            }
+        }
+    }
+
+    fun getAllModels(brandName: String) {
+        viewModelScope.launch {
+            _modelsState.value = ModelsState.Loading
+
+            val res = CarModelsRepository.getAllModelsByBrandName(brandName)
+
+            _modelsState.value = when (res) {
+                is ApiResult.Success -> {
+                    if (res.data != null) {
+                        ModelsState.Data(res.data.map { it.modelName })
+                    } else {
+                        ModelsState.SomeError
+                    }
+                }
+
+                else -> ModelsState.SomeError
             }
         }
     }
@@ -357,4 +523,34 @@ sealed class LogOutState {
     object Loading : LogOutState()
     object SomeError : LogOutState()
     object LogOuted: LogOutState()
+}
+
+sealed class CheckBoxesDataState {
+    object Idle : CheckBoxesDataState()
+    object Loading : CheckBoxesDataState()
+    object SomeError : CheckBoxesDataState()
+    data class Data(
+        val bodies: List<String>,
+        val gearboxes: List<String>,
+        val drives: List<String>,
+        val fuelTypes: List<String>
+    ): CheckBoxesDataState()
+}
+
+sealed class BrandsState {
+    object Idle : BrandsState()
+    object Loading : BrandsState()
+    object SomeError : BrandsState()
+    data class Data(
+        val brands: List<String>
+    ): BrandsState()
+}
+
+sealed class ModelsState {
+    object Idle : ModelsState()
+    object Loading : ModelsState()
+    object SomeError : ModelsState()
+    data class Data(
+        val models: List<String>
+    ): ModelsState()
 }

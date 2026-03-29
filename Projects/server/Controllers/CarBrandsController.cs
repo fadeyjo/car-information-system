@@ -46,5 +46,27 @@ namespace server.Controllers
                 return ServerError();
             }
         }
+
+        [HttpGet("{text}")]
+        public async Task<IActionResult> GetAllCarBrandsByText(string text)
+        {
+            try
+            {
+                var brands = await _service.GetAllCarBrandsByText(text);
+
+                return Ok(brands);
+            }
+            catch (HttpError er)
+            {
+                return Problem(
+                    title: er.Title,
+                    statusCode: er.StatusCode
+                );
+            }
+            catch
+            {
+                return ServerError();
+            }
+        }
     }
 }

@@ -14,4 +14,8 @@ object CarBrandsRepository {
     suspend fun getAllBrands(): ApiResult<List<CarBrandDto>> {
         return ApiHandler.handleResponse(api.getAllCarBrands())
     }
+
+    suspend fun getAllBrandsByText(text: String): ApiResult<List<CarBrandDto>> {
+        return ApiHandler.handleResponse(api.getAllCarBrandsByText(text))
+    }
 }

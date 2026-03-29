@@ -32,5 +32,27 @@ namespace server.Services
 
             return models;
         }
+
+        public async Task<List<CarModelDto>> GetAllCarModelsByText(string text, string brandName)
+        {
+            bool exists = await _context.CarBrands.AnyAsync(b => b.BrandName == brandName);
+
+            if (!exists)
+                throw new HttpError("Брэнд не найден", StatusCodes.Status404NotFound);
+
+            text = text.Trim().ToLower();
+
+            var models = await _context.CarBrandsModels
+                .Include(m => m.CarBrand)
+                .Where(m => m.CarBrand.BrandName == brandName && m.ModelName.ToLower().Contains(text))
+                .Select(m => new CarModelDto()
+                {
+                    BrandId= m.CarBrand.BrandId,
+                    ModelName = m.ModelName
+                })
+                .ToListAsync();
+
+            return models;
+        }
     }
 }

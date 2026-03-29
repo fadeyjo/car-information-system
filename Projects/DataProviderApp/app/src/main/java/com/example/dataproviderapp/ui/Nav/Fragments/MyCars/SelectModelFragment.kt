@@ -1,60 +1,108 @@
 package com.example.dataproviderapp.ui.Nav.Fragments.MyCars
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.dataproviderapp.R
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.dataproviderapp.databinding.FragmentSelectModelBinding
+import com.example.dataproviderapp.ui.Nav.ModelsState
+import com.example.dataproviderapp.ui.Nav.NavViewModel
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SelectModelFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SelectModelFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    private var _binding: FragmentSelectModelBinding? = null
+    private val binding get() = _binding!!
+
+    private val viewModel: NavViewModel by activityViewModels()
+
+    private val adapter = SimpleStringListAdapter { model ->
+        parentFragmentManager.setFragmentResult(
+            CreateCarFragment.REQUEST_SELECT_MODEL,
+            bundleOf(CreateCarFragment.KEY_MODEL to model)
+        )
+        parentFragmentManager.popBackStack()
+    }
+
+    private lateinit var brandName: String
+
+    private val searchWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) {
+            val text = s?.toString()?.trim().orEmpty()
+            if (text.isEmpty()) {
+                viewModel.getAllModels(brandName)
+            } else {
+                viewModel.getModelsByText(brandName, text)
+            }
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        brandName = requireArguments().getString(ARG_BRAND_NAME)
+            ?: throw IllegalArgumentException("brandName is required")
+    }
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_select_model, container, false)
+    ): View {
+        _binding = FragmentSelectModelBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.adapter = adapter
+
+        binding.etSearch.addTextChangedListener(searchWatcher)
+
+        viewModel.getAllModels(brandName)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.modelsState.collect { state ->
+                    when (state) {
+                        ModelsState.Loading -> {
+                            binding.progressBar.visibility = View.VISIBLE
+                        }
+                        is ModelsState.Data -> {
+                            binding.progressBar.visibility = View.GONE
+                            adapter.submitList(state.models)
+                        }
+                        ModelsState.SomeError, ModelsState.Idle -> {
+                            binding.progressBar.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        binding.etSearch.removeTextChangedListener(searchWatcher)
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SelectModelFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SelectModelFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        private const val ARG_BRAND_NAME = "brand_name"
+
+        fun newInstance(brandName: String) = SelectModelFragment().apply {
+            arguments = bundleOf(ARG_BRAND_NAME to brandName)
+        }
     }
 }

@@ -52,6 +52,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "server.Controllers.CarBrandsController",
+    "Method": "GetAllCarBrandsByText",
+    "RelativePath": "api/car-brands/{text}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "text",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "server.Controllers.CarDrivesController",
     "Method": "GetAllCarDrives",
     "RelativePath": "api/car-drives",
@@ -81,6 +97,27 @@
     "Parameters": [
       {
         "Name": "brandName",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.CarModelsController",
+    "Method": "GetAllCarModelsByText",
+    "RelativePath": "api/car-models/{brandName}/{text}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "brandName",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "text",
         "Type": "System.String",
         "IsRequired": true
       }

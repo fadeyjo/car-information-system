@@ -23,5 +23,20 @@ namespace server.Services
 
             return brands;
         }
+
+        public async Task<List<CarBrandDto>> GetAllCarBrandsByText(string text)
+        {
+            text = text.Trim().ToLower();
+
+            var brands = await _context.CarBrands
+                .Select(b => new CarBrandDto()
+                {
+                    BrandName = b.BrandName
+                })
+                .Where(b => b.BrandName.ToLower().Contains(text))
+                .ToListAsync();
+
+            return brands;
+        }
     }
 }

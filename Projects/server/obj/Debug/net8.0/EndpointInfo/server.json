@@ -84,6 +84,28 @@
         }
       }
     },
+    "/api/car-brands/{text}": {
+      "get": {
+        "tags": [
+          "CarBrands"
+        ],
+        "parameters": [
+          {
+            "name": "text",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/car-drives": {
       "get": {
         "tags": [
@@ -116,6 +138,36 @@
         "parameters": [
           {
             "name": "brandName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/car-models/{brandName}/{text}": {
+      "get": {
+        "tags": [
+          "CarModels"
+        ],
+        "parameters": [
+          {
+            "name": "brandName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "text",
             "in": "path",
             "required": true,
             "schema": {
