@@ -31,6 +31,7 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -313,7 +314,7 @@ class UpdatePersonFragment : Fragment() {
         inputStream ?: return null
 
         val bytes = inputStream.readBytes()
-        val requestBody = RequestBody.create("image/*".toMediaTypeOrNull(), bytes)
+        val requestBody = bytes.toRequestBody("image/*".toMediaTypeOrNull(), 0, bytes.size)
         return MultipartBody.Part.createFormData(partName, "avatar.jpg", requestBody)
     }
 

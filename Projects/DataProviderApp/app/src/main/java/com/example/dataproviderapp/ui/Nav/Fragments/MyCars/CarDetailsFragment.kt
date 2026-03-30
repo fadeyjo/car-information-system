@@ -11,6 +11,7 @@ import com.example.dataproviderapp.BuildConfig
 import com.example.dataproviderapp.R
 import com.example.dataproviderapp.databinding.FragmentCarDetailsBinding
 import com.example.dataproviderapp.dto.responses.CarDto
+import com.example.dataproviderapp.ui.Nav.Fragments.Profile.UpdatePersonFragment
 import com.example.dataproviderapp.ui.Nav.NavViewModel
 import kotlin.getValue
 
@@ -39,7 +40,18 @@ class CarDetailsFragment : Fragment() {
             return
         }
 
+        binding.btnEdit.setOnClickListener {
+            redactCar()
+        }
+
         renderCar(car)
+    }
+
+    private fun redactCar() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, UpdateCarFragment())
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun renderCar(car: CarDto) {

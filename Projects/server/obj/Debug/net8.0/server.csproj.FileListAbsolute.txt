@@ -112,3 +112,10 @@ C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\p
 C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\publish\publish\publish\publish\publish\publish\publish\server.deps.json
 C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\publish\publish\publish\publish\publish\publish\publish\server.runtimeconfig.json
 C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\publish\publish\publish\publish\publish\publish\publish\server.staticwebassets.endpoints.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\publish\publish\publish\publish\publish\publish\publish\publish\web.config
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\publish\publish\publish\publish\publish\publish\publish\appsettings.Production.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\publish\publish\publish\publish\publish\publish\publish\publish\appsettings.Development.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\publish\publish\publish\publish\publish\publish\publish\publish\appsettings.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\publish\publish\publish\publish\publish\publish\publish\publish\server.deps.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\publish\publish\publish\publish\publish\publish\publish\publish\server.runtimeconfig.json
+C:\Users\komra\Desktop\car-information-system\Projects\server\bin\Debug\net8.0\publish\publish\publish\publish\publish\publish\publish\publish\publish\server.staticwebassets.endpoints.json

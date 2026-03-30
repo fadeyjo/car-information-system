@@ -11,7 +11,7 @@ namespace server.Contracts.Requests.Validations
                 .Matches(@"^[A-Za-z0-9]{17}$").WithMessage("Некорректный формат VIN");
 
             RuleFor(x => x.StateNumber)
-                .Matches(@"^[АВЕКМНОРСТУХ][0-9]{3}[АВЕКМНОРСТУХ]{2}[0-9]{2,3}$").WithMessage("Некорректный формат гос. номера")
+                .Matches(@"^[авекмнорстухАВЕКМНОРСТУХ][0-9]{3}[авекмнорстухАВЕКМНОРСТУХ]{2}[0-9]{2,3}$").WithMessage("Некорректный формат гос. номера")
                 .When(x => !string.IsNullOrEmpty(x.StateNumber));
 
             RuleFor(x => x.BrandName)

@@ -15,6 +15,7 @@ import com.example.dataproviderapp.repositories.CarBrandsRepository
 import com.example.dataproviderapp.repositories.CarDrivesRepository
 import com.example.dataproviderapp.repositories.CarGearboxesRepository
 import com.example.dataproviderapp.repositories.CarModelsRepository
+import com.example.dataproviderapp.repositories.CarPhotosRepository
 import com.example.dataproviderapp.repositories.CarsRepository
 import com.example.dataproviderapp.repositories.FuelTypesRepository
 import com.example.dataproviderapp.repositories.PersonsRepository
@@ -189,7 +190,7 @@ class NavViewModel : ViewModel() {
         vehicleWeightKg: UShort, enginePowerHw: UShort,
         enginePowerKw: Float, engineCapacityL: Float,
         tankCapacityL: UByte, fuelTypeName: String,
-        carId: UInt
+        carId: UInt,  file: MultipartBody.Part?
     ) {
         viewModelScope.launch {
             _updateCarState.value = UpdateCarState.Loading
@@ -206,30 +207,80 @@ class NavViewModel : ViewModel() {
 
             val response = CarsRepository.updateCarInfo(carId, body)
 
-            _updateCarState.value = when (response) {
+            when (response) {
                 is ApiResult.Error ->{
                     if (response.code == 404) {
                         if (response.error == "Автомобиль не найден") {
-                            UpdateCarState.CarNotFound
+                            _updateCarState.value = UpdateCarState.CarNotFound
                         } else {
-                            UpdateCarState.UnknownError
+                            _updateCarState.value = UpdateCarState.UnknownError
                         }
                     } else if (response.code == 409) {
                         if (response.error == "Автомобиль с данным VIN уже существует") {
-                            UpdateCarState.CarExistsByVin
+                            _updateCarState.value = UpdateCarState.CarExistsByVin
                         } else if (response.error == "Автомобиль с данным гос. номером уже существует") {
-                            UpdateCarState.CarExistsByStateNumber
+                            _updateCarState.value = UpdateCarState.CarExistsByStateNumber
                         } else {
-                            UpdateCarState.UnknownError
+                            _updateCarState.value = UpdateCarState.UnknownError
                         }
                     } else {
-                        UpdateCarState.UnknownError
+                        _updateCarState.value = UpdateCarState.UnknownError
                     }
                 }
-                ApiResult.NetworkError -> UpdateCarState.NetworkError
-                is ApiResult.Success<*> -> UpdateCarState.Updated
-                ApiResult.UnknownError -> UpdateCarState.UnknownError
-                is ApiResult.ValidationError -> UpdateCarState.ValidationError(response.errors)
+                ApiResult.NetworkError -> _updateCarState.value = UpdateCarState.NetworkError
+                ApiResult.UnknownError -> _updateCarState.value = UpdateCarState.UnknownError
+                is ApiResult.ValidationError -> _updateCarState.value = UpdateCarState.ValidationError(response.errors)
+
+                else -> {}
+            }
+
+            if (_updateCarState.value != UpdateCarState.Loading) {
+                return@launch
+            }
+
+            if (file == null) {
+                val newCar = getCarAfterUpdating(carId)
+                if (newCar == null) {
+                    return@launch
+                }
+                selectedCar = newCar
+                _updateCarState.value = UpdateCarState.Updated
+                return@launch
+            }
+
+            val responsePhoto = CarPhotosRepository.createCarPhoto(carId, file)
+
+            _updateCarState.value = when (responsePhoto) {
+                is ApiResult.Success<*> -> {
+                    val newCar = getCarAfterUpdating(carId)
+                    if (newCar == null) {
+                        return@launch
+                    }
+                    selectedCar = newCar
+                    UpdateCarState.Updated
+                }
+
+                else -> UpdateCarState.SomeErrorToCreatePhoto
+            }
+        }
+    }
+
+    private suspend fun getCarAfterUpdating(carId: UInt): CarDto? {
+        val response = CarsRepository.getCarById(carId)
+        return when (response) {
+            ApiResult.NetworkError -> {
+                _updateCarState.value = UpdateCarState.NetworkError
+                null
+            }
+            is ApiResult.Success -> response.data
+            ApiResult.UnknownError -> {
+                _updateCarState.value = UpdateCarState.UnknownError
+                null
+            }
+
+            else -> {
+                _updateCarState.value = UpdateCarState.UnknownError
+                null
             }
         }
     }
@@ -448,6 +499,10 @@ class NavViewModel : ViewModel() {
             }
         }
     }
+
+    fun resetUpdateCarState() {
+        _updateCarState.value = UpdateCarState.Idle
+    }
 }
 
 sealed class ProfileDataState {
@@ -501,6 +556,7 @@ sealed class UpdateCarState {
         val errors: List<Map<String, String>>
     ) : UpdateCarState()
     object Updated : UpdateCarState()
+    object SomeErrorToCreatePhoto : UpdateCarState()
 }
 
 sealed class CreateCarState {
