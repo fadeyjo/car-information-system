@@ -73,7 +73,11 @@ namespace server.Services
 
         public async Task<PersonDto> SignUp(SignUpRequest body)
         {
-            bool exists = await _context.Persons.AnyAsync(p => p.Email == body.Email);
+            bool exists = await _context.Roles.AnyAsync(p => p.RoleId == body.RoleId);
+            if (!exists)
+                throw new HttpError("Неизвестная роль", StatusCodes.Status404NotFound);
+
+            exists = await _context.Persons.AnyAsync(p => p.Email == body.Email);
             if (exists)
                 throw new HttpError("Пользователь с данным email уже существует", StatusCodes.Status409Conflict);
 
