@@ -64,7 +64,7 @@ class NavActivity : AppCompatActivity() {
                 R.id.nav_profile -> ProfileFragment() to "Профиль"
                 R.id.nav_my_cars -> MyCarsFragment() to "Мои авто"
                 R.id.nav_my_trips -> MyTripsFragment() to "Мои поездки"
-                R.id.nav_start_trip -> StartTripFragment() to "Начать поездку"
+                R.id.nav_start_trip -> StartTripFragment() to "Поездка"
                 else -> ProfileFragment() to "Профиль"
             }
 

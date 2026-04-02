@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dataproviderapp.apiutils.ApiResult
 import com.example.dataproviderapp.dto.requests.CreateCarRequest
+import com.example.dataproviderapp.dto.requests.StartTripRequest
 import com.example.dataproviderapp.dto.requests.UpdateCarInfoRequest
 import com.example.dataproviderapp.dto.requests.UpdatePersonInfoRequest
 import com.example.dataproviderapp.dto.responses.CarDto
 import com.example.dataproviderapp.dto.responses.PersonDto
+import com.example.dataproviderapp.dto.responses.TripDto
 import com.example.dataproviderapp.repositories.AuthRepository
 import com.example.dataproviderapp.repositories.AvatarsRepository
 import com.example.dataproviderapp.repositories.CarBodiesRepository
@@ -19,16 +21,19 @@ import com.example.dataproviderapp.repositories.CarPhotosRepository
 import com.example.dataproviderapp.repositories.CarsRepository
 import com.example.dataproviderapp.repositories.FuelTypesRepository
 import com.example.dataproviderapp.repositories.PersonsRepository
+import com.example.dataproviderapp.repositories.TripsRepository
 import com.example.dataproviderapp.ui.Nav.ProfileDataState.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class NavViewModel : ViewModel() {
     lateinit var person: PersonDto
     var selectedCar: CarDto? = null
+    var currentTrip: TripDto? = null
 
     private val _profileDataState = MutableStateFlow<ProfileDataState>(ProfileDataState.Idle)
     val profileDataState: StateFlow<ProfileDataState> = _profileDataState
@@ -56,6 +61,9 @@ class NavViewModel : ViewModel() {
 
     private val _modelsState = MutableStateFlow<ModelsState>(ModelsState.Idle)
     val modelsState: StateFlow<ModelsState> = _modelsState
+
+    private val _startTripState = MutableStateFlow<StartTripState>(StartTripState.Idle)
+    val startTripState: StateFlow<StartTripState> = _startTripState
 
 
     fun getPersonData() {
@@ -503,6 +511,29 @@ class NavViewModel : ViewModel() {
     fun resetUpdateCarState() {
         _updateCarState.value = UpdateCarState.Idle
     }
+
+    fun startTrip(startDatetime: LocalDateTime, macAddress: String, carId: UInt) {
+        viewModelScope.launch {
+            _startTripState.value = StartTripState.Loading
+
+            val body = StartTripRequest(startDatetime, macAddress, carId);
+
+            val res = TripsRepository.startTrip(body)
+
+            _startTripState.value = when (res) {
+                ApiResult.NetworkError -> StartTripState.NetworkError
+                is ApiResult.Success -> {
+                    if (res.data == null) {
+                        StartTripState.UnknownError
+                    } else {
+                        currentTrip = res.data
+                        StartTripState.Data(res.data)
+                    }
+                }
+                else -> StartTripState.UnknownError
+            }
+        }
+    }
 }
 
 sealed class ProfileDataState {
@@ -609,4 +640,15 @@ sealed class ModelsState {
     data class Data(
         val models: List<String>
     ): ModelsState()
+}
+
+sealed class StartTripState {
+    object Idle : StartTripState()
+    object Loading : StartTripState()
+    object UnknownError : StartTripState()
+    object NetworkError : StartTripState()
+    object CarNotFound : StartTripState()
+    data class Data(
+        val trip: TripDto
+    ): StartTripState()
 }
