@@ -3,6 +3,7 @@ package com.example.dataproviderapp.ui.Nav
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dataproviderapp.apiutils.ApiResult
+import com.example.dataproviderapp.ble.ObdBleClient
 import com.example.dataproviderapp.dto.requests.CreateCarRequest
 import com.example.dataproviderapp.dto.requests.StartTripRequest
 import com.example.dataproviderapp.dto.requests.UpdateCarInfoRequest
@@ -22,6 +23,7 @@ import com.example.dataproviderapp.repositories.CarsRepository
 import com.example.dataproviderapp.repositories.FuelTypesRepository
 import com.example.dataproviderapp.repositories.PersonsRepository
 import com.example.dataproviderapp.repositories.TripsRepository
+import com.example.dataproviderapp.ui.Nav.Fragments.StartTrip.BtDevice
 import com.example.dataproviderapp.ui.Nav.ProfileDataState.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +36,8 @@ class NavViewModel : ViewModel() {
     lateinit var person: PersonDto
     var selectedCar: CarDto? = null
     var currentTrip: TripDto? = null
+    var obdBleClient: ObdBleClient? = null
+
 
     private val _profileDataState = MutableStateFlow<ProfileDataState>(ProfileDataState.Idle)
     val profileDataState: StateFlow<ProfileDataState> = _profileDataState

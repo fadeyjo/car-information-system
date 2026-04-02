@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".ui.Nav.Fragments.StartTrip.SelectDeviceFragment"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/tvBtDeviceName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ESP_OBDII"/>
+
+    <TextView
+        android:id="@+id/tvBtMac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="FF:FF:FF:FF:FF:FF"
+        android:textColor="#777777"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text="Подключение..."
+        android:visibility="gone"
+        android:textColor="#777777"
+        android:textSize="10sp"
+        android:textStyle="italic" />
+
+</LinearLayout>

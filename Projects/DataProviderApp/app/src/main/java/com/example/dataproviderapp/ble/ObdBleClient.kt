@@ -11,12 +11,15 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import com.example.dataproviderapp.dto.responses.CarDto
 import java.util.UUID
 
 class ObdBleClient(
     private val device: BluetoothDevice,
-    private val context: Context
+    private val context: Context,
+    private val connectedCallBack: () -> Unit
 ) {
+
     private val SERVICE_UUID = UUID.fromString("3a94650f-9ca2-4a5b-a23c-4bf200007d1a")
     private val CMD_UUID     = UUID.fromString("3a94650f-9ca2-4a5b-a23c-4bf200017d1a")
     private val NOTIFY_UUID  = UUID.fromString("3a94650f-9ca2-4a5b-a23c-4bf200027d1a")
@@ -25,6 +28,8 @@ class ObdBleClient(
     private var gatt: BluetoothGatt? = null
     private var cmdChar: BluetoothGattCharacteristic? = null
     private var notifyChar: BluetoothGattCharacteristic? = null
+
+    var handleObdData: ((DataCallBack) -> Unit)? = null
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun connect() {
@@ -69,6 +74,8 @@ class ObdBleClient(
             }
 
             enableNotifications(gatt, notifyChar!!)
+
+            connectedCallBack()
         }
 
         override fun onCharacteristicChanged(
@@ -180,5 +187,60 @@ class ObdBleClient(
             data,
             BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun disconnect() {
+        gatt?.let {
+            notifyChar?.let { char ->
+                val descriptor = char.getDescriptor(NOTIFICATIONS_DESCRIPTOR_UUID)
+                descriptor?.let { d ->
+                    gatt?.writeDescriptor(d, BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE)
+                }
+            }
+
+            gatt?.disconnect()
+            gatt?.close()
+        }
+
+        gatt = null
+        cmdChar = null
+        notifyChar = null
+    }
+
+    sealed class DataCallBack{
+        data class SupportedPids(
+            val pids: UInt
+        ): DataCallBack()
+        data class ObdResponse(
+            val id: UInt,
+            val dlc: UByte,
+            val data: ByteArray
+        ) : DataCallBack() {
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (javaClass != other?.javaClass) return false
+
+                other as ObdResponse
+
+                if (id != other.id) return false
+                if (dlc != other.dlc) return false
+                if (!data.contentEquals(other.data)) return false
+
+                return true
+            }
+
+            override fun hashCode(): Int {
+                var result = id.hashCode()
+                result = 31 * result + dlc.hashCode()
+                result = 31 * result + data.contentHashCode()
+                return result
+            }
+        }
+        object SessionStopped: DataCallBack()
+        data class Error(
+            val message: String
+        ): DataCallBack()
     }
 }

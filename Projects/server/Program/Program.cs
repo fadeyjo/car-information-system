@@ -22,7 +22,6 @@ namespace server.Program
 
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                Console.WriteLine("Не удалось найти ConnectionStrings[DefaultConnection] в appsettings.json");
                 return;
             }
 

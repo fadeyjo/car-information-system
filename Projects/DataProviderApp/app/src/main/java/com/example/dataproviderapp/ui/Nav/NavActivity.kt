@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 import kotlin.getValue
 
 class NavActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityNavBinding
+    lateinit var binding: ActivityNavBinding
 
     private val viewModel: NavViewModel by viewModels()
 

@@ -62,6 +62,8 @@ enum {
 	BLE_EVT_ERROR = 0xFF,
 };
 
+
+
 static uint16_t g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 static bool g_ble_notify_enabled = false;
 static uint16_t g_ble_notify_val_handle = 0;
@@ -545,6 +547,7 @@ void get_data_by_request(uint8_t mode, uint8_t pid)
 // Должна отработать, когда по BLE пришла команда начала сессии, с командой должна передаваться скорость работы
 void start_session(uint16_t can_speed)
 {
+	printf("Start session command rcvd\n");
 	esp_err_t err;
 	if (!twai_initialized)
 	{
@@ -632,11 +635,11 @@ void start_session(uint16_t can_speed)
 // ===== BLE GATT server (NimBLE) =====
 
 static const ble_uuid128_t g_svc_uuid =
-	BLE_UUID128_INIT(0x3a, 0x94, 0x65, 0x0f, 0x9c, 0xa2, 0x4a, 0x5b, 0xa2, 0x3c, 0x4b, 0xf2, 0x00, 0x00, 0x7d, 0x1a);
+	BLE_UUID128_INIT(0x1a, 0x7d, 0x00, 0x00, 0xf2, 0x4b, 0x3c, 0xa2, 0x5b, 0x4a, 0xa2, 0x9c, 0x0f, 0x65, 0x94, 0x3a);
 static const ble_uuid128_t g_cmd_uuid =
-	BLE_UUID128_INIT(0x3a, 0x94, 0x65, 0x0f, 0x9c, 0xa2, 0x4a, 0x5b, 0xa2, 0x3c, 0x4b, 0xf2, 0x00, 0x01, 0x7d, 0x1a);
+	BLE_UUID128_INIT(0x1a, 0x7d, 0x01, 0x00, 0xf2, 0x4b, 0x3c, 0xa2, 0x5b, 0x4a, 0xa2, 0x9c, 0x0f, 0x65, 0x94, 0x3a);
 static const ble_uuid128_t g_notify_uuid =
-	BLE_UUID128_INIT(0x3a, 0x94, 0x65, 0x0f, 0x9c, 0xa2, 0x4a, 0x5b, 0xa2, 0x3c, 0x4b, 0xf2, 0x00, 0x02, 0x7d, 0x1a);
+	BLE_UUID128_INIT(0x1a, 0x7d, 0x02, 0x00, 0xf2, 0x4b, 0x3c, 0xa2, 0x5b, 0x4a, 0xa2, 0x9c, 0x0f, 0x65, 0x94, 0x3a);
 
 static int gatt_chr_access_cmd(uint16_t conn_handle, uint16_t attr_handle,
 							   struct ble_gatt_access_ctxt *ctxt, void *arg)
@@ -650,6 +653,12 @@ static int gatt_chr_access_cmd(uint16_t conn_handle, uint16_t attr_handle,
 
 static void handle_ble_command(const uint8_t *data, uint16_t len)
 {
+	for (int i = 0; i < len; i++)
+	{
+		printf("%02X", data[i]);
+	}
+	printf("\n");
+	
 	if (!data || len < 1)
 	{
 		ble_notify_error("empty command");
@@ -761,6 +770,7 @@ static int ble_gap_event_cb(struct ble_gap_event *event, void *arg)
 			return 0;
 
 		case BLE_GAP_EVENT_DISCONNECT:
+			stop_session();
 			g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 			g_ble_notify_enabled = false;
 			ble_app_advertise();
@@ -793,11 +803,15 @@ static void ble_app_advertise(void)
 	fields.name_is_complete = 1;
 
 	fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
+	
+	fields.uuids128 = (ble_uuid128_t[]){g_svc_uuid};
+	fields.num_uuids128 = 1;
+	fields.uuids128_is_complete = 1;
 
 	int rc = ble_gap_adv_set_fields(&fields);
 	if (rc != 0)
 	{
-		ESP_LOGW(TAG, "adv_set_fields rc=%d", rc);
+		ESP_LOGW(TAG, "adv_set_fields 1 rc=%d", rc);
 		return;
 	}
 
@@ -851,7 +865,7 @@ static esp_err_t ble_init(void)
 
     ble_hs_cfg.sync_cb = ble_on_sync;
 
-    ble_svc_gap_device_name_set("ESP32-OBDII");
+    ble_svc_gap_device_name_set("OBDII");
 
     int rc = ble_gatts_count_cfg(gatt_svcs);
     if (rc != 0)

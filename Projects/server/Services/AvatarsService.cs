@@ -95,7 +95,6 @@ namespace server.Services
                 throw new Exception();
 
             var avatarPath = Path.Combine(basePath, avatarData.AvatarUrl).Replace("\\", "/");
-            Console.Write(avatarPath);
 
             if (!File.Exists(avatarPath))
                 throw new HttpError("Аватар не найден", StatusCodes.Status404NotFound);
