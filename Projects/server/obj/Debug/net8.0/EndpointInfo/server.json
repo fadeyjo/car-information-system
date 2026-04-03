@@ -420,6 +420,29 @@
         }
       }
     },
+    "/api/obdii-pids/current-data-service/{supportedPidsUint}": {
+      "get": {
+        "tags": [
+          "OBDIIPIDS"
+        ],
+        "parameters": [
+          {
+            "name": "supportedPidsUint",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Persons": {
       "get": {
         "tags": [

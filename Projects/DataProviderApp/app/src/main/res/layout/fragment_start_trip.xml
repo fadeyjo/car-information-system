@@ -1,26 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.Nav.Fragments.StartTrip.StartTripFragment">
+    tools:context=".ui.Nav.Fragments.MyCars.MyCarsFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <TextView
+        android:id="@+id/tvEmptyCars"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Вы не внесли информацию о ваших автомобилях"
+        android:textColor="#666666"
+        android:visibility="gone"
+        android:textSize="14sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewCars"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnStartTrip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Начать поездку"
-            app:backgroundTint="@color/bg_main"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="match_parent" />
 
 </FrameLayout>

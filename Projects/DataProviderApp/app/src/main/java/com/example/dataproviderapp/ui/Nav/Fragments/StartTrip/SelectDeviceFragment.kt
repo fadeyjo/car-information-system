@@ -40,9 +40,6 @@ class SelectDeviceFragment : Fragment() {
     private val viewModel: NavViewModel by activityViewModels()
     private var isScanning = false
 
-    private var connectTimeoutHandler: Handler? = null
-    private var connectTimeoutRunnable: Runnable? = null
-
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
 
@@ -76,6 +73,7 @@ class SelectDeviceFragment : Fragment() {
             .commit()
     }
 
+    @SuppressLint("MissingPermission")
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private fun onDeviceClicked(device: BtDevice) {
         stopScanning()
@@ -85,19 +83,11 @@ class SelectDeviceFragment : Fragment() {
             requireContext().applicationContext
         ) {
             requireActivity().runOnUiThread {
-                cancelConnectTimeout()
                 connected()
             }
         }
 
-        viewModel.obdBleClient!!.connect()
-        startConnectTimeout()
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun startConnectTimeout() {
-        connectTimeoutHandler = Handler(Looper.getMainLooper())
-        connectTimeoutRunnable = Runnable {
+        viewModel.obdBleClient!!.connect {
             requireActivity().runOnUiThread {
                 AlertDialog.Builder(requireContext())
                     .setTitle("Ошибка")
@@ -114,13 +104,6 @@ class SelectDeviceFragment : Fragment() {
                 }
             }
         }
-        connectTimeoutHandler?.postDelayed(connectTimeoutRunnable!!, 15000)
-    }
-
-    private fun cancelConnectTimeout() {
-        connectTimeoutHandler?.removeCallbacks(connectTimeoutRunnable!!)
-        connectTimeoutHandler = null
-        connectTimeoutRunnable = null
     }
 
     override fun onCreateView(

@@ -75,4 +75,6 @@ dependencies {
     kapt(libs.glide.compiler)
 
     implementation(libs.androidx.fragment.ktx)
+
+    implementation(libs.mqtt)
 }

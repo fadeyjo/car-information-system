@@ -267,6 +267,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "server.Controllers.OBDIIPIDSController",
+    "Method": "GetCurrentDataPidsDetail",
+    "RelativePath": "api/obdii-pids/current-data-service/{supportedPidsUint}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "supportedPidsUint",
+        "Type": "System.UInt32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "server.Controllers.PersonsController",
     "Method": "GetPersonById",
     "RelativePath": "api/Persons",

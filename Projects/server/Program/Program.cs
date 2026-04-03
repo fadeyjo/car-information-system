@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using server.Auth;
 using server.Data;
 using server.Filters;
+using server.mqtt;
 using server.Services;
 using server.Services.Interfaces;
 using System.Text;
@@ -45,6 +46,7 @@ namespace server.Program
             builder.Services.AddScoped<ICarGearboxesService, CarGearboxesService>();
             builder.Services.AddScoped<IFuelTypesService, FuelTypesService>();
             builder.Services.AddScoped<ICarBodiesService, CarBodiesService>();
+            builder.Services.AddScoped<IOBDIIPIDSService, OBDIIPIDSService>();
 
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
@@ -108,7 +110,17 @@ namespace server.Program
 
             builder.Services.AddAuthorization();
 
+            builder.Services.Configure<MqttSettings>(
+                builder.Configuration.GetSection("Mqtt"));
+
+            builder.Services.AddSingleton<MqttService>();
+
             var app = builder.Build();
+
+            var mqttService = app.Services.GetRequiredService<MqttService>();
+            mqttService.ConnectAsync().GetAwaiter().GetResult();
+            mqttService.SubscribeAsync(MqttService.NEW_TELEMETRY_DATA_TOPIC).GetAwaiter().GetResult();
+            mqttService.SubscribeAsync(MqttService.NEW_GPS_DATA_TOPIC).GetAwaiter().GetResult();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

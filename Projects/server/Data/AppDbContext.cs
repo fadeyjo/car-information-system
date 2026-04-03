@@ -287,6 +287,8 @@ namespace server.Data
 
                 entity.Property(p => p.PIDDescription).HasColumnName("PID_description");
 
+                entity.Property(p => p.Once).HasColumnName("once");
+
                 entity.HasKey(p => p.OBDIIPIDId);
 
                 entity.HasOne(p => p.OBDIIService).WithMany().HasForeignKey(p => p.ServiceId).OnDelete(DeleteBehavior.Cascade);

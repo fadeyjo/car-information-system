@@ -5,11 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.dataproviderapp.apiutils.ApiResult
 import com.example.dataproviderapp.ble.ObdBleClient
 import com.example.dataproviderapp.dto.requests.CreateCarRequest
+import com.example.dataproviderapp.dto.requests.CreateGpsDataRequest
+import com.example.dataproviderapp.dto.requests.CreateTelemetryDataRequest
+import com.example.dataproviderapp.dto.requests.EndTripRequest
 import com.example.dataproviderapp.dto.requests.StartTripRequest
 import com.example.dataproviderapp.dto.requests.UpdateCarInfoRequest
 import com.example.dataproviderapp.dto.requests.UpdatePersonInfoRequest
 import com.example.dataproviderapp.dto.responses.CarDto
 import com.example.dataproviderapp.dto.responses.PersonDto
+import com.example.dataproviderapp.dto.responses.PidsDetailDto
 import com.example.dataproviderapp.dto.responses.TripDto
 import com.example.dataproviderapp.repositories.AuthRepository
 import com.example.dataproviderapp.repositories.AvatarsRepository
@@ -21,7 +25,10 @@ import com.example.dataproviderapp.repositories.CarModelsRepository
 import com.example.dataproviderapp.repositories.CarPhotosRepository
 import com.example.dataproviderapp.repositories.CarsRepository
 import com.example.dataproviderapp.repositories.FuelTypesRepository
+import com.example.dataproviderapp.repositories.GpsDataRepository
+import com.example.dataproviderapp.repositories.OBDIIPIDSRepository
 import com.example.dataproviderapp.repositories.PersonsRepository
+import com.example.dataproviderapp.repositories.TelemetryDataRepository
 import com.example.dataproviderapp.repositories.TripsRepository
 import com.example.dataproviderapp.ui.Nav.Fragments.StartTrip.BtDevice
 import com.example.dataproviderapp.ui.Nav.ProfileDataState.*
@@ -37,6 +44,8 @@ class NavViewModel : ViewModel() {
     var selectedCar: CarDto? = null
     var currentTrip: TripDto? = null
     var obdBleClient: ObdBleClient? = null
+    var selectedCarToTrip: CarDto? = null
+    var curDataPids: PidsDetailDto? = null
 
 
     private val _profileDataState = MutableStateFlow<ProfileDataState>(ProfileDataState.Idle)
@@ -68,6 +77,12 @@ class NavViewModel : ViewModel() {
 
     private val _startTripState = MutableStateFlow<StartTripState>(StartTripState.Idle)
     val startTripState: StateFlow<StartTripState> = _startTripState
+
+    private val _endTripState = MutableStateFlow<EndTripState>(EndTripState.Idle)
+    val endTripState: StateFlow<EndTripState> = _endTripState
+
+    private val _currentDataSupportedPidsState = MutableStateFlow<CurrentDataSupportedPidsDetailsState>(CurrentDataSupportedPidsDetailsState.Idle)
+    val currentDataSupportedPidsState: StateFlow<CurrentDataSupportedPidsDetailsState> = _currentDataSupportedPidsState
 
 
     fun getPersonData() {
@@ -538,6 +553,58 @@ class NavViewModel : ViewModel() {
             }
         }
     }
+
+    fun endTrip(endDatetime: LocalDateTime, tripId: ULong) {
+        viewModelScope.launch {
+            _endTripState.value = EndTripState.Loading
+
+            val body = EndTripRequest(tripId, endDatetime)
+
+            val res = TripsRepository.endTrip(body)
+
+            _endTripState.value = when (res) {
+                is ApiResult.Error -> {
+                    if (res.code == 404) {
+                        EndTripState.TripNotFound
+                    } else if (res.code == 409) {
+                        if (res.error == "Поездка уже закончена") {
+                            EndTripState.TripAlreadyEnded
+                        } else if (res.error == "Дата и время окончания поездки должны быть позже даты и времени начала поездки") {
+                            EndTripState.TripAlreadyEnded
+                        } else {
+                            EndTripState.UnknownError
+                        }
+                    } else {
+                        EndTripState.UnknownError
+                    }
+                }
+                ApiResult.NetworkError -> EndTripState.NetworkError
+                is ApiResult.Success<*> -> EndTripState.Ended
+                else -> EndTripState.UnknownError
+            }
+        }
+    }
+
+    fun getCurrentDataSupportedPids(pids: UInt) {
+        viewModelScope.launch {
+            _currentDataSupportedPidsState.value = CurrentDataSupportedPidsDetailsState.Loading
+
+            val res = OBDIIPIDSRepository.getCurrentDataSupportedPids(pids)
+
+            _currentDataSupportedPidsState.value = when (res) {
+                ApiResult.NetworkError -> CurrentDataSupportedPidsDetailsState.NetworkError
+                is ApiResult.Success -> {
+                    if (res.data == null) {
+                        CurrentDataSupportedPidsDetailsState.UnknownError
+                    } else {
+                        CurrentDataSupportedPidsDetailsState.PidsDetails(res.data)
+                    }
+                }
+
+                else -> CurrentDataSupportedPidsDetailsState.UnknownError
+            }
+        }
+    }
 }
 
 sealed class ProfileDataState {
@@ -655,4 +722,25 @@ sealed class StartTripState {
     data class Data(
         val trip: TripDto
     ): StartTripState()
+}
+
+sealed class EndTripState {
+    object Idle : EndTripState()
+    object Loading : EndTripState()
+    object UnknownError : EndTripState()
+    object NetworkError : EndTripState()
+    object TripNotFound : EndTripState()
+    object TripAlreadyEnded: EndTripState()
+    object InvalidDatetime: EndTripState()
+    object Ended: EndTripState()
+}
+
+sealed class CurrentDataSupportedPidsDetailsState {
+    object Idle : CurrentDataSupportedPidsDetailsState()
+    object Loading : CurrentDataSupportedPidsDetailsState()
+    object UnknownError : CurrentDataSupportedPidsDetailsState()
+    object NetworkError : CurrentDataSupportedPidsDetailsState()
+    data class PidsDetails(
+        val pidsDetails: PidsDetailDto
+    ): CurrentDataSupportedPidsDetailsState()
 }

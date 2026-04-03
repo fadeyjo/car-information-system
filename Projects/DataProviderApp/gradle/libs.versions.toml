@@ -16,6 +16,7 @@ lifecycle = "2.6.2"
 glide = "4.16.0"
 glideOkhttp3 = "4.16.0"
 glideCompiler = "4.16.0"
+mqtt = "1.2.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,6 +45,8 @@ glide-okhttp3 = { module = "com.github.bumptech.glide:okhttp3-integration", vers
 glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glideCompiler" }
 
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version = "1.6.2" }
+
+mqtt = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", version.ref = "mqtt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

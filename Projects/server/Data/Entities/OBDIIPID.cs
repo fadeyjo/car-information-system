@@ -6,6 +6,7 @@
         public byte ServiceId { get; set; }
         public ushort PID { get; set; }
         public string PIDDescription { get; set; } = null!;
+        public bool Once;
         public OBDIIService OBDIIService { get; set; } = null!;
     }
 }

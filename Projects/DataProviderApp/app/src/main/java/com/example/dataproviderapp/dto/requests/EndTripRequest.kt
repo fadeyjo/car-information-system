@@ -1,8 +1,8 @@
 package com.example.dataproviderapp.dto.requests
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class EndTripRequest(
     val tripId: ULong,
-    val endDatetime: LocalDate
+    val endDatetime: LocalDateTime
 )

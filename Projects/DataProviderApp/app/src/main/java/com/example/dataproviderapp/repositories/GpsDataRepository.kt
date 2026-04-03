@@ -9,7 +9,7 @@ import com.example.dataproviderapp.retrofit.RetrofitClient
 
 object GpsDataRepository {
     private val api: GpsDataApi by lazy {
-        RetrofitClient.public_retrofit.create(GpsDataApi::class.java)
+        RetrofitClient.auth_retrofit.create(GpsDataApi::class.java)
     }
 
     suspend fun createGpsData(body: CreateGpsDataRequest): ApiResult<GpsDataDto> {

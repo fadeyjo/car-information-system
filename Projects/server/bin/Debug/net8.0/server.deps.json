@@ -11,6 +11,7 @@
           "BCrypt.Net-Next": "4.1.0",
           "FluentValidation": "12.1.1",
           "FluentValidation.DependencyInjectionExtensions": "12.1.1",
+          "MQTTnet": "5.1.0.1559",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.25",
           "Microsoft.EntityFrameworkCore": "8.0.25",
           "Pomelo.EntityFrameworkCore.MySql": "8.0.3",
@@ -246,6 +247,14 @@
           "lib/netstandard2.0/Microsoft.OpenApi.dll": {
             "assemblyVersion": "1.6.14.0",
             "fileVersion": "1.6.14.0"
+          }
+        }
+      },
+      "MQTTnet/5.1.0.1559": {
+        "runtime": {
+          "lib/net8.0/MQTTnet.dll": {
+            "assemblyVersion": "5.1.0.1559",
+            "fileVersion": "5.1.0.1559"
           }
         }
       },
@@ -504,6 +513,13 @@
       "sha512": "sha512-tTaBT8qjk3xINfESyOPE2rIellPvB7qpVqiWiyA/lACVvz+xOGiXhFUfohcx82NLbi5avzLW0lx+s6oAqQijfw==",
       "path": "microsoft.openapi/1.6.14",
       "hashPath": "microsoft.openapi.1.6.14.nupkg.sha512"
+    },
+    "MQTTnet/5.1.0.1559": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-9mkk0H+76CToIzp9ru5Uj5BuC3P5hQdkhvXM+CLmmTDdZWqajjICCHuUMbDd1yVBt9BWL77Rvzt0A+/PA4WMCA==",
+      "path": "mqttnet/5.1.0.1559",
+      "hashPath": "mqttnet.5.1.0.1559.nupkg.sha512"
     },
     "MySqlConnector/2.3.5": {
       "type": "package",
