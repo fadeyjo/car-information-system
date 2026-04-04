@@ -40,8 +40,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class NavViewModel : ViewModel() {
-    lateinit var person: PersonDto
-    var selectedCar: CarDto? = null
+    var person: PersonDto? = null
+    var personCars: List<CarDto>? = null
+    var selectedCarToDetail: CarDto? = null
     var currentTrip: TripDto? = null
     var obdBleClient: ObdBleClient? = null
     var selectedCarToTrip: CarDto? = null
@@ -85,38 +86,48 @@ class NavViewModel : ViewModel() {
     val currentDataSupportedPidsState: StateFlow<CurrentDataSupportedPidsDetailsState> = _currentDataSupportedPidsState
 
 
-    fun getPersonData() {
+    fun getPersonData(force: Boolean = false) {
+        if (person != null && !force) {
+            _profileDataState.value = Person(person!!)
+            return
+        }
+
         viewModelScope.launch {
-            resetUpdatePersonState()
-            _profileDataState.value = ProfileDataState.Loading
+            _profileDataState.value = Loading
 
             val response = PersonsRepository.getPersonById()
 
             _profileDataState.value = when (response) {
                 is ApiResult.Error -> {
                     if (response.code == 404) {
-                        ProfileDataState.PersonNotFound
+                        PersonNotFound
                     } else {
-                        ProfileDataState.UnknownError
+                        UnknownError
                     }
                 }
-                ApiResult.NetworkError -> ProfileDataState.NetworkError
+                ApiResult.NetworkError -> NetworkError
                 is ApiResult.Success -> {
                     if (response.data == null) {
-                        ProfileDataState.UnknownError
+                        UnknownError
                     } else {
                         person = response.data
                         Person(response.data)
                     }
                 }
-                else -> ProfileDataState.NetworkError
+
+
+                else -> UnknownError
             }
         }
     }
 
-    fun getPersonCars() {
+    fun getPersonCars(force: Boolean = false) {
+        if (personCars != null && !force) {
+            _carsState.value = CarsState.Cars(personCars!!)
+            return
+        }
+
         viewModelScope.launch {
-            resetCreateCarState()
             _carsState.value = CarsState.Loading
 
             val response = CarsRepository.getCarsByPersonId()
@@ -134,6 +145,7 @@ class NavViewModel : ViewModel() {
                     if (response.data == null) {
                         CarsState.UnknownError
                     } else {
+                        personCars = response.data
                         CarsState.Cars(response.data)
                     }
                 }
@@ -192,13 +204,19 @@ class NavViewModel : ViewModel() {
 
             if (file == null) {
                 _updatePersonState.value = UpdatePersonState.Updated
+                _profileDataState.value = Idle
+                person = null
                 return@launch
             }
 
             val responseAvatar = AvatarsRepository.createAvatar(file)
 
             _updatePersonState.value = when (responseAvatar) {
-                is ApiResult.Success<*> -> UpdatePersonState.Updated
+                is ApiResult.Success<*> -> {
+                    _profileDataState.value = Idle
+                    person = null
+                    UpdatePersonState.Updated
+                }
 
                 else -> UpdatePersonState.SomeErrorToCreateAvatar
             }
@@ -270,7 +288,9 @@ class NavViewModel : ViewModel() {
                 if (newCar == null) {
                     return@launch
                 }
-                selectedCar = newCar
+                selectedCarToDetail = newCar
+                _carsState.value = CarsState.Idle
+                personCars = null
                 _updateCarState.value = UpdateCarState.Updated
                 return@launch
             }
@@ -283,13 +303,19 @@ class NavViewModel : ViewModel() {
                     if (newCar == null) {
                         return@launch
                     }
-                    selectedCar = newCar
+                    selectedCarToDetail = newCar
+                    _carsState.value = CarsState.Idle
+                    personCars = null
                     UpdateCarState.Updated
                 }
 
                 else -> UpdateCarState.SomeErrorToCreatePhoto
             }
         }
+    }
+
+    fun resetUpdateCarState() {
+        _updateCarState.value = UpdateCarState.Idle
     }
 
     private suspend fun getCarAfterUpdating(carId: UInt): CarDto? {
@@ -356,11 +382,19 @@ class NavViewModel : ViewModel() {
                     }
                 }
                 ApiResult.NetworkError -> CreateCarState.NetworkError
-                is ApiResult.Success<*> -> CreateCarState.Created
+                is ApiResult.Success<*> -> {
+                    personCars = null
+                    _carsState.value = CarsState.Idle
+                    CreateCarState.Created
+                }
                 ApiResult.UnknownError -> CreateCarState.UnknownError
                 is ApiResult.ValidationError -> CreateCarState.ValidationError(response.errors)
             }
         }
+    }
+
+    fun resetCreateCarState() {
+        _createCarState.value = CreateCarState.Idle
     }
 
     fun logout() {
@@ -370,7 +404,13 @@ class NavViewModel : ViewModel() {
             val response = AuthRepository.logOut()
 
             _logoutState.value = when (response) {
-                is ApiResult.Success<*> -> LogOutState.LogOuted
+                is ApiResult.Success<*> -> {
+                    person = null
+                    personCars = null
+                    _profileDataState.value = ProfileDataState.Idle
+                    _carsState.value = CarsState.Idle
+                    LogOutState.LogOuted
+                }
 
                 else -> LogOutState.SomeError
             }
@@ -483,10 +523,6 @@ class NavViewModel : ViewModel() {
         }
     }
 
-    fun resetCreateCarState() {
-        _createCarState.value = CreateCarState.Idle
-    }
-
     fun getAllBrands() {
         viewModelScope.launch {
             _brandsState.value = BrandsState.Loading
@@ -525,10 +561,6 @@ class NavViewModel : ViewModel() {
                 else -> ModelsState.SomeError
             }
         }
-    }
-
-    fun resetUpdateCarState() {
-        _updateCarState.value = UpdateCarState.Idle
     }
 
     fun startTrip(startDatetime: LocalDateTime, macAddress: String, carId: UInt) {
@@ -597,6 +629,7 @@ class NavViewModel : ViewModel() {
                     if (res.data == null) {
                         CurrentDataSupportedPidsDetailsState.UnknownError
                     } else {
+                        curDataPids = res.data
                         CurrentDataSupportedPidsDetailsState.PidsDetails(res.data)
                     }
                 }

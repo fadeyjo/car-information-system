@@ -3,6 +3,7 @@ package com.example.dataproviderapp.ui.Nav.Fragments.Profile
 import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
+import android.media.session.MediaSession
 import android.net.Uri
 import android.os.Bundle
 import android.util.Patterns
@@ -20,11 +21,13 @@ import com.bumptech.glide.manager.Lifecycle
 import com.example.dataproviderapp.BuildConfig
 import com.example.dataproviderapp.R
 import com.example.dataproviderapp.databinding.FragmentUpdatePersonBinding
+import com.example.dataproviderapp.dto.responses.PersonDto
 import com.example.dataproviderapp.jwtutils.TokenStorage
 import com.example.dataproviderapp.ui.Nav.NavViewModel
 import com.example.dataproviderapp.ui.Nav.UpdatePersonState
 import com.example.dataproviderapp.ui.SignIn.SignInActivity
 import com.example.dataproviderapp.ui.SignUp.SignUpState
+import com.example.dataproviderapp.utils.Utils
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
@@ -69,8 +72,35 @@ class UpdatePersonFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val person = viewModel.person
+        if (viewModel.person == null) {
+            Utils.showErrorDialogWithAction("Пользователь не найден", requireContext()) {
+                TokenStorage.clear()
+                startSignInActivity()
+            }
+        }
 
+        val person = viewModel.person!!
+
+        renderPerson(person)
+
+        binding.etBirthDate.setOnClickListener {
+            showBirthDatePicker(binding.etBirthDate)
+        }
+
+        binding.ivProfileAvatar.setOnClickListener {
+            pickImageFromGallery()
+        }
+
+        binding.btnUpdate.setOnClickListener {
+            redactData()
+        }
+
+        viewModel.resetUpdatePersonState()
+
+        observeVieModel()
+    }
+
+    private fun renderPerson(person: PersonDto) {
         binding.etEmail.setText(person.email)
         binding.etPhone.setText(person.phone)
         binding.etLastName.setText(person.lastName)
@@ -85,20 +115,6 @@ class UpdatePersonFragment : Fragment() {
         }
 
         loadAvatarIntoProfile(binding.ivProfileAvatar, person.avatarId)
-
-        binding.etBirthDate.setOnClickListener {
-            showBirthDatePicker(binding.etBirthDate)
-        }
-
-        binding.ivProfileAvatar.setOnClickListener {
-            pickImageFromGallery()
-        }
-
-        binding.btnUpdate.setOnClickListener {
-            redactData()
-        }
-
-        observeVieModel()
     }
 
     private fun observeVieModel() {
@@ -107,13 +123,13 @@ class UpdatePersonFragment : Fragment() {
                 viewModel.updatePersonState.collect { state ->
                     when (state) {
                         UpdatePersonState.CannotClearDriveLicense -> binding.tilDriverLicense.error = "У вас имеются автомобили"
-                        UpdatePersonState.NetworkError -> showErrorDialog("Нет подключения к интрнету")
+                        UpdatePersonState.NetworkError -> Utils.showNetworkErrorDialog(requireContext())
                         UpdatePersonState.PersonExistsByDriveLicense -> binding.tilDriverLicense.error = "Пользователь с таким ВУ уже существует"
                         UpdatePersonState.PersonExistsByEmail -> binding.tilEmail.error = "Пользователь с таким email уже существует"
                         UpdatePersonState.PersonExistsByPhone -> binding.tilPhone.error = "Пользователь с таким номером телефона уже существует уже существует"
-                        UpdatePersonState.PersonNotFound -> moveToSignIn()
-                        UpdatePersonState.SomeErrorToCreateAvatar -> showErrorDialog("Ошибка при создании аватара")
-                        UpdatePersonState.UnknownError -> showErrorDialog("Неизвестная ошибка")
+                        UpdatePersonState.PersonNotFound -> startSignInActivity()
+                        UpdatePersonState.SomeErrorToCreateAvatar -> Utils.showErrorDialog("Ошибка при создании аватара", requireContext())
+                        UpdatePersonState.UnknownError -> Utils.showUnknownErrorDialog(requireContext())
                         UpdatePersonState.Updated -> {
                             requireActivity().supportFragmentManager.popBackStack()
                         }
@@ -142,21 +158,11 @@ class UpdatePersonFragment : Fragment() {
         }
     }
 
-    private fun showErrorDialog(message: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Ошибка")
-            .setMessage(message)
-            .setPositiveButton("ОК", null)
-            .show()
-    }
-
     private fun pickImageFromGallery() {
         pickImageLauncher.launch("image/*")
     }
 
     private fun redactData() {
-        viewModel.resetUpdatePersonState()
-
         val email = binding.etEmail.text.toString()
         val phone = binding.etPhone.text.toString()
         val lastName = binding.etLastName.text.toString()
@@ -360,7 +366,12 @@ class UpdatePersonFragment : Fragment() {
         datePickerDialog.show()
     }
 
-    private fun moveToSignIn() {
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun startSignInActivity() {
         val intent = Intent(requireContext(), SignInActivity::class.java)
         startActivity(intent)
         requireActivity().finish()

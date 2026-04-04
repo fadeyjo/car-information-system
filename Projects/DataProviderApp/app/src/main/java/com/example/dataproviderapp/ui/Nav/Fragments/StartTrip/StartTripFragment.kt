@@ -1,5 +1,6 @@
 package com.example.dataproviderapp.ui.Nav.Fragments.StartTrip
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -19,11 +20,14 @@ import com.example.dataproviderapp.R
 import com.example.dataproviderapp.databinding.FragmentMyCarsBinding
 import com.example.dataproviderapp.databinding.FragmentProfileBinding
 import com.example.dataproviderapp.databinding.FragmentStartTripBinding
+import com.example.dataproviderapp.jwtutils.TokenStorage
 import com.example.dataproviderapp.ui.Nav.CarsState
 import com.example.dataproviderapp.ui.Nav.Fragments.MyCars.CarDetailsFragment
 import com.example.dataproviderapp.ui.Nav.Fragments.MyCars.CreateCarFragment
 import com.example.dataproviderapp.ui.Nav.Fragments.MyCars.MyCarsAdapter
 import com.example.dataproviderapp.ui.Nav.NavViewModel
+import com.example.dataproviderapp.ui.SignIn.SignInActivity
+import com.example.dataproviderapp.utils.Utils
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
@@ -58,31 +62,8 @@ class StartTripFragment : Fragment() {
             adapter = carsAdapter
         }
 
-        requireActivity().addMenuProvider(object : MenuProvider {
-            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.menu_my_cars, menu)
-            }
-
-            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                return when (menuItem.itemId) {
-                    R.id.action_add_car -> {
-                        onAddCarClicked()
-                        true
-                    }
-                    else -> false
-                }
-            }
-        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
-
         observeViewModel(carsAdapter)
         viewModel.getPersonCars()
-    }
-
-    private fun onAddCarClicked() {
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, CreateCarFragment())
-            .addToBackStack(null)
-            .commit()
     }
 
     private fun observeViewModel(carsAdapter: MyCarsAdapter) {
@@ -98,9 +79,14 @@ class StartTripFragment : Fragment() {
                                 carsAdapter.submitList(state.cars)
                             }
 
-                            CarsState.PersonNotFound -> showErrorDialog("Пользователь не найден.")
-                            CarsState.NetworkError -> showErrorDialog("Нет подключения к интернету.")
-                            CarsState.UnknownError -> showErrorDialog("Произошла неизвестная ошибка.")
+                            CarsState.PersonNotFound -> {
+                                Utils.showErrorDialogWithAction("Пользователь не найден", requireContext()) {
+                                    TokenStorage.clear()
+                                    startSignInActivity()
+                                }
+                            }
+                            CarsState.NetworkError -> Utils.showNetworkErrorDialog(requireContext())
+                            CarsState.UnknownError -> Utils.showUnknownErrorDialog(requireContext())
                             else -> Unit
                         }
                     }
@@ -109,14 +95,10 @@ class StartTripFragment : Fragment() {
         }
     }
 
-    private fun showErrorDialog(message: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Ошибка")
-            .setMessage(message)
-            .setPositiveButton("ОК") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
+    private fun startSignInActivity() {
+        val intent = Intent(requireContext(), SignInActivity::class.java)
+        startActivity(intent)
+        requireActivity().finish()
     }
 
     override fun onDestroyView() {

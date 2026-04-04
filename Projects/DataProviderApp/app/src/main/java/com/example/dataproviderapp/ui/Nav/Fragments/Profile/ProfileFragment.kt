@@ -12,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
+import com.bumptech.glide.util.Util
 import com.example.dataproviderapp.BuildConfig
 import com.example.dataproviderapp.R
 import com.example.dataproviderapp.databinding.FragmentProfileBinding
@@ -20,6 +21,7 @@ import com.example.dataproviderapp.jwtutils.TokenStorage
 import com.example.dataproviderapp.ui.Nav.NavViewModel
 import com.example.dataproviderapp.ui.Nav.ProfileDataState
 import com.example.dataproviderapp.ui.SignIn.SignInActivity
+import com.example.dataproviderapp.utils.Utils
 import com.google.android.material.imageview.ShapeableImageView
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
@@ -41,12 +43,12 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        observeViewModel()
-        viewModel.getPersonData()
-
         binding.btnEdit.setOnClickListener {
             redactPerson()
         }
+
+        observeViewModel()
+        viewModel.getPersonData()
     }
 
     private fun observeViewModel() {
@@ -58,7 +60,16 @@ class ProfileFragment : Fragment() {
                             is ProfileDataState.Person -> {
                                 renderPerson(state.person)
                             }
-                            else -> Unit
+                            ProfileDataState.NetworkError -> Utils.showNetworkErrorDialog(requireContext())
+                            ProfileDataState.PersonNotFound -> {
+                                TokenStorage.clear()
+                                Utils.showErrorDialogWithAction("Пользователь не найден", requireContext()) {
+                                    startSignInActivity()
+                                }
+                            }
+                            ProfileDataState.UnknownError -> Utils.showUnknownErrorDialog(requireContext())
+
+                            else -> {}
                         }
                     }
                 }
@@ -122,5 +133,11 @@ class ProfileFragment : Fragment() {
             .replace(R.id.fragmentContainer, UpdatePersonFragment())
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun startSignInActivity() {
+        val intent = Intent(requireContext(), SignInActivity::class.java)
+        startActivity(intent)
+        requireActivity().finish()
     }
 }

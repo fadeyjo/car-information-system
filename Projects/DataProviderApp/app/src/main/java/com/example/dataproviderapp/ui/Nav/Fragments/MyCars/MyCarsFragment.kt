@@ -1,5 +1,6 @@
 package com.example.dataproviderapp.ui.Nav.Fragments.MyCars
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -7,7 +8,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -17,8 +17,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.dataproviderapp.R
 import com.example.dataproviderapp.databinding.FragmentMyCarsBinding
+import com.example.dataproviderapp.jwtutils.TokenStorage
 import com.example.dataproviderapp.ui.Nav.NavViewModel
 import com.example.dataproviderapp.ui.Nav.CarsState
+import com.example.dataproviderapp.ui.SignIn.SignInActivity
+import com.example.dataproviderapp.utils.Utils
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
@@ -41,7 +44,7 @@ class MyCarsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val carsAdapter = MyCarsAdapter { car ->
-            viewModel.selectedCar = car
+            viewModel.selectedCarToDetail = car
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, CarDetailsFragment())
                 .addToBackStack(null)
@@ -70,6 +73,7 @@ class MyCarsFragment : Fragment() {
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         observeViewModel(carsAdapter)
+
         viewModel.getPersonCars()
     }
 
@@ -93,9 +97,12 @@ class MyCarsFragment : Fragment() {
                                 carsAdapter.submitList(state.cars)
                             }
 
-                            CarsState.PersonNotFound -> showErrorDialog("Пользователь не найден.")
-                            CarsState.NetworkError -> showErrorDialog("Нет подключения к интернету.")
-                            CarsState.UnknownError -> showErrorDialog("Произошла неизвестная ошибка.")
+                            CarsState.PersonNotFound -> Utils.showErrorDialogWithAction("Пользователь не найден", requireContext()) {
+                                TokenStorage.clear()
+                                startSignInActivity()
+                            }
+                            CarsState.NetworkError -> Utils.showNetworkErrorDialog(requireContext())
+                            CarsState.UnknownError -> Utils.showUnknownErrorDialog(requireContext())
                             else -> Unit
                         }
                     }
@@ -104,14 +111,10 @@ class MyCarsFragment : Fragment() {
         }
     }
 
-    private fun showErrorDialog(message: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Ошибка")
-            .setMessage(message)
-            .setPositiveButton("ОК") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
+    private fun startSignInActivity() {
+        val intent = Intent(requireContext(), SignInActivity::class.java)
+        startActivity(intent)
+        requireActivity().finish()
     }
 
     override fun onDestroyView() {

@@ -12,8 +12,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,7 +20,6 @@ import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,6 +27,7 @@ import com.example.dataproviderapp.R
 import com.example.dataproviderapp.ble.ObdBleClient
 import com.example.dataproviderapp.databinding.FragmentSelectDeviceBinding
 import com.example.dataproviderapp.ui.Nav.NavViewModel
+import com.example.dataproviderapp.utils.Utils
 import java.util.Locale
 import kotlin.getValue
 
@@ -89,19 +87,11 @@ class SelectDeviceFragment : Fragment() {
 
         viewModel.obdBleClient!!.connect {
             requireActivity().runOnUiThread {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Ошибка")
-                    .setMessage("Не удалось подключиться к устройству за 15 секунд")
-                    .setPositiveButton("ОК") { dialog, _ ->
-                        requireActivity().supportFragmentManager.popBackStack()
-                    }
-                    .show()
+                goBackWithMessage("Не удалось подключиться к устройству за 15 секунд")
 
                 adapter.clearDevices()
 
-                if (!isScanning) {
-                    startBleScan()
-                }
+                startBleScan()
             }
         }
     }
@@ -186,6 +176,10 @@ class SelectDeviceFragment : Fragment() {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     private fun startBleScan() {
+        if (isScanning) {
+            return
+        }
+
         val scanner = bluetoothLeScanner ?: return
 
         scanCallback = object : ScanCallback() {
@@ -228,18 +222,14 @@ class SelectDeviceFragment : Fragment() {
     }
 
     private fun goBackWithMessage(message: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Ошибка")
-            .setMessage(message)
-            .setPositiveButton("ОК") { dialog, _ ->
-                requireActivity().supportFragmentManager.popBackStack()
-            }
-            .show()
+        Utils.showErrorDialogWithAction(message, requireContext()) {
+            parentFragmentManager.popBackStack()
+        }
     }
 
     @SuppressLint("MissingPermission")
     private fun stopScanning() {
-        if (hasPermissions() && isScanning) {
+        if (isScanning) {
             scanCallback?.let {
                 bluetoothLeScanner?.stopScan(it)
             }
@@ -247,22 +237,15 @@ class SelectDeviceFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onDestroyView() {
         super.onDestroyView()
 
         stopScanning()
+        viewModel.obdBleClient!!.disconnect()
+        viewModel.obdBleClient = null
 
         _binding = null
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    override fun onDestroy() {
-        super.onDestroy()
-
-        if (viewModel.obdBleClient != null) {
-            viewModel.obdBleClient!!.disconnect()
-            viewModel.obdBleClient = null
-        }
     }
 }

@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\services\\avatarsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:services\\avatarsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\mqtt\\mqttservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:mqtt\\mqttservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -43,19 +47,31 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "AvatarsService.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\AvatarsService.cs",
+              "RelativeDocumentMoniker": "Services\\AvatarsService.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\AvatarsService.cs",
+              "RelativeToolTip": "Services\\AvatarsService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-04T05:05:40.546Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "MqttService.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\mqtt\\MqttService.cs",
               "RelativeDocumentMoniker": "mqtt\\MqttService.cs",
               "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\mqtt\\MqttService.cs",
               "RelativeToolTip": "mqtt\\MqttService.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAAAC8AAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAuwC8AAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-03T16:40:58.242Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-03T16:40:58.242Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "TelemetryDataController.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\TelemetryDataController.cs",
               "RelativeDocumentMoniker": "Controllers\\TelemetryDataController.cs",
@@ -63,12 +79,11 @@
               "RelativeToolTip": "Controllers\\TelemetryDataController.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAAAwB0AAABXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-03T17:29:08.464Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-03T17:29:08.464Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "OBDIIPIDSController.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Controllers\\OBDIIPIDSController.cs",
               "RelativeDocumentMoniker": "Controllers\\OBDIIPIDSController.cs",
@@ -76,12 +91,11 @@
               "RelativeToolTip": "Controllers\\OBDIIPIDSController.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAABsAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-03T16:37:18.946Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-03T16:37:18.946Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "OBDIIPIDSService.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\OBDIIPIDSService.cs",
               "RelativeDocumentMoniker": "Services\\OBDIIPIDSService.cs",
@@ -89,12 +103,11 @@
               "RelativeToolTip": "Services\\OBDIIPIDSService.cs",
               "ViewState": "AgIAAAcAAAAAAAAAAAAkwBsAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-03T16:00:07.838Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-03T16:00:07.838Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "PidsDetailDto.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Responses\\PidsDetailDto.cs",
               "RelativeDocumentMoniker": "Contracts\\Responses\\PidsDetailDto.cs",
@@ -102,12 +115,11 @@
               "RelativeToolTip": "Contracts\\Responses\\PidsDetailDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-03T15:55:17.092Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-03T15:55:17.092Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "IOBDIIPIDSService.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\Interfaces\\IOBDIIPIDSService.cs",
               "RelativeDocumentMoniker": "Services\\Interfaces\\IOBDIIPIDSService.cs",
@@ -115,12 +127,11 @@
               "RelativeToolTip": "Services\\Interfaces\\IOBDIIPIDSService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-03T15:54:26.323Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-03T15:54:26.323Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "StartTripRequest.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\StartTripRequest.cs",
               "RelativeDocumentMoniker": "Contracts\\Requests\\StartTripRequest.cs",

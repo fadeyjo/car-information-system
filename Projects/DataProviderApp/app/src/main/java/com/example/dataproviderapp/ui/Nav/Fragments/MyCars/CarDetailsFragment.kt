@@ -13,6 +13,7 @@ import com.example.dataproviderapp.databinding.FragmentCarDetailsBinding
 import com.example.dataproviderapp.dto.responses.CarDto
 import com.example.dataproviderapp.ui.Nav.Fragments.Profile.UpdatePersonFragment
 import com.example.dataproviderapp.ui.Nav.NavViewModel
+import com.example.dataproviderapp.utils.Utils
 import kotlin.getValue
 
 class CarDetailsFragment : Fragment() {
@@ -34,11 +35,15 @@ class CarDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val car = viewModel.selectedCar
-        if (car == null) {
-            parentFragmentManager.popBackStack()
+        if (viewModel.selectedCarToDetail == null) {
+            Utils.showErrorDialogWithAction("Не удалось найти автомобиль", requireContext()) {
+                parentFragmentManager.popBackStack()
+            }
+
             return
         }
+
+        val car = viewModel.selectedCarToDetail!!
 
         binding.btnEdit.setOnClickListener {
             redactCar()

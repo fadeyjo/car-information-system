@@ -14,7 +14,6 @@ import com.example.dataproviderapp.R
 import com.example.dataproviderapp.jwtutils.TokenStorage
 import com.example.dataproviderapp.ui.Nav.NavActivity
 import com.example.dataproviderapp.ui.SignIn.SignInActivity
-import com.example.dataproviderapp.ui.SignUp.SignUpActivity
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
@@ -32,7 +31,6 @@ class MainActivity : AppCompatActivity() {
 
         if (accessToken.isNullOrEmpty() || refreshToken.isNullOrEmpty()) {
             startSignInActivity()
-            finish()
             return
         }
 
@@ -50,11 +48,13 @@ class MainActivity : AppCompatActivity() {
     private fun startSignInActivity() {
         val intent = Intent(this, SignInActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun startNavActivity() {
         val intent = Intent(this, NavActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun observeViewModel() {
@@ -64,12 +64,10 @@ class MainActivity : AppCompatActivity() {
                     when (state) {
                         is PersonState.Authorized -> {
                             startNavActivity()
-                            finish()
                         }
 
                         is PersonState.Unauthorized -> {
                             startSignInActivity()
-                            finish()
                         }
 
                         else -> {}

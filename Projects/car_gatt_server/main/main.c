@@ -124,6 +124,9 @@ static void ble_notify_bytes(const uint8_t *data, uint16_t len)
 		return;
 	}
 
+	
+	printf("Sending response...\n");
+
 	struct os_mbuf *om = ble_hs_mbuf_from_flat(data, len);
 	if (!om)
 	{
@@ -131,9 +134,15 @@ static void ble_notify_bytes(const uint8_t *data, uint16_t len)
 	}
 
 	int rc = ble_gatts_notify_custom(g_ble_conn_handle, g_ble_notify_val_handle, om);
+	
+	
 	if (rc != 0)
 	{
-		// If notify failed, just drop silently. Connection may be gone.
+		printf("response failed\n");
+	}
+	else
+	{
+		printf("Response sended success\n");
 	}
 }
 
@@ -156,6 +165,7 @@ static void ble_notify_error(const char *msg)
 
 static void ble_notify_session_started(uint16_t can_speed, uint32_t supported_pids)
 {
+	printf("Start session response send\n");
 	uint8_t buf[1 + 2 + 4];
 	buf[0] = BLE_EVT_SESSION_STARTED;
 	write_le16(&buf[1], can_speed);
@@ -777,7 +787,6 @@ static int ble_gap_event_cb(struct ble_gap_event *event, void *arg)
 			return 0;
 
 		case BLE_GAP_EVENT_SUBSCRIBE:
-			// Track notifications enabled on our notify characteristic.
 			if (event->subscribe.attr_handle == g_ble_notify_val_handle)
 			{
 				g_ble_notify_enabled = event->subscribe.cur_notify;

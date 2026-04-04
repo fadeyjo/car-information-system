@@ -22,12 +22,14 @@ import com.example.dataproviderapp.BuildConfig
 import com.example.dataproviderapp.R
 import com.example.dataproviderapp.databinding.FragmentUpdateCarBinding
 import com.example.dataproviderapp.databinding.FragmentUpdatePersonBinding
+import com.example.dataproviderapp.dto.responses.CarDto
 import com.example.dataproviderapp.jwtutils.TokenStorage
 import com.example.dataproviderapp.ui.Nav.CheckBoxesDataState
 import com.example.dataproviderapp.ui.Nav.NavViewModel
 import com.example.dataproviderapp.ui.Nav.UpdateCarState
 import com.example.dataproviderapp.ui.Nav.UpdatePersonState
 import com.example.dataproviderapp.ui.SignIn.SignInActivity
+import com.example.dataproviderapp.utils.Utils
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
@@ -74,8 +76,6 @@ class UpdateCarFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        renderCarData()
-
         binding.ivCarPhoto.setOnClickListener {
             pickImageFromGallery()
         }
@@ -106,6 +106,17 @@ class UpdateCarFragment : Fragment() {
         binding.etModel.setOnClickListener {
             selectModel()
         }
+
+        if (viewModel.selectedCarToDetail == null) {
+            Utils.showErrorDialogWithAction("Не удалось найти автомобиль", requireContext()) {
+                parentFragmentManager.popBackStack()
+            }
+            return
+        }
+
+        renderCarData(viewModel.selectedCarToDetail!!)
+
+        viewModel.resetUpdateCarState()
 
         observeVieModel()
 
@@ -145,14 +156,7 @@ class UpdateCarFragment : Fragment() {
         }
     }
 
-    private fun renderCarData() {
-        val car = viewModel.selectedCar
-
-        if (car == null) {
-            requireActivity().supportFragmentManager.popBackStack()
-            return
-        }
-
+    private fun renderCarData(car: CarDto) {
         binding.etVin.setText(car.vinNumber)
         if (!car.stateNumber.isNullOrBlank()) {
             binding.etStateNumber.setText(car.stateNumber)
@@ -176,7 +180,7 @@ class UpdateCarFragment : Fragment() {
                     viewModel.checkBoxesDataState.collect { state ->
                         when (state) {
                             is CheckBoxesDataState.Data -> {
-                                val car = viewModel.selectedCar!!
+                                val car = viewModel.selectedCarToDetail!!
 
                                 setupDropdown(state.bodies, binding.actBody, car.bodyName)
                                 setupDropdown(state.gearboxes, binding.actGearbox, car.gearboxName)
@@ -185,7 +189,7 @@ class UpdateCarFragment : Fragment() {
 
 
                             }
-                            CheckBoxesDataState.SomeError -> showErrorDialog("Ошибка получения данных")
+                            CheckBoxesDataState.SomeError -> Utils.showErrorDialog("Ошибка получения данных", requireContext())
 
                             else -> {}
                         }
@@ -201,10 +205,15 @@ class UpdateCarFragment : Fragment() {
                         when (state) {
                             UpdateCarState.CarExistsByStateNumber -> binding.tilStateNumber.error = "Автомобиль с данным гос номером уже существует"
                             UpdateCarState.CarExistsByVin -> binding.tilVin.error = "Автомобиль с данным VIN уже существует"
-                            UpdateCarState.CarNotFound -> showErrorDialog("Автомобиль не найден")
-                            UpdateCarState.NetworkError -> showErrorDialog("Нет подключения к интернету")
-                            UpdateCarState.UnknownError -> showErrorDialog("Неизвестная ошибка")
-                            UpdateCarState.Updated -> requireActivity().supportFragmentManager.popBackStack()
+                            UpdateCarState.CarNotFound -> {
+                                Utils.showErrorDialogWithAction("Автомобиль не найден", requireContext()) {
+                                    TokenStorage.clear()
+                                    startSignInActivity()
+                                }
+                            }
+                            UpdateCarState.NetworkError -> Utils.showNetworkErrorDialog(requireContext())
+                            UpdateCarState.UnknownError -> Utils.showUnknownErrorDialog(requireContext())
+                            UpdateCarState.Updated -> parentFragmentManager.popBackStack()
                             is UpdateCarState.ValidationError -> {
                                 state.errors.forEach { fieldErrorMap ->
                                     fieldErrorMap.forEach { (field, message) ->
@@ -254,23 +263,11 @@ class UpdateCarFragment : Fragment() {
         }
     }
 
-    private fun showErrorDialog(message: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Ошибка")
-            .setMessage(message)
-            .setPositiveButton("ОК", null)
-            .show()
-    }
-
     private fun pickImageFromGallery() {
         pickImageLauncher.launch("image/*")
     }
 
     private fun redactData() {
-        viewModel.resetUpdateCarState()
-
-        viewModel.resetCreateCarState()
-
         var isValid = true
 
         val brand = binding.etBrand.text.toString()
@@ -479,6 +476,8 @@ class UpdateCarFragment : Fragment() {
             binding.tilStateNumber.error = null
         }
 
+        binding.btnUpdate.isEnabled = !isValid
+
         if (isValid) {
             var file: MultipartBody.Part? = null
 
@@ -494,7 +493,7 @@ class UpdateCarFragment : Fragment() {
                 weight.toUShort(), powerHp.toUShort(),
                 powerKw.toFloat(), engVolume.toFloat(),
                 tankVolume.toUByte(), fuelType,
-                viewModel.selectedCar!!.carId, file
+                viewModel.selectedCarToDetail!!.carId, file
             )
         }
     }
@@ -523,10 +522,15 @@ class UpdateCarFragment : Fragment() {
             .into(target)
     }
 
-    private fun moveToSignIn() {
+    private fun startSignInActivity() {
         val intent = Intent(requireContext(), SignInActivity::class.java)
         startActivity(intent)
         requireActivity().finish()
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 
     companion object {

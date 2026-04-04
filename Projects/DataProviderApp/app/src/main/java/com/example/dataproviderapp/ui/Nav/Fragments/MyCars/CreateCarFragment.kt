@@ -13,12 +13,15 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.util.Util
 import com.example.dataproviderapp.R
 import com.example.dataproviderapp.databinding.FragmentCreateCarBinding
+import com.example.dataproviderapp.jwtutils.TokenStorage
 import com.example.dataproviderapp.ui.Nav.CheckBoxesDataState
 import com.example.dataproviderapp.ui.Nav.CreateCarState
 import com.example.dataproviderapp.ui.Nav.NavViewModel
 import com.example.dataproviderapp.ui.SignIn.SignInActivity
+import com.example.dataproviderapp.utils.Utils
 import kotlinx.coroutines.launch
 import java.time.Year
 import kotlin.math.roundToInt
@@ -68,7 +71,10 @@ class CreateCarFragment : Fragment() {
             createCar()
         }
 
+        viewModel.resetCreateCarState()
+
         observeViewModel()
+
         viewModel.getCheckboxesData()
     }
 
@@ -117,7 +123,7 @@ class CreateCarFragment : Fragment() {
         view.setAdapter(adapter)
     }
 
-    private fun moveToSignIn() {
+    private fun startSignInActivity() {
         val intent = Intent(requireContext(), SignInActivity::class.java)
         startActivity(intent)
         requireActivity().finish()
@@ -129,7 +135,7 @@ class CreateCarFragment : Fragment() {
                 launch {
                     viewModel.checkBoxesDataState.collect { state ->
                         when (state) {
-                            CheckBoxesDataState.SomeError -> showErrorDialog("Неизвестная ошибка")
+                            CheckBoxesDataState.SomeError -> Utils.showUnknownErrorDialog(requireContext())
                             is CheckBoxesDataState.Data -> {
                                 setupDropdown(state.bodies, binding.actBody)
                                 setupDropdown(state.gearboxes, binding.actGearbox)
@@ -147,19 +153,21 @@ class CreateCarFragment : Fragment() {
                         binding.btnCreate.isEnabled = true;
                         when (state) {
                             CreateCarState.CannotCreateCar ->
-                                showErrorDialog("Создание автомобиля невозможно, так как вы не внесли информацию о вашем ВУ")
+                                Utils.showErrorDialog("Создание автомобиля невозможно, так как вы не внесли информацию о вашем ВУ", requireContext())
                             CreateCarState.CarExistsByStateNumber ->
                                 binding.tilStateNumber.error = "Автомобиль с данным гос номером уже существует"
                             CreateCarState.CarExistsByVin ->
                                 binding.tilVin.error = "Автомобиль с данным VIN уже существует"
                             CreateCarState.Created -> requireActivity().supportFragmentManager.popBackStack()
                             CreateCarState.NetworkError ->
-                                showErrorDialog("Нет подключения к интернету")
+                                Utils.showNetworkErrorDialog(requireContext())
                             CreateCarState.PersonNotFound -> {
-                                moveToSignIn()
+                                Utils.showErrorDialogWithAction("Пользователь не найден", requireContext()) {
+                                    TokenStorage.clear()
+                                    startSignInActivity()
+                                }
                             }
-                            CreateCarState.UnknownError ->
-                                showErrorDialog("Неизвестная ошибка")
+                            CreateCarState.UnknownError -> Utils.showUnknownErrorDialog(requireContext())
                             is CreateCarState.ValidationError -> {
                                 state.errors.forEach { fieldErrorMap ->
                                     fieldErrorMap.forEach { (field, message) ->
@@ -191,22 +199,12 @@ class CreateCarFragment : Fragment() {
         }
     }
 
-    private fun showErrorDialog(message: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Ошибка")
-            .setMessage(message)
-            .setPositiveButton("ОК", null)
-            .show()
-    }
-
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
     }
 
     private fun createCar() {
-        viewModel.resetCreateCarState()
-
         var isValid = true
 
         val brand = binding.etBrand.text.toString()
@@ -414,6 +412,8 @@ class CreateCarFragment : Fragment() {
         else {
             binding.tilStateNumber.error = null
         }
+
+        binding.btnCreate.isEnabled = !isValid
 
         if (isValid)
             viewModel.createCar(

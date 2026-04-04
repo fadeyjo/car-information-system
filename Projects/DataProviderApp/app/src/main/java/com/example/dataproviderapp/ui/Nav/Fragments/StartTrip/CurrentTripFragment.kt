@@ -25,6 +25,7 @@ import com.example.dataproviderapp.ui.Nav.CurrentDataSupportedPidsDetailsState
 import com.example.dataproviderapp.ui.Nav.NavActivity
 import com.example.dataproviderapp.ui.Nav.NavViewModel
 import com.example.dataproviderapp.ui.Nav.StartTripState
+import com.example.dataproviderapp.utils.Utils
 import com.google.gson.Gson
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
@@ -105,7 +106,9 @@ class CurrentTripFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         if (arguments == null || arguments?.getInt("speed") == null) {
-            requireActivity().supportFragmentManager.popBackStack()
+            Utils.showErrorDialogWithAction("Не получена скорость", requireContext()) {
+                parentFragmentManager.popBackStack()
+            }
             return
         }
 
@@ -119,8 +122,6 @@ class CurrentTripFragment : Fragment() {
 
         connectMqtt()
 
-        publishJson("telemetry/new-data", "mymsg")
-
         observeVIewModel()
 
         viewModel.obdBleClient!!.startSession(speed) {
@@ -133,8 +134,9 @@ class CurrentTripFragment : Fragment() {
     }
 
     private fun goBackWithMessage(message: String) {
-        showErrorDialog(message)
-        requireActivity().supportFragmentManager.popBackStack()
+        Utils.showErrorDialogWithAction(message, requireContext()) {
+            parentFragmentManager.popBackStack()
+        }
     }
 
     @OptIn(ExperimentalEncodingApi::class)
@@ -151,7 +153,7 @@ class CurrentTripFragment : Fragment() {
     @OptIn(ExperimentalEncodingApi::class)
     private fun dataCallback(data: ObdBleClient.DataCallBack) {
         when (data) {
-            is ObdBleClient.DataCallBack.Error -> showErrorDialog(data.message)
+            is ObdBleClient.DataCallBack.Error -> Utils.showErrorDialog(data.message, requireContext())
             is ObdBleClient.DataCallBack.ObdResponse -> {
                 // надо попробовать запустить
                 val content = CreateTelemetryDataRequest(
@@ -209,7 +211,6 @@ class CurrentTripFragment : Fragment() {
                         when (state) {
                             CurrentDataSupportedPidsDetailsState.NetworkError -> goBackWithMessage("Нет подключения к интернету")
                             is CurrentDataSupportedPidsDetailsState.PidsDetails -> {
-                                viewModel.curDataPids = state.pidsDetails
                                 viewModel.startTrip(
                                     LocalDateTime.now(ZoneOffset.UTC),
                                     viewModel.obdBleClient!!.device.address,
@@ -265,16 +266,6 @@ class CurrentTripFragment : Fragment() {
         gpsTask?.cancel()
     }
 
-    private fun showErrorDialog(message: String) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Ошибка")
-            .setMessage(message)
-            .setPositiveButton("ОК") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onDestroyView() {
@@ -284,9 +275,7 @@ class CurrentTripFragment : Fragment() {
 
         changeStateNav(false)
 
-        if (viewModel.obdBleClient != null) {
-            viewModel.obdBleClient!!.disconnect()
-            viewModel.obdBleClient = null
-        }
+        viewModel.obdBleClient?.disconnect()
+        viewModel.obdBleClient = null
     }
 }
