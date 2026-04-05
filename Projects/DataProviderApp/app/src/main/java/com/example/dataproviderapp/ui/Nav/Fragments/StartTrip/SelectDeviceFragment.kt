@@ -243,7 +243,7 @@ class SelectDeviceFragment : Fragment() {
         super.onDestroyView()
 
         stopScanning()
-        viewModel.obdBleClient!!.disconnect()
+        viewModel.obdBleClient?.disconnect()
         viewModel.obdBleClient = null
 
         _binding = null

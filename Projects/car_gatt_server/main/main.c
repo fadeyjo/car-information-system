@@ -20,6 +20,9 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 
+void ble_hs_lock(void);
+void ble_hs_unlock(void);
+
 #define TWAI_TX_NUM GPIO_NUM_5
 #define TWAI_RX_NUM GPIO_NUM_4
 
@@ -33,6 +36,7 @@
 
 #define CAN_TX_QUEUE_SIZE 32
 #define CAN_RX_QUEUE_SIZE 32
+
 
 static const char *TAG = "car_gatt";
 
@@ -58,18 +62,24 @@ enum {
 enum {
 	BLE_EVT_SESSION_STARTED = 0x01,
 	BLE_EVT_OBD_RESPONSE = 0x02,
-	BLE_EVT_SESSION_STOPPED = 0x03,
-	BLE_EVT_ERROR = 0xFF,
+	BLE_EVT_SESSION_STOPPED = 0x03
 };
 
 
+typedef struct {
+    uint8_t data[66];
+    uint16_t len;
+} ble_msg_t;
+
+QueueHandle_t ble_queue;
+
+static TaskHandle_t ble_notify_task_handle;
 
 static uint16_t g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 static bool g_ble_notify_enabled = false;
 static uint16_t g_ble_notify_val_handle = 0;
 static uint8_t g_own_addr_type = 0;
 
-static void ble_notify_error(const char *msg);
 static void ble_notify_session_started(uint16_t can_speed, uint32_t supported_pids);
 static void ble_notify_session_stopped(void);
 static void ble_notify_obd_response(const twai_message_t *message);
@@ -119,53 +129,63 @@ static bool ble_can_notify(void)
 
 static void ble_notify_bytes(const uint8_t *data, uint16_t len)
 {
-	if (!ble_can_notify())
-	{
-		return;
-	}
+    if (!ble_can_notify()) {
+        return;
+    }
 
-	
-	printf("Sending response...\n");
-
-	struct os_mbuf *om = ble_hs_mbuf_from_flat(data, len);
-	if (!om)
-	{
-		return;
-	}
-
-	int rc = ble_gatts_notify_custom(g_ble_conn_handle, g_ble_notify_val_handle, om);
-	
-	
-	if (rc != 0)
-	{
-		printf("response failed\n");
-	}
-	else
-	{
-		printf("Response sended success\n");
+    ble_msg_t msg;
+	memcpy(msg.data, data, len);
+	msg.len = len;
+	if (xQueueSend(ble_queue, &msg, pdMS_TO_TICKS(50)) != pdTRUE) {
+		ESP_LOGW(TAG, "ble notify queue full");
 	}
 }
 
-static void ble_notify_error(const char *msg)
+static void ble_notify_task(void *arg)
 {
-	if (!msg)
-	{
-		msg = "unknown error";
+	(void)arg;
+	ble_msg_t msg;
+
+	for (;;) {
+		if (xQueueReceive(ble_queue, &msg, portMAX_DELAY) != pdTRUE) {
+			continue;
+		}
+
+		ble_hs_lock();
+
+		if (!ble_can_notify()) {
+			ble_hs_unlock();
+			continue;
+		}
+		
+		printf("Data\n");
+
+		struct os_mbuf *om = ble_hs_mbuf_from_flat(msg.data, msg.len);
+		if (!om) {
+			ESP_LOGE(TAG, "mbuf alloc failed");
+			ble_hs_unlock();
+			continue;
+		}
+		
+		printf("Data\n");
+
+		int rc = ble_gatts_notify_custom(
+			g_ble_conn_handle,
+			g_ble_notify_val_handle,
+			om
+		);
+
+		if (rc != 0) {
+			ESP_LOGE(TAG, "notify failed rc=%d", rc);
+			os_mbuf_free_chain(om);
+		}
+
+		ble_hs_unlock();
 	}
-
-	uint8_t buf[2 + 64];
-	buf[0] = BLE_EVT_ERROR;
-
-	size_t n = strnlen(msg, 64);
-	buf[1] = (uint8_t)n;
-	memcpy(&buf[2], msg, n);
-
-	ble_notify_bytes(buf, (uint16_t)(2 + n));
 }
 
 static void ble_notify_session_started(uint16_t can_speed, uint32_t supported_pids)
 {
-	printf("Start session response send\n");
 	uint8_t buf[1 + 2 + 4];
 	buf[0] = BLE_EVT_SESSION_STARTED;
 	write_le16(&buf[1], can_speed);
@@ -201,7 +221,6 @@ static void ble_notify_obd_response(const twai_message_t *message)
 	ble_notify_bytes(buf, (uint16_t)(6 + dlc));
 }
 
-
 void set_current_data_supported_pids(uint32_t value)
 {
 	xSemaphoreTake(pids_mutex, portMAX_DELAY);
@@ -236,21 +255,6 @@ bool get_current_data_supported_pids_received()
 	return buf;
 }
 
-void reset_semaphores()
-{
-	if (flag_pids_mutex != NULL)
-	{
-    	vSemaphoreDelete(flag_pids_mutex);
-    	flag_pids_mutex = NULL;
-	}
-	
-	if (pids_mutex != NULL)
-	{
-    	vSemaphoreDelete(pids_mutex);
-    	pids_mutex = NULL;
-	}
-}
-
 void reset_current_pids_data()
 {
 	set_current_data_supported_pids_received(false);
@@ -258,36 +262,12 @@ void reset_current_pids_data()
 	set_current_data_supported_pids(0);
 }
 
-// Освобождение ресурсов очереди
 void reset_data_request_queue()
 {
-	if (data_request_queue != NULL && x_can_tx_task_handle == NULL)
+	if (data_request_queue != NULL)
 	{
 		xQueueReset(data_request_queue);
-		vQueueDelete(data_request_queue);
-		data_request_queue = NULL;
 	}
-}
-
-void uninstall_twai_driver()
-{
-	esp_err_t err = twai_stop();
-		
-	if (err != ESP_OK)
-    {
-		ble_notify_error("twai_stop failed");
-		return;
-	}
-		
-    err = twai_driver_uninstall();
-    	
-    if (err != ESP_OK)
-    {
-		ble_notify_error("twai_driver_uninstall failed");
-		return;
-	}
-	
-	twai_initialized = false;
 }
 
 void delete_x_can_rx_task_handle()
@@ -345,7 +325,6 @@ esp_err_t twai_init(uint16_t can_speed)
     
 	if (err != ESP_OK)
 	{
-    	ble_notify_error("twai_driver_install failed");
     	return err;
 	}
 
@@ -353,10 +332,6 @@ esp_err_t twai_init(uint16_t can_speed)
     
     if (err != ESP_OK)
     {
-		uninstall_twai_driver();
-		
-		ble_notify_error("twai_start failed");
-		
     	return err;
 	}
 	
@@ -380,16 +355,10 @@ void send_obd_request(uint8_t mode, uint8_t pid)
 
 	if (status.state != TWAI_STATE_RUNNING)
 	{
-		ble_notify_error("twai not running");
     	return;
 	}
 	
-    esp_err_t err = twai_transmit(&message, pdMS_TO_TICKS(1000));
-    
-    if (err != ESP_OK)
-    {
-		ble_notify_error("twai_transmit failed");
-	}
+    twai_transmit(&message, pdMS_TO_TICKS(1000));
 }
 
 void can_transmit_task(void *arg)
@@ -493,7 +462,6 @@ void can_receive_task(void *arg)
     }
 }
 
-
 void get_supported_current_data_pids()
 {
 	can_msg_t data = {
@@ -528,14 +496,12 @@ void get_supported_current_data_pids()
 // Должна отработать, когда по BLE пришла команда для окончания сессии
 void stop_session()
 {
+	reset_current_pids_data();
+	
 	delete_x_can_rx_task_handle();
 	delete_x_can_tx_task_handle();
 	
 	reset_data_request_queue();
-	
-	uninstall_twai_driver();
-	
-	reset_semaphores();
 	
 	ble_notify_session_stopped();
 }
@@ -557,7 +523,9 @@ void get_data_by_request(uint8_t mode, uint8_t pid)
 // Должна отработать, когда по BLE пришла команда начала сессии, с командой должна передаваться скорость работы
 void start_session(uint16_t can_speed)
 {
-	printf("Start session command rcvd\n");
+	ble_notify_session_started(500, 0xff554433);
+	return;
+	
 	esp_err_t err;
 	if (!twai_initialized)
 	{
@@ -571,16 +539,11 @@ void start_session(uint16_t can_speed)
 	
 	if (data_request_queue == NULL)
 	{
-		data_request_queue = xQueueCreate(10, sizeof(can_msg_t));	
-		
-		if (data_request_queue == NULL)
-		{
-			uninstall_twai_driver();
-			
-			 ble_notify_error("xQueueCreate failed");
-			 
-			 return;
-		}
+		data_request_queue = xQueueCreate(10, sizeof(can_msg_t));
+	}
+	else
+	{
+		reset_data_request_queue();
 	}
 	
 	if (flag_pids_mutex == NULL)
@@ -627,14 +590,10 @@ void start_session(uint16_t can_speed)
 	{
 		reset_current_pids_data();
 		
-		uninstall_twai_driver();
-		
 		delete_x_can_rx_task_handle();
 		delete_x_can_tx_task_handle();
 		
-		reset_semaphores();
-		
-		ble_notify_error("supported PIDs not received");
+		reset_data_request_queue();
 		
 		return;
 	}
@@ -671,7 +630,6 @@ static void handle_ble_command(const uint8_t *data, uint16_t len)
 	
 	if (!data || len < 1)
 	{
-		ble_notify_error("empty command");
 		return;
 	}
 
@@ -681,7 +639,6 @@ static void handle_ble_command(const uint8_t *data, uint16_t len)
 		case BLE_CMD_START_SESSION:
 			if (len < 3)
 			{
-				ble_notify_error("START_SESSION bad length");
 				return;
 			}
 			start_session(read_le16(&data[1]));
@@ -690,7 +647,6 @@ static void handle_ble_command(const uint8_t *data, uint16_t len)
 		case BLE_CMD_GET_DATA:
 			if (len < 3)
 			{
-				ble_notify_error("GET_DATA bad length");
 				return;
 			}
 			get_data_by_request(data[1], data[2]);
@@ -701,7 +657,6 @@ static void handle_ble_command(const uint8_t *data, uint16_t len)
 			return;
 
 		default:
-			ble_notify_error("unknown command");
 			return;
 	}
 }
@@ -780,7 +735,6 @@ static int ble_gap_event_cb(struct ble_gap_event *event, void *arg)
 			return 0;
 
 		case BLE_GAP_EVENT_DISCONNECT:
-			stop_session();
 			g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 			g_ble_notify_enabled = false;
 			ble_app_advertise();
@@ -859,15 +813,33 @@ static esp_err_t ble_init(void)
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
     {
-        ESP_ERROR_CHECK(nvs_flash_erase());
+        err = nvs_flash_erase();
+        
+        if (err != ESP_OK)
+        {
+			return err;
+		}
+        
         err = nvs_flash_init();
+        
+        if (err != ESP_OK)
+        {
+			return err;
+		}
     }
-    ESP_ERROR_CHECK(err);
 
-    ESP_ERROR_CHECK(nimble_port_init());
+	err = nimble_port_init();
+	if (err != ESP_OK)
+    {
+		return err;
+	}
     
-    // Новый HCI init
-    ESP_ERROR_CHECK(esp_nimble_hci_init());
+    
+    err = esp_nimble_hci_init();
+    if (err != ESP_OK)
+    {
+		return err;
+	}
 
     ble_svc_gap_init();
     ble_svc_gatt_init();
@@ -890,13 +862,33 @@ static esp_err_t ble_init(void)
 
     nimble_port_freertos_init(ble_host_task);
 
+    if (ble_queue == NULL) {
+		ble_queue = xQueueCreate(10, sizeof(ble_msg_t));
+	}
+	if (ble_queue == NULL) {
+		return ESP_ERR_NO_MEM;
+	}
+	if (ble_notify_task_handle == NULL) {
+		BaseType_t ok = xTaskCreate(
+			ble_notify_task,
+			"ble_notify",
+			4096,
+			NULL,
+			5,
+			&ble_notify_task_handle
+		);
+		if (ok != pdPASS) {
+			return ESP_ERR_NO_MEM;
+		}
+	}
+
     return ESP_OK;
 }
 
 void app_main(void)
 {
 	ESP_ERROR_CHECK(ble_init());
-	// BLE commands will drive start_session / get_data_by_request / stop_session.
+	
 	while (1)
 	{
 		vTaskDelay(pdMS_TO_TICKS(1000));

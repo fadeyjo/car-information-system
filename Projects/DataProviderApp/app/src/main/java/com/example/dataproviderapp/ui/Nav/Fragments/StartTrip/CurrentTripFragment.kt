@@ -153,9 +153,7 @@ class CurrentTripFragment : Fragment() {
     @OptIn(ExperimentalEncodingApi::class)
     private fun dataCallback(data: ObdBleClient.DataCallBack) {
         when (data) {
-            is ObdBleClient.DataCallBack.Error -> Utils.showErrorDialog(data.message, requireContext())
             is ObdBleClient.DataCallBack.ObdResponse -> {
-                // надо попробовать запустить
                 val content = CreateTelemetryDataRequest(
                     LocalDateTime.now(ZoneOffset.UTC), 1.toUByte(), data.data[2].toUShort(),
                     uintToBase64(data.id), data.dlc, Base64.encode(data.data),
@@ -172,6 +170,8 @@ class CurrentTripFragment : Fragment() {
             is ObdBleClient.DataCallBack.SupportedPids -> {
                 viewModel.getCurrentDataSupportedPids(data.pids)
             }
+
+            is ObdBleClient.DataCallBack.Error -> TODO()
         }
     }
 
@@ -230,8 +230,7 @@ class CurrentTripFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private suspend fun sendObdData() {
-        val buf = viewModel.curDataPids!!.once
-        viewModel.obdBleClient!!.getData(1, buf[0])
+        viewModel.obdBleClient!!.getData(1, 12.toUShort())
         return
         //отладка выше удалить
         if (viewModel.curDataPids == null) {

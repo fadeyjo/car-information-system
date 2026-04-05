@@ -77,10 +77,22 @@ class ObdBleClient(
             status: Int,
             newState: Int
         ) {
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                cancelConnectTimeout()
-                gatt.discoverServices()
+            if (status != BluetoothGatt.GATT_SUCCESS) {
+                gatt.close()
+                return
             }
+
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                gatt.requestMtu(100)
+            }
+        }
+
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+        override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
+            super.onMtuChanged(gatt, mtu, status)
+
+            cancelConnectTimeout()
+            gatt?.discoverServices()
         }
 
         override fun onCharacteristicWrite(
@@ -98,7 +110,7 @@ class ObdBleClient(
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
-            val service = gatt.getService(SERVICE_UUID)
+            val service = gatt.getService(SERVICE_UUID) ?: return
 
             cmdChar = service.getCharacteristic(CMD_UUID)
             notifyChar = service.getCharacteristic(NOTIFY_UUID)
@@ -108,8 +120,18 @@ class ObdBleClient(
             }
 
             enableNotifications(gatt, notifyChar!!)
+        }
 
-            connectedCallBack()
+        override fun onDescriptorWrite(
+            gatt: BluetoothGatt?,
+            descriptor: BluetoothGattDescriptor?,
+            status: Int
+        ) {
+            super.onDescriptorWrite(gatt, descriptor, status)
+
+            if (descriptor!!.uuid == NOTIFICATIONS_DESCRIPTOR_UUID) {
+                connectedCallBack()
+            }
         }
 
         override fun onCharacteristicChanged(
@@ -160,7 +182,7 @@ class ObdBleClient(
                 val pids = readLe32(data, 3)
 
                 val dataCallback = DataCallBack.SupportedPids(pids)
-                handleObdData!!(dataCallback)
+                handleObdData?.invoke(dataCallback)
 
                 println("Session started: speed=$speed pids=$pids")
             }
@@ -171,7 +193,7 @@ class ObdBleClient(
                 val payload = data.copyOfRange(6, 6 + dlc.toInt())
 
                 val dataCallback = DataCallBack.ObdResponse(id, dlc, payload)
-                handleObdData!!(dataCallback)
+                handleObdData?.invoke(dataCallback)
 
                 println("OBD: id=$id data=${payload.joinToString()}")
             }
@@ -180,19 +202,9 @@ class ObdBleClient(
                 cancelConnectTimeout()
 
                 val dataCallback = DataCallBack.SessionStopped
-                handleObdData!!(dataCallback)
+                handleObdData?.invoke(dataCallback)
 
                 println("Session stopped")
-            }
-
-            0xFF -> {
-                val len = data[1].toUByte()
-                val msg = String(data, 2, len.toInt())
-
-                val dataCallback = DataCallBack.Error(msg)
-                handleObdData!!(dataCallback)
-
-                println("Error: $msg")
             }
         }
     }
@@ -226,7 +238,6 @@ class ObdBleClient(
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun stopSession(timeoutCallback: () -> Unit) {
         timeoutFun = timeoutCallback
-        startConnectTimeout()
         write(byteArrayOf(0x03))
     }
 
