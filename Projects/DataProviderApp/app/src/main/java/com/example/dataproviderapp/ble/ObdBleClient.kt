@@ -59,7 +59,7 @@ class ObdBleClient(
         connectTimeoutRunnable = Runnable {
             timeoutFun!!()
         }
-        connectTimeoutHandler?.postDelayed(connectTimeoutRunnable!!, 15000)
+        connectTimeoutHandler?.postDelayed(connectTimeoutRunnable!!, 10000)
     }
 
     private fun cancelConnectTimeout() {
@@ -142,9 +142,16 @@ class ObdBleClient(
             val data = value
             handleNotify(data)
         }
+
+        @Deprecated("Android < 13 callback")
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic
+        ) {
+            handleNotify(characteristic.value ?: return)
+        }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private fun enableNotifications(
         gatt: BluetoothGatt,
@@ -156,46 +163,50 @@ class ObdBleClient(
             NOTIFICATIONS_DESCRIPTOR_UUID
         ) ?: return
 
-        gatt.writeDescriptor(descriptor, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            gatt.writeDescriptor(descriptor, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)
+        } else {
+            descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            @Suppress("DEPRECATION")
+            gatt.writeDescriptor(descriptor)
+        }
     }
 
-    private fun readLe16(byteArray: ByteArray, index: Int): UShort {
-        val value: UShort = (byteArray[index + 1].toUInt() shl 8).toUShort()
+    private fun readLe16(byteArray: List<Int>, index: Int): Int {
+        val value: Int = (byteArray[index + 1] and 0xFF) shl 8
 
-        return (value + byteArray[index].toUShort()).toUShort();
+        return value + (byteArray[index] and 0xFF);
     }
 
-    private fun readLe32(byteArray: ByteArray, index: Int): UInt {
-        return byteArray[index].toUInt() +
-                (byteArray[index + 1].toUInt() shl 8) +
-                (byteArray[index + 2].toUInt() shl 16) +
-                (byteArray[index + 3].toUInt() shl 24);
+    private fun readLe32(byteArray: List<Int>, index: Int): Long {
+        return (byteArray[index].toLong() and 0xFF) or
+                ((byteArray[index + 1].toLong() and 0xFF) shl 8) or
+                ((byteArray[index + 2].toLong() and 0xFF) shl 16) or
+                ((byteArray[index + 3].toLong() and 0xFF) shl 24)
     }
 
     private fun handleNotify(data: ByteArray) {
-        when (data[0].toInt() and 0xFF) {
+        val uData = data.map { it.toInt() and 0xFF }
+
+        when (uData[0]) {
 
             0x01 -> { // SESSION_STARTED
                 cancelConnectTimeout()
 
-                val speed = readLe16(data, 1)
-                val pids = readLe32(data, 3)
+                val speed = readLe16(uData, 1)
+                val pids = readLe32(uData, 3)
 
                 val dataCallback = DataCallBack.SupportedPids(pids)
                 handleObdData?.invoke(dataCallback)
-
-                println("Session started: speed=$speed pids=$pids")
             }
 
             0x02 -> { // OBD_RESPONSE
-                val id = readLe32(data, 1)
-                val dlc = data[5].toUByte()
-                val payload = data.copyOfRange(6, 6 + dlc.toInt())
+                val id = readLe32(uData, 1)
+                val dlc = uData[5].toShort()
+                val payload = uData.slice(6..(5 + dlc.toInt()))
 
                 val dataCallback = DataCallBack.ObdResponse(id, dlc, payload)
                 handleObdData?.invoke(dataCallback)
-
-                println("OBD: id=$id data=${payload.joinToString()}")
             }
 
             0x03 -> {
@@ -203,8 +214,6 @@ class ObdBleClient(
 
                 val dataCallback = DataCallBack.SessionStopped
                 handleObdData?.invoke(dataCallback)
-
-                println("Session stopped")
             }
         }
     }
@@ -225,7 +234,7 @@ class ObdBleClient(
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun getData(mode: Int, pid: UShort) {
+    fun getData(mode: Int, pid: Int) {
         val data = byteArrayOf(
             0x02,
             mode.toByte(),
@@ -241,7 +250,6 @@ class ObdBleClient(
         write(byteArrayOf(0x03))
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private fun write(data: ByteArray) {
         if (cmdChar == null || gatt == null) {
@@ -250,11 +258,20 @@ class ObdBleClient(
 
         startConnectTimeout()
 
-        gatt!!.writeCharacteristic(
-            cmdChar!!,
-            data,
-            BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            gatt!!.writeCharacteristic(
+                cmdChar!!,
+                data,
+                BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            run {
+                cmdChar!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                cmdChar!!.value = data
+                gatt!!.writeCharacteristic(cmdChar)
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -279,36 +296,13 @@ class ObdBleClient(
 
     sealed class DataCallBack{
         data class SupportedPids(
-            val pids: UInt
+            val pids: Long
         ): DataCallBack()
         data class ObdResponse(
-            val id: UInt,
-            val dlc: UByte,
-            val data: ByteArray
-        ) : DataCallBack() {
-            override fun equals(other: Any?): Boolean {
-                if (this === other) return true
-                if (javaClass != other?.javaClass) return false
-
-                other as ObdResponse
-
-                if (id != other.id) return false
-                if (dlc != other.dlc) return false
-                if (!data.contentEquals(other.data)) return false
-
-                return true
-            }
-
-            override fun hashCode(): Int {
-                var result = id.hashCode()
-                result = 31 * result + dlc.hashCode()
-                result = 31 * result + data.contentHashCode()
-                return result
-            }
-        }
+            val id: Long,
+            val dlc: Short,
+            val data: List<Int>
+        ) : DataCallBack()
         object SessionStopped: DataCallBack()
-        data class Error(
-            val message: String
-        ): DataCallBack()
     }
 }

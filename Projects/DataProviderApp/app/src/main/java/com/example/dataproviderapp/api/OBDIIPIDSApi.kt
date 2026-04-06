@@ -7,5 +7,5 @@ import retrofit2.http.Path
 
 interface OBDIIPIDSApi {
     @GET("obdii-pids/current-data-service/{supportedPidsUint}")
-    suspend fun getCurrentDataSupportedPids(@Path("supportedPidsUint") pids: UInt): Response<PidsDetailDto>
+    suspend fun getCurrentDataSupportedPids(@Path("supportedPidsUint") pids: Long): Response<PidsDetailDto>
 }

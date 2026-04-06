@@ -190,6 +190,12 @@ static void ble_notify_session_started(uint16_t can_speed, uint32_t supported_pi
 	buf[0] = BLE_EVT_SESSION_STARTED;
 	write_le16(&buf[1], can_speed);
 	write_le32(&buf[3], supported_pids);
+	
+	printf("SUPPORTED PIDS\n");
+	for (size_t i = 0; i < 7; i++) {
+    	printf("0x%02" PRIx8 " ", buf[i]); 
+	}
+	
 	ble_notify_bytes(buf, sizeof(buf));
 }
 
@@ -523,9 +529,6 @@ void get_data_by_request(uint8_t mode, uint8_t pid)
 // Должна отработать, когда по BLE пришла команда начала сессии, с командой должна передаваться скорость работы
 void start_session(uint16_t can_speed)
 {
-	ble_notify_session_started(500, 0xff554433);
-	return;
-	
 	esp_err_t err;
 	if (!twai_initialized)
 	{
@@ -723,11 +726,13 @@ static int ble_gap_event_cb(struct ble_gap_event *event, void *arg)
 		case BLE_GAP_EVENT_CONNECT:
 			if (event->connect.status == 0)
 			{
+				printf("connected\n");
 				g_ble_conn_handle = event->connect.conn_handle;
 				g_ble_notify_enabled = false;
 			}
 			else
 			{
+				printf("hz connected.....\n");
 				g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 				g_ble_notify_enabled = false;
 				ble_app_advertise();
@@ -735,6 +740,7 @@ static int ble_gap_event_cb(struct ble_gap_event *event, void *arg)
 			return 0;
 
 		case BLE_GAP_EVENT_DISCONNECT:
+			printf("disconnected\n");
 			g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 			g_ble_notify_enabled = false;
 			ble_app_advertise();

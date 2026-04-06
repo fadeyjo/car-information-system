@@ -10,16 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.appcompat.app.AlertDialog
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.dataproviderapp.R
 import com.example.dataproviderapp.ble.ObdBleClient
 import com.example.dataproviderapp.databinding.FragmentCurrentTripBinding
-import com.example.dataproviderapp.databinding.FragmentSelectDeviceBinding
 import com.example.dataproviderapp.dto.requests.CreateTelemetryDataRequest
 import com.example.dataproviderapp.ui.Nav.CurrentDataSupportedPidsDetailsState
 import com.example.dataproviderapp.ui.Nav.NavActivity
@@ -35,9 +32,9 @@ import kotlinx.coroutines.launch
 import org.eclipse.paho.client.mqttv3.MqttClient
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import kotlin.getValue
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -140,7 +137,7 @@ class CurrentTripFragment : Fragment() {
     }
 
     @OptIn(ExperimentalEncodingApi::class)
-    fun uintToBase64(value: UInt): String {
+    fun intToBase64(value: Long): String {
         val bytes = byteArrayOf(
             (value shr 24).toByte(),
             (value shr 16).toByte(),
@@ -154,9 +151,13 @@ class CurrentTripFragment : Fragment() {
     private fun dataCallback(data: ObdBleClient.DataCallBack) {
         when (data) {
             is ObdBleClient.DataCallBack.ObdResponse -> {
+                val bytes = data.data.map { it.toByte() }.toByteArray()
+
+                val formatter = DateTimeFormatter.ISO_DATE_TIME
+
                 val content = CreateTelemetryDataRequest(
-                    LocalDateTime.now(ZoneOffset.UTC), 1.toUByte(), data.data[2].toUShort(),
-                    uintToBase64(data.id), data.dlc, Base64.encode(data.data),
+                    LocalDateTime.now(ZoneOffset.UTC).format(formatter), 1.toUByte(), data.data[2].toUShort(),
+                    intToBase64(data.id), data.dlc.toUByte(), Base64.encode(bytes),
                     viewModel.currentTrip!!.tripId
                 )
 
@@ -170,8 +171,6 @@ class CurrentTripFragment : Fragment() {
             is ObdBleClient.DataCallBack.SupportedPids -> {
                 viewModel.getCurrentDataSupportedPids(data.pids)
             }
-
-            is ObdBleClient.DataCallBack.Error -> TODO()
         }
     }
 
@@ -230,7 +229,7 @@ class CurrentTripFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private suspend fun sendObdData() {
-        viewModel.obdBleClient!!.getData(1, 12.toUShort())
+        viewModel.obdBleClient!!.getData(1, 12)
         return
         //отладка выше удалить
         if (viewModel.curDataPids == null) {

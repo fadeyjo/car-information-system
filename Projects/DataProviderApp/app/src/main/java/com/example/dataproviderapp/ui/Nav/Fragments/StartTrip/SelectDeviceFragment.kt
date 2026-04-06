@@ -38,6 +38,8 @@ class SelectDeviceFragment : Fragment() {
     private val viewModel: NavViewModel by activityViewModels()
     private var isScanning = false
 
+    private var goDisconnect = true
+
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
 
@@ -65,6 +67,8 @@ class SelectDeviceFragment : Fragment() {
                 putInt("speed", speed.toInt())
             }
         }
+
+        goDisconnect = false
 
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
@@ -243,8 +247,10 @@ class SelectDeviceFragment : Fragment() {
         super.onDestroyView()
 
         stopScanning()
-        viewModel.obdBleClient?.disconnect()
-        viewModel.obdBleClient = null
+        if (goDisconnect) {
+            viewModel.obdBleClient?.disconnect()
+            viewModel.obdBleClient = null
+        }
 
         _binding = null
     }

@@ -13,7 +13,7 @@ object OBDIIPIDSRepository {
         RetrofitClient.auth_retrofit.create(OBDIIPIDSApi::class.java)
     }
 
-    suspend fun getCurrentDataSupportedPids(pids: UInt): ApiResult<PidsDetailDto> {
+    suspend fun getCurrentDataSupportedPids(pids: Long): ApiResult<PidsDetailDto> {
         return ApiHandler.handleResponse(api.getCurrentDataSupportedPids(pids))
     }
 }

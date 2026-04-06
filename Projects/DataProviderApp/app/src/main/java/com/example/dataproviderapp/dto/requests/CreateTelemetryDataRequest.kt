@@ -1,9 +1,7 @@
 package com.example.dataproviderapp.dto.requests
 
-import java.time.LocalDateTime
-
 data class CreateTelemetryDataRequest(
-    val recDatetime: LocalDateTime,
+    val recDatetime: String,
     val serviceId: UByte,
     val pid: UShort,
     val ecuId: String,

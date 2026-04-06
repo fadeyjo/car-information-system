@@ -617,7 +617,7 @@ class NavViewModel : ViewModel() {
         }
     }
 
-    fun getCurrentDataSupportedPids(pids: UInt) {
+    fun getCurrentDataSupportedPids(pids: Long) {
         viewModelScope.launch {
             _currentDataSupportedPidsState.value = CurrentDataSupportedPidsDetailsState.Loading
 
