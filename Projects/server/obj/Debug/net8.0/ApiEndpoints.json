@@ -216,6 +216,22 @@
   },
   {
     "ContainingType": "server.Controllers.CarsController",
+    "Method": "DeleteCar",
+    "RelativePath": "api/Cars/{carId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "carId",
+        "Type": "System.UInt32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.CarsController",
     "Method": "GetCarsByPersonId",
     "RelativePath": "api/Cars/my-cars",
     "HttpMethod": "GET",

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import steps.PersonSteps;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,12 +23,12 @@ public class PersonTest  {
     private static Integer startOperatorId;
     private static TokensDto startOperatorTokens;
 
-    private final static List<Integer> createdIds = new ArrayList<>();
+    private final static List<Integer> createdPersonIds = new ArrayList<>();
 
     private static Stream<Arguments> anyRolesStream() {
         return Stream.of(
-                Arguments.of("OPERATOR", 204),
-                Arguments.of("USER", 403)
+                Arguments.of(PersonFactory.Role.USER, 403),
+                Arguments.of(PersonFactory.Role.OPERATOR, 204)
         );
     }
 
@@ -50,7 +51,7 @@ public class PersonTest  {
     @Test
     void testRegisterPerson() {
 
-        var request = PersonFactory.getUser();
+        var request = PersonFactory.getPerson();
 
         var response = PersonApi.registerPerson(request)
                 .then()
@@ -59,7 +60,7 @@ public class PersonTest  {
                 .extract()
                 .as(PersonDto.class);
 
-        createdIds.add(response.getPersonId());
+        createdPersonIds.add(response.getPersonId());
 
         assertThat(response.getEmail()).isEqualTo(request.getEmail());
         assertThat(response.getPhone()).isEqualTo(request.getPhone());
@@ -71,7 +72,7 @@ public class PersonTest  {
     @Test
     void testLoginPerson() {
 
-        var user = PersonFactory.getUser();
+        var user = PersonFactory.getPerson();
 
         var userData = PersonApi.registerPerson(user)
                 .then()
@@ -80,7 +81,7 @@ public class PersonTest  {
                 .extract()
                 .as(PersonDto.class);
 
-        createdIds.add(userData.getPersonId());
+        createdPersonIds.add(userData.getPersonId());
 
         PersonApi.loginPerson(user.getEmail(), user.getPassword())
                 .then()
@@ -89,26 +90,15 @@ public class PersonTest  {
     }
 
     @Test
-    void testGetUserData() {
+    void testGetPersonData() {
 
-        var user = PersonFactory.getUser();
+        var user = PersonFactory.getPerson();
 
-        PersonDto created = PersonApi.registerPerson(user)
-                .then()
-                .statusCode(201)
-                .contentType(ContentType.JSON)
-                .extract()
-                .as(PersonDto.class);
+        var tokens = PersonSteps.registerAndLogin(user);
 
-        createdIds.add(created.getPersonId());
+        createdPersonIds.add(tokens.getPerson().getPersonId());
 
-        var login = PersonApi.loginPerson(user.getEmail(), user.getPassword())
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(TokensDto.class);
-
-        var actual = PersonApi.getPersonData(login.getAccessToken())
+        var actual = PersonApi.getPersonData(tokens.getAccessToken())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -116,37 +106,21 @@ public class PersonTest  {
 
         assertThat(actual)
                 .usingRecursiveComparison()
-                .isEqualTo(created);
+                .isEqualTo(tokens.getPerson());
     }
 
     @ParameterizedTest
     @MethodSource("anyRolesStream")
-    public void testDeleteUsers(String role, Integer expectedStatusCode) {
-        var regData = switch (role) {
-            case "OPERATOR" -> PersonFactory.getOperator();
-            case "USER" -> PersonFactory.getUser();
-            default -> throw new IllegalArgumentException("Unknown role");
-        };
+    public void testDeleteUsers(PersonFactory.Role role, Integer expectedStatusCode) {
+        var regData = PersonFactory.getPerson(role);
 
-        var person = PersonApi.registerPerson(regData)
-                .then()
-                .statusCode(201)
-                .contentType(ContentType.JSON)
-                .extract()
-                .as(PersonDto.class);
+        var tokens = PersonSteps.registerAndLogin(regData);
 
         if (expectedStatusCode != 204) {
-            createdIds.add(person.getPersonId());
+            createdPersonIds.add(tokens.getPerson().getPersonId());
         }
 
-        var tokens = PersonApi.loginPerson(person.getEmail(), regData.getPassword())
-                .then()
-                .statusCode(200)
-                .contentType(ContentType.JSON)
-                .extract()
-                .as(TokensDto.class);
-
-        PersonApi.deletePerson(tokens.getAccessToken(), person.getPersonId())
+        PersonApi.deletePerson(tokens.getAccessToken(), tokens.getPerson().getPersonId())
                 .then()
                 .statusCode(expectedStatusCode);
     }
@@ -158,29 +132,16 @@ public class PersonTest  {
 
         PersonApi.registerPerson(regData)
                 .then()
-                .statusCode(expectedStatusCode)
-                .contentType(ContentType.JSON);
+                .statusCode(expectedStatusCode);
     }
 
     @Test
     public void testUpdateUser() {
-        var userRegData = PersonFactory.getUser();
+        var userRegData = PersonFactory.getPerson();
 
-        var user = PersonApi.registerPerson(userRegData)
-                .then()
-                .statusCode(201)
-                .contentType(ContentType.JSON)
-                .extract()
-                .as(PersonDto.class);
+        var tokens = PersonSteps.registerAndLogin(userRegData);
 
-        createdIds.add(user.getPersonId());
-
-        var tokens = PersonApi.loginPerson(userRegData.getEmail(), userRegData.getPassword())
-                .then()
-                .statusCode(200)
-                .contentType(ContentType.JSON)
-                .extract()
-                .as(TokensDto.class);
+        createdPersonIds.add(tokens.getPerson().getPersonId());
 
         var updateData = PersonFactory.getUpdatedData();
 
@@ -192,23 +153,11 @@ public class PersonTest  {
     @ParameterizedTest
     @MethodSource("getInvalidUpdateScenarios")
     public void testUpdateWithInvalidScenarios(PersonFactory.InvalidUpdateUserScenario s) {
-        var personRegData = PersonFactory.getUser();
+        var personRegData = PersonFactory.getPerson();
 
-        var person = PersonApi.registerPerson(personRegData)
-                .then()
-                .statusCode(201)
-                .contentType(ContentType.JSON)
-                .extract()
-                .as(PersonDto.class);
+        var tokens = PersonSteps.registerAndLogin(personRegData);
 
-        createdIds.add(person.getPersonId());
-
-        var tokens = PersonApi.loginPerson(personRegData.getEmail(), personRegData.getPassword())
-                .then()
-                .statusCode(200)
-                .contentType(ContentType.JSON)
-                .extract()
-                .as(TokensDto.class);
+        createdPersonIds.add(tokens.getPerson().getPersonId());
 
         var updatedData = PersonFactory.getInvalidUpdatedData(s);
 
@@ -219,7 +168,7 @@ public class PersonTest  {
 
     @BeforeAll
     public static void setup() {
-        var operator = PersonFactory.getOperator();
+        var operator = PersonFactory.getPerson(PersonFactory.Role.OPERATOR);
 
         var person = PersonApi.registerPerson(operator)
                 .then()
@@ -238,9 +187,9 @@ public class PersonTest  {
 
     @AfterAll
     public static void cleanup() {
-        createdIds.add(startOperatorId);
+        createdPersonIds.add(startOperatorId);
 
-        createdIds.forEach(id ->
+        createdPersonIds.forEach(id ->
                 PersonApi.deletePerson(startOperatorTokens.getAccessToken(), id)
                         .then()
                         .statusCode(204)

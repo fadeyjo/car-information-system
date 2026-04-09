@@ -29,5 +29,7 @@ namespace server.Services.Interfaces
         Task<CarDto> GetCarById(uint carId);
 
         Task<List<CarDto>> GetCarsByPersonId(uint personId);
+
+        Task DeleteCar(uint carId);
     }
 }

@@ -1,13 +1,26 @@
 package factories;
 
-import models.requests.SignInRequest;
+import lombok.Getter;
 import models.requests.SignUpRequest;
 import models.requests.UpdatePersonInfoRequest;
-import utils.RandomDataUtil;
+import net.datafaker.Faker;
+import utils.RandomPersonDataUtil;
 
 import java.time.LocalDate;
 
 public class PersonFactory {
+
+    @Getter
+    public enum Role {
+        USER(1),
+        OPERATOR(2);
+
+        private final Integer roleId;
+
+        Role(Integer roleId) {
+            this.roleId = roleId;
+        }
+    }
 
     public enum InvalidRegisterUserScenario {
         EMAIL,
@@ -28,15 +41,17 @@ public class PersonFactory {
         BIRTH_IN_FUTURE
     }
 
-    public static SignUpRequest getUser() {
-        String email = RandomDataUtil.getRandomStringWithLength() + "@gmail.com";
-        String phone = RandomDataUtil.getRandomPhone();
-        String lastName = RandomDataUtil.getRandomCapString();
-        String firstName = RandomDataUtil.getRandomCapString();
-        String patronymic = RandomDataUtil.getRandomCapStringOrNull();
-        String password = RandomDataUtil.getRandomStringWithLength(16);
-        String driveLicense = RandomDataUtil.getRandomDriveLicense();
-        LocalDate birth = RandomDataUtil.getRandomBirthByMinAge();
+    public static SignUpRequest getPerson(Role role) {
+        var faker = new Faker();
+
+        String email = RandomPersonDataUtil.getRandomEmail(faker);
+        String phone = RandomPersonDataUtil.getRandomPhone(faker);
+        String lastName = RandomPersonDataUtil.getRandomLastName(faker);
+        String firstName = RandomPersonDataUtil.getRandomFirstName(faker);
+        String patronymic = RandomPersonDataUtil.getRandomPatronymic(faker);
+        String password = RandomPersonDataUtil.getRandomPassword(faker);
+        String driveLicense = RandomPersonDataUtil.getRandomDriveLicense(faker);
+        LocalDate birth = RandomPersonDataUtil.getRandomBirth(faker);
 
         return SignUpRequest
                 .builder()
@@ -48,19 +63,21 @@ public class PersonFactory {
                 .password(password)
                 .driveLicense(driveLicense)
                 .birth(birth)
-                .roleId(1)
+                .roleId(role.getRoleId())
                 .build();
     }
 
-    public static SignUpRequest getOperator() {
-        String email = RandomDataUtil.getRandomStringWithLength() + "@gmail.com";
-        String phone = RandomDataUtil.getRandomPhone();
-        String lastName = RandomDataUtil.getRandomCapString();
-        String firstName = RandomDataUtil.getRandomCapString();
-        String patronymic = RandomDataUtil.getRandomCapStringOrNull();
-        String password = RandomDataUtil.getRandomStringWithLength(16);
-        String driveLicense = RandomDataUtil.getRandomDriveLicense();
-        LocalDate birth = RandomDataUtil.getRandomBirthByMinAge();
+    public static SignUpRequest getPerson() {
+        var faker = new Faker();
+
+        String email = RandomPersonDataUtil.getRandomEmail(faker);
+        String phone = RandomPersonDataUtil.getRandomPhone(faker);
+        String lastName = RandomPersonDataUtil.getRandomLastName(faker);
+        String firstName = RandomPersonDataUtil.getRandomFirstName(faker);
+        String patronymic = RandomPersonDataUtil.getRandomPatronymic(faker);
+        String password = RandomPersonDataUtil.getRandomPassword(faker);
+        String driveLicense = RandomPersonDataUtil.getRandomDriveLicense(faker);
+        LocalDate birth = RandomPersonDataUtil.getRandomBirth(faker);
 
         return SignUpRequest
                 .builder()
@@ -72,18 +89,20 @@ public class PersonFactory {
                 .password(password)
                 .driveLicense(driveLicense)
                 .birth(birth)
-                .roleId(2)
+                .roleId(Role.USER.getRoleId())
                 .build();
     }
 
     public static UpdatePersonInfoRequest getUpdatedData() {
-        String email = RandomDataUtil.getRandomStringWithLength() + "@gmail.com";
-        String phone = RandomDataUtil.getRandomPhone();
-        String lastName = RandomDataUtil.getRandomCapString();
-        String firstName = RandomDataUtil.getRandomCapString();
-        String patronymic = RandomDataUtil.getRandomCapStringOrNull();
-        String driveLicense = RandomDataUtil.getRandomDriveLicense();
-        LocalDate birth = RandomDataUtil.getRandomBirthByMinAge();
+        var faker = new Faker();
+
+        String email = RandomPersonDataUtil.getRandomEmail(faker);
+        String phone = RandomPersonDataUtil.getRandomPhone(faker);
+        String lastName = RandomPersonDataUtil.getRandomLastName(faker);
+        String firstName = RandomPersonDataUtil.getRandomFirstName(faker);
+        String patronymic = RandomPersonDataUtil.getRandomPatronymic(faker);
+        String driveLicense = RandomPersonDataUtil.getRandomDriveLicense(faker);
+        LocalDate birth = RandomPersonDataUtil.getRandomBirth(faker);
 
         return UpdatePersonInfoRequest
                 .builder()
@@ -98,83 +117,48 @@ public class PersonFactory {
     }
 
     public static SignUpRequest getInvalidUser(InvalidRegisterUserScenario s) {
-        var user = getUser();
+        var user = getPerson();
 
         switch (s) {
-            case EMAIL -> {
-                user.setEmail("invalid");
-                return user;
-            }
+            case EMAIL -> user.setEmail("invalid");
 
-            case PHONE -> {
-                user.setPhone("+7123567665");
-                return user;
-            }
+            case PHONE -> user.setPhone("+7123567665");
 
-            case DRIVE_LICENSE -> {
-                user.setDriveLicense("123456789");
-                return user;
-            }
+            case DRIVE_LICENSE -> user.setDriveLicense("123456789");
 
-            case BIRTH_IN_FUTURE -> {
-                user.setBirth(LocalDate.of(LocalDate.now().getYear() + 2, 5, 15));
-                return user;
-            }
+            case BIRTH_IN_FUTURE -> user.setBirth(LocalDate.of(LocalDate.now().getYear() + 2, 5, 15));
 
-            case EMPTY_FIRST_NAME -> {
-                user.setFirstName(null);
-                return user;
-            }
+            case EMPTY_FIRST_NAME -> user.setFirstName(null);
 
-            case NON_EXISTENT_ROLE_ID -> {
-                user.setRoleId(3);
-                return user;
-            }
+            case NON_EXISTENT_ROLE_ID -> user.setRoleId(3);
 
-            case PASSWORD_TOO_SHORT -> {
-                user.setPhone("1234567");
-                return user;
-            }
+            case PASSWORD_TOO_SHORT -> user.setPhone("1234567");
 
             default -> throw new IllegalArgumentException("Unknown scenario");
         }
+
+        return user;
     }
 
     public static UpdatePersonInfoRequest getInvalidUpdatedData(InvalidUpdateUserScenario s) {
         var user = getUpdatedData();
 
         switch (s) {
-            case EMAIL -> {
-                user.setEmail("invalid");
-                return user;
-            }
+            case EMAIL -> user.setEmail("invalid");
 
-            case PHONE -> {
-                user.setPhone("+7123567665");
-                return user;
-            }
+            case PHONE -> user.setPhone("+7123567665");
 
-            case DRIVE_LICENSE -> {
-                user.setDriveLicense("123456789");
-                return user;
-            }
+            case DRIVE_LICENSE -> user.setDriveLicense("123456789");
 
-            case BIRTH_IN_FUTURE -> {
-                user.setBirth(LocalDate.of(LocalDate.now().getYear() + 2, 5, 15));
-                return user;
-            }
+            case BIRTH_IN_FUTURE -> user.setBirth(LocalDate.of(LocalDate.now().getYear() + 2, 5, 15));
 
-            case EMPTY_FIRST_NAME -> {
-                user.setFirstName(null);
-                return user;
-            }
+            case EMPTY_FIRST_NAME -> user.setFirstName(null);
 
-            case PASSWORD_TOO_SHORT -> {
-                user.setPhone("1234567");
-                return user;
-            }
+            case PASSWORD_TOO_SHORT -> user.setPhone("1234567");
 
             default -> throw new IllegalArgumentException("Unknown scenario");
         }
+
+        return user;
     }
 }

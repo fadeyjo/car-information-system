@@ -489,5 +489,19 @@ namespace server.Services
 
             return carConfiguration.CarConfigId;
         }
+
+        public async Task DeleteCar(uint carId)
+        {
+            var car = await _context.Cars.Where(c => c.CarId == carId).FirstOrDefaultAsync();
+
+            if (car == null)
+            {
+                throw new HttpError("Автомобиль не найден", StatusCodes.Status404NotFound);
+            }
+
+            _context.Cars.Remove(car);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -56,8 +56,29 @@ namespace server.Services
 
             string accessToken = _jwtService.GenerateAccessToken(person.PersonId, person.Role.RoleName);
 
+            var avatarId = await _context.Avatars
+                .OrderByDescending(a => a.AvatarId)
+                .Where(a => a.PersonId == person.PersonId)
+                .Select(a => a.AvatarId)
+                .FirstOrDefaultAsync();
+
+            var personDto = new PersonDto()
+            {
+                PersonId = person.PersonId,
+                Email = person.Email,
+                Phone = person.Phone,
+                LastName = person.LastName,
+                FirstName = person.FirstName,
+                Patronymic = person.Patronymic,
+                Birth = person.Birth,
+                DriveLicense = person.DriveLicense,
+                RoleId = person.RoleId,
+                AvatarId = avatarId
+            };
+
             var tokens = new TokensDto()
             {
+                Person = personDto,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
@@ -133,8 +154,29 @@ namespace server.Services
                     matchingToken.Person.Role.RoleName
                 );
 
+            var avatarId = await _context.Avatars
+                .OrderByDescending(a => a.AvatarId)
+                .Where(a => a.PersonId == matchingToken.Person.PersonId)
+                .Select(a => a.AvatarId)
+                .FirstOrDefaultAsync();
+
+            var personDto = new PersonDto()
+            {
+                PersonId = matchingToken.Person.PersonId,
+                Email = matchingToken.Person.Email,
+                Phone = matchingToken.Person.Phone,
+                LastName = matchingToken.Person.LastName,
+                FirstName = matchingToken.Person.FirstName,
+                Patronymic = matchingToken.Person.Patronymic,
+                Birth = matchingToken.Person.Birth,
+                DriveLicense = matchingToken.Person.DriveLicense,
+                RoleId = matchingToken.Person.RoleId,
+                AvatarId = avatarId
+            };
+
             var newTokens = new TokensDto()
             {
+                Person = personDto,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };

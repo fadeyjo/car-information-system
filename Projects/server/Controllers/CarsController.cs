@@ -153,5 +153,28 @@ namespace server.Controllers
                 return ServerError();
             }
         }
+
+        [HttpDelete("{carId}")]
+        [Authorize(Roles = "OPERATOR")]
+        public async Task<IActionResult> DeleteCar(uint carId)
+        {
+            try
+            {
+                await _service.DeleteCar(carId);
+
+                return NoContent();
+            }
+            catch (HttpError er)
+            {
+                return Problem(
+                    title: er.Title,
+                    statusCode: er.StatusCode
+                );
+            }
+            catch
+            {
+                return ServerError();
+            }
+        }
     }
 }

@@ -1,7 +1,6 @@
 package api;
 
 import io.restassured.http.ContentType;
-import io.restassured.http.Header;
 import io.restassured.response.Response;
 import models.requests.SignInRequest;
 import models.requests.SignUpRequest;
@@ -10,10 +9,6 @@ import models.requests.UpdatePersonInfoRequest;
 import static io.restassured.RestAssured.given;
 
 public class PersonApi extends BaseApi {
-
-    private static Header auth(String token) {
-        return new Header("Authorization", "Bearer " + token);
-    }
 
     public static Response registerPerson(SignUpRequest person) {
         return given()
