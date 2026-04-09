@@ -100,5 +100,27 @@ namespace server.Controllers
                 return ServerError();
             }
         }
+
+        [HttpDelete("{tripId}")]
+        public async Task<IActionResult> DeleteTrip(ulong tripId)
+        {
+            try
+            {
+                await _service.DeleteTrip(tripId);
+
+                return NoContent();
+            }
+            catch (HttpError er)
+            {
+                return Problem(
+                    title: er.Title,
+                    statusCode: er.StatusCode
+                );
+            }
+            catch
+            {
+                return ServerError();
+            }
+        }
     }
 }

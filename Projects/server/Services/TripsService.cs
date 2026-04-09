@@ -16,6 +16,17 @@ namespace server.Services
             _context = context;
         }
 
+        public async Task DeleteTrip(ulong tripId)
+        {
+            var trip = await _context.Trips.FirstOrDefaultAsync(t => t.TripId == tripId);
+
+            if (trip == null)
+                throw new HttpError("Поездка не найдена", StatusCodes.Status404NotFound);
+
+            _context.Trips.Remove(trip);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task EndTrip(DateTime endDatetime, ulong tripId)
         {
             var trip =
@@ -60,6 +71,8 @@ namespace server.Services
 
         public async Task<TripDto> StartTrip(DateTime startDatetime, string macAddress, uint carId)
         {
+            macAddress = macAddress.ToUpper();
+
             bool exits = await _context.Cars.AnyAsync(c => c.CarId == carId);
 
             if (!exits)

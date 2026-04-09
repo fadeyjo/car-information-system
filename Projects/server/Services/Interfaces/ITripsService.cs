@@ -10,5 +10,7 @@ namespace server.Services.Interfaces
         );
         Task<TripDto> GetTripById(ulong tripId);
         Task EndTrip(DateTime endDatetime, ulong tripId);
+
+        Task DeleteTrip(ulong tripId);
     }
 }

@@ -81,7 +81,7 @@ namespace server.mqtt
                     data.TripId
                 );
             }
-            catch (Exception ex)
+            catch
             {
 
             }

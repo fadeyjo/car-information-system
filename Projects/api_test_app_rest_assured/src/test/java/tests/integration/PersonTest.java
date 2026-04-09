@@ -1,4 +1,4 @@
-package tests;
+package tests.integration;
 
 import api.PersonApi;
 import factories.PersonFactory;
@@ -20,7 +20,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class PersonTest  {
 
-    private static Integer startOperatorId;
     private static TokensDto startOperatorTokens;
 
     private final static List<Integer> createdPersonIds = new ArrayList<>();
@@ -98,11 +97,7 @@ public class PersonTest  {
 
         createdPersonIds.add(tokens.getPerson().getPersonId());
 
-        var actual = PersonApi.getPersonData(tokens.getAccessToken())
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(PersonDto.class);
+        var actual = PersonSteps.getPersonData(tokens.getAccessToken());
 
         assertThat(actual)
                 .usingRecursiveComparison()
@@ -170,29 +165,18 @@ public class PersonTest  {
     public static void setup() {
         var operator = PersonFactory.getPerson(PersonFactory.Role.OPERATOR);
 
-        var person = PersonApi.registerPerson(operator)
-                .then()
-                .statusCode(201)
-                .contentType(ContentType.JSON)
-                .extract()
-                .as(PersonDto.class);
-
-        startOperatorId = person.getPersonId();
-
-        startOperatorTokens = PersonApi.loginPerson(operator.getEmail(), operator.getPassword())
-                .then()
-                .extract()
-                .as(TokensDto.class);
+        startOperatorTokens = PersonSteps.registerAndLogin(operator);
     }
 
     @AfterAll
     public static void cleanup() {
-        createdPersonIds.add(startOperatorId);
+        createdPersonIds.add(startOperatorTokens.getPerson().getPersonId());
 
         createdPersonIds.forEach(id ->
-                PersonApi.deletePerson(startOperatorTokens.getAccessToken(), id)
-                        .then()
-                        .statusCode(204)
+                PersonSteps.deletePerson(
+                        startOperatorTokens.getAccessToken(),
+                        id
+                )
         );
     }
 }

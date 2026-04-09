@@ -12,7 +12,7 @@ namespace server.Contracts.Requests.Validations
 
             RuleFor(x => x.MacAddress)
                 .NotEmpty().WithMessage("MAC адрес устройства обязателен")
-                .Matches(@"^([0-9ABCDEF]{2}:){5}[0-9ABCDEF]{2}$").WithMessage("Некорректный MAC адрес");
+                .Matches(@"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$").WithMessage("Некорректный MAC адрес");
 
             RuleFor(x => x.CarId)
                 .NotEmpty().WithMessage("ID автомобиля обязателен");

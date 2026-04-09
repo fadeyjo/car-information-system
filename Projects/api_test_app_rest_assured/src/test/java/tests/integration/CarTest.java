@@ -1,14 +1,12 @@
-package tests;
+package tests.integration;
 
 import api.CarApi;
-import api.PersonApi;
 import factories.CarFactory;
 import factories.PersonFactory;
 import io.restassured.http.ContentType;
 import models.requests.CreateCarRequest;
 import models.requests.UpdateCarInfoRequest;
 import models.responses.CarDto;
-import models.responses.PersonDto;
 import models.responses.TokensDto;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,7 +28,6 @@ public class CarTest {
 
     private final static Integer CARS_COUNT_TO_TEST_MY_CARS = 1;
 
-    private static Integer startOperatorId;
     private static TokensDto startOperatorTokens;
 
     private final static List<Integer> createdPersonIds = new ArrayList<>();
@@ -148,12 +145,7 @@ public class CarTest {
                 .then()
                 .statusCode(204);
 
-        var updatedCar = CarApi.getCarById(tokens.getAccessToken(), carDto.getCarId())
-                .then()
-                .statusCode(200)
-                .contentType(ContentType.JSON)
-                .extract()
-                .as(CarDto.class);
+        var updatedCar = CarSteps.getCarDataById(tokens.getAccessToken(), carDto.getCarId());
 
         assertCarData(newCarData, updatedCar);
     }
@@ -284,35 +276,19 @@ public class CarTest {
     public static void setup() {
         var operator = PersonFactory.getPerson(PersonFactory.Role.OPERATOR);
 
-        var person = PersonApi.registerPerson(operator)
-                .then()
-                .statusCode(201)
-                .contentType(ContentType.JSON)
-                .extract()
-                .as(PersonDto.class);
-
-        startOperatorId = person.getPersonId();
-
-        startOperatorTokens = PersonApi.loginPerson(operator.getEmail(), operator.getPassword())
-                .then()
-                .extract()
-                .as(TokensDto.class);
+        startOperatorTokens = PersonSteps.registerAndLogin(operator);
     }
 
     @AfterAll
     public static void cleanup() {
-        createdPersonIds.add(startOperatorId);
+        createdPersonIds.add(startOperatorTokens.getPerson().getPersonId());
 
         createdCarsIds.forEach(id ->
-                CarApi.deleteCar(startOperatorTokens.getAccessToken(), id)
-                        .then()
-                        .statusCode(204)
+                CarSteps.deleteCarById(startOperatorTokens.getAccessToken(), id)
         );
 
         createdPersonIds.forEach(id ->
-                PersonApi.deletePerson(startOperatorTokens.getAccessToken(), id)
-                        .then()
-                        .statusCode(204)
+                PersonSteps.deletePerson(startOperatorTokens.getAccessToken(), id)
         );
     }
 }

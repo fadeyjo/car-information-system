@@ -448,6 +448,22 @@
   },
   {
     "ContainingType": "server.Controllers.TripsController",
+    "Method": "DeleteTrip",
+    "RelativePath": "api/Trips/{tripId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tripId",
+        "Type": "System.UInt64",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.TripsController",
     "Method": "EndTrip",
     "RelativePath": "api/Trips/end",
     "HttpMethod": "PUT",
