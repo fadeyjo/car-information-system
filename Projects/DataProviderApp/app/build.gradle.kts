@@ -22,6 +22,12 @@ android {
         "BASE_URL",
         "\"https://185.120.59.21.nip.io/api/\""
         )
+
+        buildConfigField(
+            "String",
+            "MQTT_URL",
+            "\"tcp://185.120.59.21:1883\""
+        )
     }
 
     buildTypes {
@@ -77,4 +83,8 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
 
     implementation(libs.mqtt)
+
+    implementation(libs.play.services.location)
+
+    implementation(libs.coroutines.play.services)
 }

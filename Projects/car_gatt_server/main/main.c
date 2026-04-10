@@ -529,6 +529,9 @@ void get_data_by_request(uint8_t mode, uint8_t pid)
 // Должна отработать, когда по BLE пришла команда начала сессии, с командой должна передаваться скорость работы
 void start_session(uint16_t can_speed)
 {
+	ble_notify_session_started(can_speed, 0x09fd88da);
+	return;
+	
 	esp_err_t err;
 	if (!twai_initialized)
 	{

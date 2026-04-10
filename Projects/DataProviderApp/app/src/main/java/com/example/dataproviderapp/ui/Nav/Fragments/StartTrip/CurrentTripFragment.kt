@@ -17,21 +17,23 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.dataproviderapp.ble.ObdBleClient
 import com.example.dataproviderapp.databinding.FragmentCurrentTripBinding
+import com.example.dataproviderapp.dto.requests.CreateGpsDataRequest
 import com.example.dataproviderapp.dto.requests.CreateTelemetryDataRequest
+import com.example.dataproviderapp.mqtt.MqttClient
 import com.example.dataproviderapp.ui.Nav.CurrentDataSupportedPidsDetailsState
 import com.example.dataproviderapp.ui.Nav.NavActivity
 import com.example.dataproviderapp.ui.Nav.NavViewModel
 import com.example.dataproviderapp.ui.Nav.StartTripState
 import com.example.dataproviderapp.utils.Utils
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import org.eclipse.paho.client.mqttv3.MqttClient
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
-import org.eclipse.paho.client.mqttv3.MqttMessage
+import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -49,35 +51,8 @@ class CurrentTripFragment : Fragment() {
     private var obdTask: Job? = null
     private var gpsTask: Job? = null
 
-    private val brokerUrl = "tcp://185.120.59.21:1883"
-    private val clientId = "android-kotlin-client"
-    private var client: MqttClient? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-
-    fun connectMqtt() {
-        client = MqttClient(brokerUrl, clientId, null)
-
-        val options = MqttConnectOptions().apply {
-            isCleanSession = true
-            connectionTimeout = 10
-            keepAliveInterval = 20
-        }
-
-        client!!.connect(options)
-    }
-
-    fun publishJson(topic: String, json: String) {
-        if (client == null) {
-            return
-        }
-
-        val message = MqttMessage(json.toByteArray()).apply {
-            qos = 1
-            isRetained = false
-        }
-
-        client!!.publish(topic, message)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -117,8 +92,6 @@ class CurrentTripFragment : Fragment() {
             dataCallback(data)
         }
 
-        connectMqtt()
-
         observeVIewModel()
 
         viewModel.obdBleClient!!.startSession(speed) {
@@ -137,7 +110,7 @@ class CurrentTripFragment : Fragment() {
     }
 
     @OptIn(ExperimentalEncodingApi::class)
-    fun intToBase64(value: Long): String {
+    private fun intToBase64(value: Long): String {
         val bytes = byteArrayOf(
             (value shr 24).toByte(),
             (value shr 16).toByte(),
@@ -165,7 +138,7 @@ class CurrentTripFragment : Fragment() {
 
                 val json = gson.toJson(content)
 
-                publishJson("telemetry/new-data", json)
+                MqttClient.publishJson("telemetry/new-data", json)
             }
             ObdBleClient.DataCallBack.SessionStopped -> TODO()
             is ObdBleClient.DataCallBack.SupportedPids -> {
@@ -184,16 +157,19 @@ class CurrentTripFragment : Fragment() {
                         when (state) {
                             StartTripState.CarNotFound -> goBackWithMessage("Автомобиль не найден")
                             is StartTripState.Data -> {
+                                MqttClient.connectMqtt()
+                                fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+
                                 viewModel.currentTrip = state.trip
 
                                 stopTasks()
 
                                 obdTask = launch {
-                                    sendObdData()
+                                    // sendObdData()
                                 }
 
                                 gpsTask = launch {
-                                    // sendGpsData()
+                                    sendGpsData()
                                 }
                             }
                             StartTripState.NetworkError -> goBackWithMessage("Нет подключения к интернету")
@@ -229,10 +205,7 @@ class CurrentTripFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private suspend fun sendObdData() {
-        viewModel.obdBleClient!!.getData(1, 12)
-        return
-        //отладка выше удалить
-        if (viewModel.curDataPids == null) {
+        if (viewModel.curDataPids == null || viewModel.obdBleClient == null) {
             return
         }
 
@@ -259,7 +232,42 @@ class CurrentTripFragment : Fragment() {
         }
     }
 
-    fun stopTasks() {
+    @SuppressLint("MissingPermission")
+    private suspend fun sendGpsData() {
+        val formatter = DateTimeFormatter.ISO_DATE_TIME
+        val gson = Gson()
+        
+
+        while (currentCoroutineContext().isActive) {
+
+            val location = fusedLocationClient.lastLocation.await()
+
+            if (location != null) {
+
+                val lat = location.latitude
+                val lon = location.longitude
+                val accuracy = if (location.hasAccuracy()) location.accuracy else null
+                val speed = if (location.hasSpeed()) (location.speed * 3.6).toInt() else null
+                val bearing = if (location.hasBearing()) location.bearing.toInt() else null
+
+                val data = CreateGpsDataRequest(
+                    LocalDateTime.now(ZoneOffset.UTC).format(formatter), viewModel.currentTrip!!.tripId,
+                    lat, lon,
+                    accuracy, speed,
+                    bearing
+
+                )
+
+                val json = gson.toJson(data)
+
+                MqttClient.publishJson("gps/new-data", json)
+            }
+
+            delay(1000)
+        }
+    }
+
+    private fun stopTasks() {
         obdTask?.cancel()
         gpsTask?.cancel()
     }
@@ -275,5 +283,10 @@ class CurrentTripFragment : Fragment() {
 
         viewModel.obdBleClient?.disconnect()
         viewModel.obdBleClient = null
+
+        MqttClient.disconnect()
+
+        viewModel.currentTrip = null
+        viewModel.curDataPids = null
     }
 }

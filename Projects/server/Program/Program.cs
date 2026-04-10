@@ -113,15 +113,11 @@ namespace server.Program
             builder.Services.Configure<MqttSettings>(
                 builder.Configuration.GetSection("Mqtt"));
 
-            builder.Services.AddSingleton<MqttService>();
+            builder.Services.AddHostedService<MqttIngestionHostedService>();
 
             var app = builder.Build();
 
-            var mqttService = app.Services.GetRequiredService<MqttService>();
-            mqttService.ConnectAsync().GetAwaiter().GetResult();
-            mqttService.SubscribeAsync(MqttService.NEW_TELEMETRY_DATA_TOPIC).GetAwaiter().GetResult();
-            mqttService.SubscribeAsync(MqttService.NEW_GPS_DATA_TOPIC).GetAwaiter().GetResult();
-
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

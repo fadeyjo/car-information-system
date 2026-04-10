@@ -3,11 +3,11 @@ package com.example.dataproviderapp.dto.requests
 import java.time.LocalDateTime
 
 data class CreateGpsDataRequest(
-    val recDatetime: LocalDateTime,
+    val recDatetime: String,
     val tripId: ULong,
-    val latitudeDeg: Float,
-    val longitudeDeg: Float,
+    val latitudeDeg: Double,
+    val longitudeDeg: Double,
     val accuracyM: Float?,
-    val speedKmh: UInt?,
-    val bearingDeg: UShort?
+    val speedKmh: Int?,
+    val bearingDeg: Int?
 )
