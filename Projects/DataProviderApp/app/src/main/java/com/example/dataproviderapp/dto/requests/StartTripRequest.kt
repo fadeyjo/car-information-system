@@ -5,5 +5,7 @@ import java.time.LocalDateTime
 data class StartTripRequest(
     val startDatetime: LocalDateTime,
     val macAddress: String,
-    val carId: UInt
+    val carId: UInt,
+    val ecuId: String,
+    val supported: Long
 )

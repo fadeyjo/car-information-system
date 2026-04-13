@@ -20,13 +20,13 @@ namespace server.Contracts.Requests.Validations
 
             RuleFor(x => x.LongitudeDeg)
                 .NotEmpty().WithMessage("Долгота обязательна")
-                .GreaterThan(-180).WithMessage("Широта должна быть больше -180 градусов")
+                .GreaterThanOrEqualTo(-180).WithMessage("Широта должна быть больше или равна -180 градусов")
                 .LessThanOrEqualTo(180).WithMessage("Широта должна быть меньше или равна 180 градусов"); ;
 
             RuleFor(x => x.BearingDeg)
-                .InclusiveBetween((ushort)0, (ushort)359)
+                .InclusiveBetween(0, 360)
                 .When(x => x.BearingDeg.HasValue)
-                .WithMessage("Курс должен быть в диапазоне 0–359");
+                .WithMessage("Курс должен быть в диапазоне 0–360");
         }
     }
 }

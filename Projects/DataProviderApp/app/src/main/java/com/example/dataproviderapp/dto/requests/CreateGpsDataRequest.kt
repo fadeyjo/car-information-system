@@ -9,5 +9,5 @@ data class CreateGpsDataRequest(
     val longitudeDeg: Double,
     val accuracyM: Float?,
     val speedKmh: Int?,
-    val bearingDeg: Int?
+    val bearingDeg: Float?
 )

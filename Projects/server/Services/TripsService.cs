@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using server.Contracts.Requests;
 using server.Contracts.Responses;
 using server.Data;
 using server.Models.Entities;
@@ -11,9 +12,12 @@ namespace server.Services
     {
         private readonly AppDbContext _context;
 
-        public TripsService(AppDbContext context)
+        private readonly IOBDIIPIDSService _service;
+
+        public TripsService(AppDbContext context, IOBDIIPIDSService service)
         {
             _context = context;
+            _service = service;
         }
 
         public async Task DeleteTrip(ulong tripId)
@@ -69,7 +73,24 @@ namespace server.Services
             return trip;
         }
 
-        public async Task<TripDto> StartTrip(DateTime startDatetime, string macAddress, uint carId)
+        private byte[] GetRawResponse(uint sup)
+        {
+            // Со старших до младших
+
+            var response = new byte[8];
+            response[0] = 7;
+            response[1] = 0x41;
+            response[2] = 0;
+            response[3] = (byte)(sup >> 24 & 0xFF);
+            response[4] = (byte)(sup >> 16 & 0xFF);
+            response[5] = (byte)(sup >> 8 & 0xFF);
+            response[6] = (byte)(sup & 0xFF);
+            response[7] = 0;
+
+            return response;
+        }
+
+        public async Task<TripDto> StartTrip(DateTime startDatetime, string macAddress, uint carId, byte[] ECUId, uint supported)
         {
             macAddress = macAddress.ToUpper();
 
@@ -77,6 +98,11 @@ namespace server.Services
 
             if (!exits)
                 throw new HttpError("Автомобиль не найден", StatusCodes.Status404NotFound);
+
+            var obdIIId = await _service.GetOBDIIPIDId(1, 0);
+
+            if (obdIIId == null)
+                throw new HttpError("PID не найден", StatusCodes.Status404NotFound);
 
             var device = await _context.OBDIIDevices.FirstOrDefaultAsync(d => d.MacAddress == macAddress);
 
@@ -98,6 +124,19 @@ namespace server.Services
                 CarId = carId
             };
             _context.Trips.Add(newTrip);
+            await _context.SaveChangesAsync();
+
+            var supportedPidsData = new TelemetryData()
+            {
+                RecDatetime = startDatetime,
+                OBDIIPIDId = (uint)obdIIId,
+                EcuId = ECUId,
+                ResponseDlc = 8,
+                Response = GetRawResponse(supported),
+                TripId = newTrip.TripId
+            };
+
+            _context.TelemetryData.Add(supportedPidsData);
             await _context.SaveChangesAsync();
 
             return new TripDto()

@@ -563,11 +563,11 @@ class NavViewModel : ViewModel() {
         }
     }
 
-    fun startTrip(startDatetime: LocalDateTime, macAddress: String, carId: UInt) {
+    fun startTrip(startDatetime: LocalDateTime, macAddress: String, carId: UInt, ecuId: String, supported: Long) {
         viewModelScope.launch {
             _startTripState.value = StartTripState.Loading
 
-            val body = StartTripRequest(startDatetime, macAddress, carId);
+            val body = StartTripRequest(startDatetime, macAddress, carId, ecuId, supported);
 
             val res = TripsRepository.startTrip(body)
 

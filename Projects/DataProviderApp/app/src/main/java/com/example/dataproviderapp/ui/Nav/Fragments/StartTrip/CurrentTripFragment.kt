@@ -1,5 +1,6 @@
 package com.example.dataproviderapp.ui.Nav.Fragments.StartTrip
 
+import com.example.dataproviderapp.R
 import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Build
@@ -28,6 +29,13 @@ import com.example.dataproviderapp.utils.Utils
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
+import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.geometry.Polyline
+import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.PlacemarkMapObject
+import com.yandex.mapkit.map.PolylineMapObject
+import com.yandex.runtime.image.ImageProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -43,6 +51,9 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 
 class CurrentTripFragment : Fragment() {
 
+    private var ecuId: IntArray? = null
+    private var supportedPids: Long? = null
+
     private var _binding: FragmentCurrentTripBinding? = null
     private val binding get() = _binding!!
 
@@ -53,6 +64,10 @@ class CurrentTripFragment : Fragment() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private var userPlacemark: PlacemarkMapObject? = null
+    private var routePolyline: PolylineMapObject? = null
+    private val routePoints = mutableListOf<Point>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,6 +75,24 @@ class CurrentTripFragment : Fragment() {
     ): View? {
         _binding = FragmentCurrentTripBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        binding.mapView.onStart()
+        MapKitFactory.getInstance().onStart()
+    }
+
+    override fun onStop() {
+        binding.mapView.onStop()
+        MapKitFactory.getInstance().onStop()
+        super.onStop()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        MapKitFactory.setApiKey("3c93913d-2dfe-4a57-af26-6b270706fb3a")
     }
 
     private fun changeStateNav(locked: Boolean) {
@@ -94,9 +127,53 @@ class CurrentTripFragment : Fragment() {
 
         observeVIewModel()
 
+        binding.mapView.mapWindow.map.move(
+            CameraPosition(
+                Point(59.0, 30.0),
+                15.0f,
+                0.0f,
+                0.0f
+            )
+        )
+
         viewModel.obdBleClient!!.startSession(speed) {
             connectionTimeoutToStartSession()
         }
+    }
+
+    private fun updateMap(lat: Double, lon: Double) {
+        val point = Point(lat, lon)
+
+        val mapObjects = binding.mapView.mapWindow.map.mapObjects
+
+        if (userPlacemark == null) {
+            userPlacemark = mapObjects.addPlacemark().apply {
+                geometry = point
+                setIcon(ImageProvider.fromResource(requireContext(), R.drawable.ic_arrow))
+            }
+        } else {
+            userPlacemark?.geometry = point
+        }
+
+        routePoints.add(point)
+
+        if (routePolyline == null) {
+            routePolyline = mapObjects.addPolyline(Polyline(routePoints))
+        } else {
+            routePolyline?.geometry = Polyline(routePoints)
+        }
+
+        binding.mapView.mapWindow.map.move(
+            CameraPosition(point, 16f, 0f, 0f)
+        )
+    }
+
+    private fun updateDirection(bearing: Float?) {
+        if (bearing == null) {
+            return
+        }
+
+        userPlacemark?.direction = bearing
     }
 
     private fun connectionTimeoutToStartSession() {
@@ -142,11 +219,14 @@ class CurrentTripFragment : Fragment() {
             }
             ObdBleClient.DataCallBack.SessionStopped -> TODO()
             is ObdBleClient.DataCallBack.SupportedPids -> {
+                ecuId = data.ecuId
+                supportedPids = data.pids
                 viewModel.getCurrentDataSupportedPids(data.pids)
             }
         }
     }
 
+    @OptIn(ExperimentalEncodingApi::class)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @SuppressLint("MissingPermission")
     private fun observeVIewModel() {
@@ -165,7 +245,7 @@ class CurrentTripFragment : Fragment() {
                                 stopTasks()
 
                                 obdTask = launch {
-                                    // sendObdData()
+                                    sendObdData()
                                 }
 
                                 gpsTask = launch {
@@ -186,10 +266,13 @@ class CurrentTripFragment : Fragment() {
                         when (state) {
                             CurrentDataSupportedPidsDetailsState.NetworkError -> goBackWithMessage("Нет подключения к интернету")
                             is CurrentDataSupportedPidsDetailsState.PidsDetails -> {
+                                val base64Ecu = ByteArray(ecuId!!.size) { i -> ecuId!![i].toByte() }
+
                                 viewModel.startTrip(
                                     LocalDateTime.now(ZoneOffset.UTC),
                                     viewModel.obdBleClient!!.device.address,
-                                    viewModel.selectedCarToTrip!!.carId
+                                    viewModel.selectedCarToTrip!!.carId,
+                                    Base64.encode(base64Ecu), supportedPids!!
                                 )
                             }
                             CurrentDataSupportedPidsDetailsState.UnknownError -> goBackWithMessage("Неизвестная ошибка")
@@ -219,49 +302,69 @@ class CurrentTripFragment : Fragment() {
 
         var i = 0
 
-        while (currentCoroutineContext().isActive) {
-            viewModel.obdBleClient!!.getData(1, repeatable[i])
+        if (repeatable.isEmpty()) {
+            return
+        }
 
-            if (repeatable.size - 1 == i) {
+        while (currentCoroutineContext().isActive) {
+            viewModel.obdBleClient!!.getData(1, repeatable[i++])
+
+            if (repeatable.size == i) {
                 i = 0
-            } else {
-                i++
             }
 
             delay(200)
         }
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    private suspend fun getCurrentGpsData(): CreateGpsDataRequest? {
+        val formatter = DateTimeFormatter.ISO_DATE_TIME
+        val location = fusedLocationClient.lastLocation.await()
+
+        if (location != null) {
+
+            val lat = location.latitude
+            val lon = location.longitude
+            val accuracy = if (location.hasAccuracy()) location.accuracy else null
+            val speed = if (location.hasSpeed()) (location.speed * 3.6).toInt() else null
+            val bearing = if (location.hasBearing()) location.bearing else null
+
+            requireActivity().runOnUiThread {
+                updateMap(lat, lon)
+            }
+
+            return CreateGpsDataRequest(
+                LocalDateTime.now(ZoneOffset.UTC).format(formatter), viewModel.currentTrip!!.tripId,
+                lat, lon,
+                accuracy, speed,
+                bearing
+            )
+        }
+
+        return null
+    }
+
     @SuppressLint("MissingPermission")
     private suspend fun sendGpsData() {
-        val formatter = DateTimeFormatter.ISO_DATE_TIME
         val gson = Gson()
-        
 
         while (currentCoroutineContext().isActive) {
 
-            val location = fusedLocationClient.lastLocation.await()
+            val data = getCurrentGpsData()
 
-            if (location != null) {
-
-                val lat = location.latitude
-                val lon = location.longitude
-                val accuracy = if (location.hasAccuracy()) location.accuracy else null
-                val speed = if (location.hasSpeed()) (location.speed * 3.6).toInt() else null
-                val bearing = if (location.hasBearing()) location.bearing.toInt() else null
-
-                val data = CreateGpsDataRequest(
-                    LocalDateTime.now(ZoneOffset.UTC).format(formatter), viewModel.currentTrip!!.tripId,
-                    lat, lon,
-                    accuracy, speed,
-                    bearing
-
-                )
-
-                val json = gson.toJson(data)
-
-                MqttClient.publishJson("gps/new-data", json)
+            if (data == null) {
+                continue
             }
+
+            requireActivity().runOnUiThread {
+                updateMap(data.latitudeDeg, data.longitudeDeg)
+                updateDirection(data.bearingDeg)
+            }
+
+            val json = gson.toJson(data)
+
+            MqttClient.publishJson("gps/new-data", json)
 
             delay(1000)
         }

@@ -185,6 +185,18 @@ class ObdBleClient(
                 ((byteArray[index + 3].toLong() and 0xFF) shl 24)
     }
 
+    private fun readLeByteArray(start: Int, len: Int, data: List<Int>): IntArray {
+        val result = IntArray(len)
+
+        var index = 0
+
+        for (i in (start + len - 1) downTo start) {
+            result[index++] = data[i]
+        }
+
+        return result
+    }
+
     private fun handleNotify(data: ByteArray) {
         val uData = data.map { it.toInt() and 0xFF }
 
@@ -195,8 +207,9 @@ class ObdBleClient(
 
                 val speed = readLe16(uData, 1)
                 val pids = readLe32(uData, 3)
+                val ecuId = readLeByteArray(7, 4, uData)
 
-                val dataCallback = DataCallBack.SupportedPids(pids)
+                val dataCallback = DataCallBack.SupportedPids(pids, ecuId)
                 handleObdData?.invoke(dataCallback)
             }
 
@@ -296,8 +309,28 @@ class ObdBleClient(
 
     sealed class DataCallBack{
         data class SupportedPids(
-            val pids: Long
-        ): DataCallBack()
+            val pids: Long,
+            val ecuId: IntArray
+        ): DataCallBack() {
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (javaClass != other?.javaClass) return false
+
+                other as SupportedPids
+
+                if (pids != other.pids) return false
+                if (!ecuId.contentEquals(other.ecuId)) return false
+
+                return true
+            }
+
+            override fun hashCode(): Int {
+                var result = pids.hashCode()
+                result = 31 * result + ecuId.contentHashCode()
+                return result
+            }
+        }
+
         data class ObdResponse(
             val id: Long,
             val dlc: Short,

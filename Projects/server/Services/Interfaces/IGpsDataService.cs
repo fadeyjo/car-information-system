@@ -8,7 +8,7 @@ namespace server.Services.Interfaces
             DateTime recDateTime, ulong tripId,
             float latitudeDeg, float longitudeDeg,
             float? accuracyM, uint? speedKmh,
-            ushort? bearingDeg
+            float? bearingDeg
         );
         Task<GpsDataDto> GetGpsDataById(ulong recordId);
     }

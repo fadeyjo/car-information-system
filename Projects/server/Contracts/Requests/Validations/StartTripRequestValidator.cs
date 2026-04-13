@@ -16,6 +16,12 @@ namespace server.Contracts.Requests.Validations
 
             RuleFor(x => x.CarId)
                 .NotEmpty().WithMessage("ID автомобиля обязателен");
+
+            RuleFor(x => x.EcuId)
+                .NotEmpty().WithMessage("ID ЭБУ обязателен");
+
+            RuleFor(x => x.Supported)
+                .NotEmpty().WithMessage("Ответ OBDII обязателен");
         }
     }
 }

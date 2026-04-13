@@ -75,12 +75,12 @@ QueueHandle_t ble_queue;
 
 static TaskHandle_t ble_notify_task_handle;
 
-static uint16_t g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE;
+static uint16_t g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE; 
 static bool g_ble_notify_enabled = false;
 static uint16_t g_ble_notify_val_handle = 0;
 static uint8_t g_own_addr_type = 0;
 
-static void ble_notify_session_started(uint16_t can_speed, uint32_t supported_pids);
+static void ble_notify_session_started(uint16_t can_speed, uint32_t supported_pids, uint32_t ecu_id);
 static void ble_notify_session_stopped(void);
 static void ble_notify_obd_response(const twai_message_t *message);
 
@@ -118,9 +118,11 @@ TaskHandle_t x_can_tx_task_handle = NULL;
 
 SemaphoreHandle_t flag_pids_mutex = NULL;
 SemaphoreHandle_t pids_mutex = NULL;
+SemaphoreHandle_t ecu_id_mutex = NULL;
 
 bool current_data_supported_pids_received = false;
 uint32_t current_data_supported_pids = 0;
+uint32_t ecu_id = 0;
 
 static bool ble_can_notify(void)
 {
@@ -184,17 +186,13 @@ static void ble_notify_task(void *arg)
 	}
 }
 
-static void ble_notify_session_started(uint16_t can_speed, uint32_t supported_pids)
+static void ble_notify_session_started(uint16_t can_speed, uint32_t supported_pids, uint32_t ecu_id)
 {
-	uint8_t buf[1 + 2 + 4];
+	uint8_t buf[1 + 2 + 4 + 4];
 	buf[0] = BLE_EVT_SESSION_STARTED;
 	write_le16(&buf[1], can_speed);
 	write_le32(&buf[3], supported_pids);
-	
-	printf("SUPPORTED PIDS\n");
-	for (size_t i = 0; i < 7; i++) {
-    	printf("0x%02" PRIx8 " ", buf[i]); 
-	}
+	write_le32(&buf[7], ecu_id);
 	
 	ble_notify_bytes(buf, sizeof(buf));
 }
@@ -229,8 +227,25 @@ static void ble_notify_obd_response(const twai_message_t *message)
 
 void set_current_data_supported_pids(uint32_t value)
 {
-	xSemaphoreTake(pids_mutex, portMAX_DELAY);
+	xSemaphoreTake(ecu_id_mutex, portMAX_DELAY);
 	current_data_supported_pids = value;
+	xSemaphoreGive(ecu_id_mutex);
+}
+
+uint32_t get_ecu_id()
+{
+	uint32_t buf;
+	xSemaphoreTake(ecu_id_mutex, portMAX_DELAY);
+	buf = current_data_supported_pids;
+	xSemaphoreGive(ecu_id_mutex);
+	
+	return buf;
+}
+
+void set_ecu_id(uint32_t value)
+{
+	xSemaphoreTake(pids_mutex, portMAX_DELAY);
+	ecu_id = value;
 	xSemaphoreGive(pids_mutex);
 }
 
@@ -238,7 +253,7 @@ uint32_t get_current_data_supported_pids()
 {
 	uint32_t buf;
 	xSemaphoreTake(pids_mutex, portMAX_DELAY);
-	buf = current_data_supported_pids;
+	buf = ecu_id;
 	xSemaphoreGive(pids_mutex);
 	
 	return buf;
@@ -453,6 +468,7 @@ void can_receive_task(void *arg)
 				deserialize_supported_pids(message.data);
 				
 				set_current_data_supported_pids_received(true);
+				set_ecu_id(message.identifier);
 				
 				continue;
 			}
@@ -515,6 +531,15 @@ void stop_session()
 // Должна отработать, когда по BLE пришла команда для выполнения запроса к OBDII (с командой передается mode и pid)
 void get_data_by_request(uint8_t mode, uint8_t pid)
 {
+	twai_message_t message = {
+		.identifier = 0x7E8,
+		.data = {0xff, 0x41, 0x03, 0xff, 0x23, 0x23, 0x23, 0x23},
+		.data_length_code = 8
+	};
+	ble_notify_obd_response(&message);
+	return;
+	// ВЫШЕ ОТЛАДКА
+	
 	can_msg_t msg = {
 		.mode = mode,
 		.pid = pid
@@ -529,8 +554,9 @@ void get_data_by_request(uint8_t mode, uint8_t pid)
 // Должна отработать, когда по BLE пришла команда начала сессии, с командой должна передаваться скорость работы
 void start_session(uint16_t can_speed)
 {
-	ble_notify_session_started(can_speed, 0x09fd88da);
+	ble_notify_session_started(can_speed, 0xFFFFFFFF, 0x07e8);
 	return;
+	// ВЫШЕ ОТЛАДКА
 	
 	esp_err_t err;
 	if (!twai_initialized)
@@ -604,7 +630,7 @@ void start_session(uint16_t can_speed)
 		return;
 	}
 	
-	ble_notify_session_started(can_speed, pids);
+	ble_notify_session_started(can_speed, pids, get_ecu_id());
 }
 
 // ===== BLE GATT server (NimBLE) =====

@@ -35,7 +35,9 @@ namespace server.Controllers
                 var trip = await _service.StartTrip(
                     body.StartDatetime,
                     body.MacAddress,
-                    body.CarId
+                    body.CarId,
+                    body.EcuId,
+                    body.Supported
                 );
 
                 return CreatedAtAction(

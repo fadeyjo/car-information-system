@@ -19,6 +19,8 @@ glideCompiler = "4.16.0"
 mqtt = "1.2.5"
 playServicesLocation = "21.0.1"
 coroutinesPlayServices = "1.7.3"
+#  yandexMapkit = "4.5.0-full"
+yandexMapMobile = "4.33.1-lite"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -53,6 +55,10 @@ mqtt = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", version.ref
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 
 coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutinesPlayServices" }
+
+# yandex-mapkit = { module = "com.yandex.android:mapkit", version.ref = "yandexMapkit" }
+
+yandex-mapkit-mobile = { module = "com.yandex.android:maps.mobile", version.ref = "yandexMapMobile" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

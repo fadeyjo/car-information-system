@@ -1,4 +1,5 @@
-﻿using server.Contracts.Responses;
+﻿using server.Contracts.Requests;
+using server.Contracts.Responses;
 
 namespace server.Services.Interfaces
 {
@@ -6,7 +7,7 @@ namespace server.Services.Interfaces
     {
         Task<TripDto> StartTrip(
             DateTime startDatetime, string macAddress,
-            uint carId
+            uint carId, byte[] ECUId, uint supported
         );
         Task<TripDto> GetTripById(ulong tripId);
         Task EndTrip(DateTime endDatetime, ulong tripId);

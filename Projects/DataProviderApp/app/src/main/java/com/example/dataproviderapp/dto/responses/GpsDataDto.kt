@@ -10,5 +10,5 @@ data class GpsDataDto(
     val longitudeDeg: Float,
     val accuracyM: Float?,
     val speedKmh: UInt?,
-    val bearingDeg: UShort?
+    val bearingDeg: Float?
 )

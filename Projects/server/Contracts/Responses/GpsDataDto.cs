@@ -9,6 +9,6 @@
         public float LongitudeDeg { get; set; }
         public float? AccuracyM { get; set; }
         public uint? SpeedKmh { get; set; }
-        public ushort? BearingDeg { get; set; }
+        public float? BearingDeg { get; set; }
     }
 }

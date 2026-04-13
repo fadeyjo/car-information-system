@@ -20,13 +20,13 @@ android {
         buildConfigField(
                 "String",
         "BASE_URL",
-        "\"https://185.120.59.21.nip.io/api/\""
+        "\"https://95.31.48.71.nip.io/api/\""
         )
 
         buildConfigField(
             "String",
             "MQTT_URL",
-            "\"tcp://185.120.59.21:1883\""
+            "\"tcp://95.31.48.71:1883\""
         )
     }
 
@@ -87,4 +87,8 @@ dependencies {
     implementation(libs.play.services.location)
 
     implementation(libs.coroutines.play.services)
+
+    // implementation(libs.yandex.mapkit)
+
+    implementation(libs.yandex.mapkit.mobile)
 }

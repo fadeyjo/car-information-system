@@ -886,8 +886,8 @@
             "nullable": true
           },
           "bearingDeg": {
-            "type": "integer",
-            "format": "int32",
+            "type": "number",
+            "format": "float",
             "nullable": true
           }
         },
@@ -1021,6 +1021,15 @@
             "nullable": true
           },
           "carId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ecuId": {
+            "type": "string",
+            "format": "byte",
+            "nullable": true
+          },
+          "supported": {
             "type": "integer",
             "format": "int32"
           }

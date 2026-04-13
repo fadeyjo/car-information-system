@@ -31,6 +31,13 @@ namespace server.Services
             };
         }
 
+        public async Task<uint?> GetOBDIIPIDId(byte serviceId, ushort PID)
+        {
+            var data = await _context.OBDIIPIDs.Where(o => o.ServiceId == serviceId && o.PID == PID).FirstOrDefaultAsync();
+
+            return data == null ? null : data.OBDIIPIDId;
+        }
+
         private List<ushort> GetSupportedPids(uint pids)
         {
             uint mask = 0x80000000;
