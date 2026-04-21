@@ -7,8 +7,7 @@ namespace server.Contracts.Requests.Validations
         public StartTripRequestValidator()
         {
             RuleFor(x => x.StartDatetime)
-                .NotEmpty().WithMessage("Дата и время начала обязательны")
-                .LessThanOrEqualTo(DateTime.UtcNow).WithMessage("Дата и время должны быть раньше");
+                .NotEmpty().WithMessage("Дата и время начала обязательны");
 
             RuleFor(x => x.MacAddress)
                 .NotEmpty().WithMessage("MAC адрес устройства обязателен")

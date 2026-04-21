@@ -20,13 +20,19 @@ android {
         buildConfigField(
                 "String",
         "BASE_URL",
-        "\"https://95.31.48.71.nip.io/api/\""
+        "\"https://95.31.48.71.nip.io:8443/api/\""
         )
 
         buildConfigField(
             "String",
             "MQTT_URL",
             "\"tcp://95.31.48.71:1883\""
+        )
+
+        buildConfigField(
+            "String",
+            "MAPKIT_API_KEY",
+            "\"3c93913d-2dfe-4a57-af26-6b270706fb3a\""
         )
     }
 

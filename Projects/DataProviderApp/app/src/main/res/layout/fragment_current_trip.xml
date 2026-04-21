@@ -10,13 +10,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <Button
+        android:id="@+id/btnEndTrip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Закончить поездку"
+        android:layout_gravity="bottom"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/bg_main"
+        android:textColor="#FFFFFF"/>
+
     <LinearLayout
         android:id="@+id/infoPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="12dp"
-        android:background="#AA000000"
+        android:background="@color/bg_main"
         android:layout_gravity="top"
         android:gravity="center">
 

@@ -174,6 +174,8 @@ public sealed class MqttIngestionHostedService : BackgroundService
                         data.EcuId, data.ResponseDlc, data.Response,
                         data.TripId
                     );
+
+                    await TryPublishDerivedTelemetryAsync(data, ct);
                     break;
                 }
 
@@ -194,6 +196,58 @@ public sealed class MqttIngestionHostedService : BackgroundService
             default:
                 break;
         }
+    }
+
+    private async Task TryPublishDerivedTelemetryAsync(CreateTelemetryDataRequest data, CancellationToken ct)
+    {
+        if (_client is null || !_client.IsConnected) return;
+        if (data.Response is null || data.Response.Length < 5) return;
+
+        var pid = data.Response[2];
+
+        string? topic = null;
+        string? payload = null;
+
+        switch (pid)
+        {
+            case 0x0C:
+                {
+                    var a = data.Response[3];
+                    var b = data.Response[4];
+                    var rpm = (((a * 256) + b) / 4);
+                    topic = $"telemetry/RPM/{data.TripId}";
+                    payload = rpm.ToString();
+                    break;
+                }
+            case 0x0D:
+                {
+                    var a = data.Response[3];
+                    var b = data.Response[4];
+                    var speed = a;
+                    topic = $"telemetry/speed/{data.TripId}";
+                    payload = speed.ToString();
+                    break;
+                }
+            case 0x05:
+                {
+                    var a = data.Response[3];
+                    var b = data.Response[4];
+                    var temperature = a - 40;
+                    topic = $"telemetry/tempreture/{data.TripId}";
+                    payload = temperature.ToString();
+                    break;
+                }
+            default:
+                return;
+        }
+
+        var message = new MqttApplicationMessageBuilder()
+            .WithTopic(topic)
+            .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
+            .WithPayload(payload)
+            .Build();
+
+        await _client.PublishAsync(message, ct);
     }
 
     private T? Deserialize<T>(string payload)

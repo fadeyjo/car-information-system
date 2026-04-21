@@ -75,6 +75,22 @@ QueueHandle_t ble_queue;
 
 static TaskHandle_t ble_notify_task_handle;
 
+typedef struct {
+	uint8_t cmd;
+	union {
+		struct {
+			uint16_t can_speed;
+		} start;
+		struct {
+			uint8_t mode;
+			uint8_t pid;
+		} get_data;
+	} u;
+} app_cmd_t;
+
+static QueueHandle_t app_cmd_queue;
+static TaskHandle_t app_cmd_task_handle;
+
 static uint16_t g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE; 
 static bool g_ble_notify_enabled = false;
 static uint16_t g_ble_notify_val_handle = 0;
@@ -83,6 +99,10 @@ static uint8_t g_own_addr_type = 0;
 static void ble_notify_session_started(uint16_t can_speed, uint32_t supported_pids, uint32_t ecu_id);
 static void ble_notify_session_stopped(void);
 static void ble_notify_obd_response(const twai_message_t *message);
+
+void stop_session(void);
+void get_data_by_request(uint8_t mode, uint8_t pid);
+void start_session(uint16_t can_speed);
 
 static inline void write_le16(uint8_t *dst, uint16_t v)
 {
@@ -138,7 +158,8 @@ static void ble_notify_bytes(const uint8_t *data, uint16_t len)
     ble_msg_t msg;
 	memcpy(msg.data, data, len);
 	msg.len = len;
-	if (xQueueSend(ble_queue, &msg, pdMS_TO_TICKS(50)) != pdTRUE) {
+	// В NimBLE callbacks нельзя блокироваться; не ждём очередь.
+	if (xQueueSend(ble_queue, &msg, portMAX_DELAY) != pdTRUE) {
 		ESP_LOGW(TAG, "ble notify queue full");
 	}
 }
@@ -159,8 +180,6 @@ static void ble_notify_task(void *arg)
 			ble_hs_unlock();
 			continue;
 		}
-		
-		printf("Data\n");
 
 		struct os_mbuf *om = ble_hs_mbuf_from_flat(msg.data, msg.len);
 		if (!om) {
@@ -168,8 +187,6 @@ static void ble_notify_task(void *arg)
 			ble_hs_unlock();
 			continue;
 		}
-		
-		printf("Data\n");
 
 		int rc = ble_gatts_notify_custom(
 			g_ble_conn_handle,
@@ -183,6 +200,32 @@ static void ble_notify_task(void *arg)
 		}
 
 		ble_hs_unlock();
+	}
+}
+
+static void app_cmd_task(void *arg)
+{
+	(void)arg;
+	app_cmd_t cmd;
+
+	for (;;) {
+		if (xQueueReceive(app_cmd_queue, &cmd, portMAX_DELAY) != pdTRUE) {
+			continue;
+		}
+
+		switch (cmd.cmd) {
+			case BLE_CMD_START_SESSION:
+				start_session(cmd.u.start.can_speed);
+				break;
+			case BLE_CMD_GET_DATA:
+				get_data_by_request(cmd.u.get_data.mode, cmd.u.get_data.pid);
+				break;
+			case BLE_CMD_STOP_SESSION:
+				stop_session();
+				break;
+			default:
+				break;
+		}
 	}
 }
 
@@ -227,16 +270,16 @@ static void ble_notify_obd_response(const twai_message_t *message)
 
 void set_current_data_supported_pids(uint32_t value)
 {
-	xSemaphoreTake(ecu_id_mutex, portMAX_DELAY);
+	xSemaphoreTake(pids_mutex, portMAX_DELAY);
 	current_data_supported_pids = value;
-	xSemaphoreGive(ecu_id_mutex);
+	xSemaphoreGive(pids_mutex);
 }
 
 uint32_t get_ecu_id()
 {
 	uint32_t buf;
 	xSemaphoreTake(ecu_id_mutex, portMAX_DELAY);
-	buf = current_data_supported_pids;
+	buf = ecu_id;
 	xSemaphoreGive(ecu_id_mutex);
 	
 	return buf;
@@ -244,16 +287,16 @@ uint32_t get_ecu_id()
 
 void set_ecu_id(uint32_t value)
 {
-	xSemaphoreTake(pids_mutex, portMAX_DELAY);
+	xSemaphoreTake(ecu_id_mutex, portMAX_DELAY);
 	ecu_id = value;
-	xSemaphoreGive(pids_mutex);
+	xSemaphoreGive(ecu_id_mutex);
 }
 
 uint32_t get_current_data_supported_pids()
 {
 	uint32_t buf;
 	xSemaphoreTake(pids_mutex, portMAX_DELAY);
-	buf = ecu_id;
+	buf = current_data_supported_pids;
 	xSemaphoreGive(pids_mutex);
 	
 	return buf;
@@ -274,13 +317,6 @@ bool get_current_data_supported_pids_received()
 	xSemaphoreGive(flag_pids_mutex);
 	
 	return buf;
-}
-
-void reset_current_pids_data()
-{
-	set_current_data_supported_pids_received(false);
-	
-	set_current_data_supported_pids(0);
 }
 
 void reset_data_request_queue()
@@ -336,6 +372,7 @@ esp_err_t twai_init(uint16_t can_speed)
 
     twai_timing_config_t t_config = get_can_speed(can_speed);
     
+    
     twai_filter_config_t f_config = {
     	.acceptance_code = (CAN_FILTER << 21),
     	.acceptance_mask = ~(CAN_MASK << 21),
@@ -378,7 +415,6 @@ void send_obd_request(uint8_t mode, uint8_t pid)
 	{
     	return;
 	}
-	
     twai_transmit(&message, pdMS_TO_TICKS(1000));
 }
 
@@ -432,13 +468,6 @@ void can_receive_task(void *arg)
     {
         if (twai_receive(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
         {
-			printf("RX: id=%lx\n", (unsigned long)message.identifier);
-			
-			for (int i = 0; i < message.data_length_code; i++)
-			{
-				printf("%02X", message.data[i]);
-			}
-			printf("\n");
 				
             if (!is_valid_can_identifier(message.identifier))
             {
@@ -469,7 +498,6 @@ void can_receive_task(void *arg)
 				
 				set_current_data_supported_pids_received(true);
 				set_ecu_id(message.identifier);
-				
 				continue;
 			}
 			
@@ -518,8 +546,6 @@ void get_supported_current_data_pids()
 // Должна отработать, когда по BLE пришла команда для окончания сессии
 void stop_session()
 {
-	reset_current_pids_data();
-	
 	delete_x_can_rx_task_handle();
 	delete_x_can_tx_task_handle();
 	
@@ -529,17 +555,9 @@ void stop_session()
 }
 
 // Должна отработать, когда по BLE пришла команда для выполнения запроса к OBDII (с командой передается mode и pid)
+uint8_t i = 40;
 void get_data_by_request(uint8_t mode, uint8_t pid)
 {
-	twai_message_t message = {
-		.identifier = 0x7E8,
-		.data = {0xff, 0x41, 0x03, 0xff, 0x23, 0x23, 0x23, 0x23},
-		.data_length_code = 8
-	};
-	ble_notify_obd_response(&message);
-	return;
-	// ВЫШЕ ОТЛАДКА
-	
 	can_msg_t msg = {
 		.mode = mode,
 		.pid = pid
@@ -554,10 +572,6 @@ void get_data_by_request(uint8_t mode, uint8_t pid)
 // Должна отработать, когда по BLE пришла команда начала сессии, с командой должна передаваться скорость работы
 void start_session(uint16_t can_speed)
 {
-	ble_notify_session_started(can_speed, 0xFFFFFFFF, 0x07e8);
-	return;
-	// ВЫШЕ ОТЛАДКА
-	
 	esp_err_t err;
 	if (!twai_initialized)
 	{
@@ -586,6 +600,11 @@ void start_session(uint16_t can_speed)
 	if (pids_mutex == NULL)
 	{
 		pids_mutex = xSemaphoreCreateMutex();	
+	}
+	
+	if (ecu_id_mutex == NULL)
+	{
+		ecu_id_mutex = xSemaphoreCreateMutex();	
 	}
 	
 	if (x_can_rx_task_handle == NULL)
@@ -620,8 +639,6 @@ void start_session(uint16_t can_speed)
 	
 	if (!received || pids == 0)
 	{
-		reset_current_pids_data();
-		
 		delete_x_can_rx_task_handle();
 		delete_x_can_tx_task_handle();
 		
@@ -654,12 +671,6 @@ static int gatt_chr_access_cmd(uint16_t conn_handle, uint16_t attr_handle,
 
 static void handle_ble_command(const uint8_t *data, uint16_t len)
 {
-	for (int i = 0; i < len; i++)
-	{
-		printf("%02X", data[i]);
-	}
-	printf("\n");
-	
 	if (!data || len < 1)
 	{
 		return;
@@ -673,7 +684,11 @@ static void handle_ble_command(const uint8_t *data, uint16_t len)
 			{
 				return;
 			}
-			start_session(read_le16(&data[1]));
+			if (app_cmd_queue) {
+				app_cmd_t c = { .cmd = BLE_CMD_START_SESSION };
+				c.u.start.can_speed = read_le16(&data[1]);
+				(void)xQueueSend(app_cmd_queue, &c, 0);
+			}
 			return;
 
 		case BLE_CMD_GET_DATA:
@@ -681,11 +696,19 @@ static void handle_ble_command(const uint8_t *data, uint16_t len)
 			{
 				return;
 			}
-			get_data_by_request(data[1], data[2]);
+			if (app_cmd_queue) {
+				app_cmd_t c = { .cmd = BLE_CMD_GET_DATA };
+				c.u.get_data.mode = data[1];
+				c.u.get_data.pid = data[2];
+				(void)xQueueSend(app_cmd_queue, &c, 0);
+			}
 			return;
 
 		case BLE_CMD_STOP_SESSION:
-			stop_session();
+			if (app_cmd_queue) {
+				app_cmd_t c = { .cmd = BLE_CMD_STOP_SESSION };
+				(void)xQueueSend(app_cmd_queue, &c, 0);
+			}
 			return;
 
 		default:
@@ -755,13 +778,11 @@ static int ble_gap_event_cb(struct ble_gap_event *event, void *arg)
 		case BLE_GAP_EVENT_CONNECT:
 			if (event->connect.status == 0)
 			{
-				printf("connected\n");
 				g_ble_conn_handle = event->connect.conn_handle;
 				g_ble_notify_enabled = false;
 			}
 			else
 			{
-				printf("hz connected.....\n");
 				g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 				g_ble_notify_enabled = false;
 				ble_app_advertise();
@@ -769,7 +790,6 @@ static int ble_gap_event_cb(struct ble_gap_event *event, void *arg)
 			return 0;
 
 		case BLE_GAP_EVENT_DISCONNECT:
-			printf("disconnected\n");
 			g_ble_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 			g_ble_notify_enabled = false;
 			ble_app_advertise();
@@ -911,6 +931,26 @@ static esp_err_t ble_init(void)
 			NULL,
 			5,
 			&ble_notify_task_handle
+		);
+		if (ok != pdPASS) {
+			return ESP_ERR_NO_MEM;
+		}
+	}
+
+	if (app_cmd_queue == NULL) {
+		app_cmd_queue = xQueueCreate(10, sizeof(app_cmd_t));
+	}
+	if (app_cmd_queue == NULL) {
+		return ESP_ERR_NO_MEM;
+	}
+	if (app_cmd_task_handle == NULL) {
+		BaseType_t ok = xTaskCreate(
+			app_cmd_task,
+			"app_cmd",
+			4096,
+			NULL,
+			5,
+			&app_cmd_task_handle
 		);
 		if (ok != pdPASS) {
 			return ESP_ERR_NO_MEM;
