@@ -50,16 +50,16 @@ namespace server.Services
                     };
                     _context.OBDIIServices.Add(newService);
                     await _context.SaveChangesAsync();
-
-                    OBDIIPID = new OBDIIPID()
-                    {
-                        ServiceId = serviceId,
-                        PID = PID,
-                        PIDDescription = "Неизвестный PID"
-                    };
-                    _context.OBDIIPIDs.Add(OBDIIPID);
-                    await _context.SaveChangesAsync();
                 }
+
+                OBDIIPID = new OBDIIPID()
+                {
+                    ServiceId = serviceId,
+                    PID = PID,
+                    PIDDescription = "Неизвестный PID"
+                };
+                _context.OBDIIPIDs.Add(OBDIIPID);
+                await _context.SaveChangesAsync();
             }
 
             if (OBDIIPID == null)

@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\services\\telemetrydataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:services\\telemetrydataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\mqtt\\mqttingestionhostedservice.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:mqtt\\mqttingestionhostedservice.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -29,10 +33,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\contracts\\requests\\validations\\createcarrequestvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:contracts\\requests\\validations\\createcarrequestvalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\services\\telemetrydataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|solutionrelative:services\\telemetrydataservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{41374440-8CF9-40BB-8E08-DAF2E5879308}|server.csproj|c:\\users\\komra\\desktop\\car-information-system\\projects\\server\\services\\obdiipidsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -62,37 +62,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "MqttIngestionHostedService.cs.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\mqtt\\MqttIngestionHostedService.cs.cs",
-              "RelativeDocumentMoniker": "mqtt\\MqttIngestionHostedService.cs.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\mqtt\\MqttIngestionHostedService.cs.cs",
-              "RelativeToolTip": "mqtt\\MqttIngestionHostedService.cs.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAcwB8AAAAZAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T15:41:06.542Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "UpdatePersonInfoRequestValidator.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\UpdatePersonInfoRequestValidator.cs",
-              "RelativeDocumentMoniker": "Contracts\\Requests\\Validations\\UpdatePersonInfoRequestValidator.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\UpdatePersonInfoRequestValidator.cs",
-              "RelativeToolTip": "Contracts\\Requests\\Validations\\UpdatePersonInfoRequestValidator.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAAAB0AAAA8AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T12:11:50.746Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "UpdateCarInfoRequestValidator.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\UpdateCarInfoRequestValidator.cs",
               "RelativeDocumentMoniker": "Contracts\\Requests\\Validations\\UpdateCarInfoRequestValidator.cs",
@@ -100,12 +74,11 @@
               "RelativeToolTip": "Contracts\\Requests\\Validations\\UpdateCarInfoRequestValidator.cs",
               "ViewState": "AgIAAB0AAAAAAAAAAAAAAB0AAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T12:11:43.52Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-21T12:11:43.52Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "SignUpRequestValidator.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\SignUpRequestValidator.cs",
               "RelativeDocumentMoniker": "Contracts\\Requests\\Validations\\SignUpRequestValidator.cs",
@@ -113,12 +86,11 @@
               "RelativeToolTip": "Contracts\\Requests\\Validations\\SignUpRequestValidator.cs",
               "ViewState": "AgIAABwAAAAAAAAAAAAAABwAAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T12:11:39.623Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-21T12:11:39.623Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "CreateCarRequestValidator.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\CreateCarRequestValidator.cs",
               "RelativeDocumentMoniker": "Contracts\\Requests\\Validations\\CreateCarRequestValidator.cs",
@@ -126,12 +98,11 @@
               "RelativeToolTip": "Contracts\\Requests\\Validations\\CreateCarRequestValidator.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T12:11:35.109Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-21T12:11:35.109Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "StartTripRequestValidator.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
               "RelativeDocumentMoniker": "Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
@@ -139,12 +110,11 @@
               "RelativeToolTip": "Contracts\\Requests\\Validations\\StartTripRequestValidator.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T12:09:44.642Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-21T12:09:44.642Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "MqttSettings.cs",
               "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\mqtt\\MqttSettings.cs",
               "RelativeDocumentMoniker": "mqtt\\MqttSettings.cs",
@@ -152,8 +122,7 @@
               "RelativeToolTip": "mqtt\\MqttSettings.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T15:41:03.933Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T15:41:03.933Z"
             },
             {
               "$type": "Document",
@@ -178,6 +147,44 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-04-13T14:26:28.574Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "TelemetryDataService.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\TelemetryDataService.cs",
+              "RelativeDocumentMoniker": "Services\\TelemetryDataService.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\TelemetryDataService.cs",
+              "RelativeToolTip": "Services\\TelemetryDataService.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAAlwDEAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T17:04:27.659Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MqttIngestionHostedService.cs.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\mqtt\\MqttIngestionHostedService.cs.cs",
+              "RelativeDocumentMoniker": "mqtt\\MqttIngestionHostedService.cs.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\mqtt\\MqttIngestionHostedService.cs.cs",
+              "RelativeToolTip": "mqtt\\MqttIngestionHostedService.cs.cs",
+              "ViewState": "AgIAAJgAAAAAAAAAAAAAAKsAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T15:41:06.542Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "UpdatePersonInfoRequestValidator.cs",
+              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\UpdatePersonInfoRequestValidator.cs",
+              "RelativeDocumentMoniker": "Contracts\\Requests\\Validations\\UpdatePersonInfoRequestValidator.cs",
+              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Contracts\\Requests\\Validations\\UpdatePersonInfoRequestValidator.cs",
+              "RelativeToolTip": "Contracts\\Requests\\Validations\\UpdatePersonInfoRequestValidator.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAAAB0AAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-21T12:11:50.746Z"
             },
             {
               "$type": "Document",
@@ -213,19 +220,7 @@
               "RelativeToolTip": "Services\\OBDIIPIDSService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T17:10:35.848Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "TelemetryDataService.cs",
-              "DocumentMoniker": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\TelemetryDataService.cs",
-              "RelativeDocumentMoniker": "Services\\TelemetryDataService.cs",
-              "ToolTip": "C:\\Users\\komra\\Desktop\\car-information-system\\Projects\\server\\Services\\TelemetryDataService.cs",
-              "RelativeToolTip": "Services\\TelemetryDataService.cs",
-              "ViewState": "AgIAADEAAAAAAAAAAADwv1MAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T17:04:27.659Z",
+              "WhenOpened": "2026-04-12T17:10:35.848Z",
               "EditorCaption": ""
             }
           ]

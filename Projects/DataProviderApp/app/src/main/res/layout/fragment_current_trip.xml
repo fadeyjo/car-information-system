@@ -10,15 +10,34 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <Button
-        android:id="@+id/btnEndTrip"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Закончить поездку"
         android:layout_gravity="bottom"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/bg_main"
-        android:textColor="#FFFFFF"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/btnFollow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_margin="16dp"
+            android:background="@drawable/rounded_button"
+            android:contentDescription="TODO"
+            android:src="@drawable/ic_follow_camera"
+            android:textColor="#FFFFFF"
+            tools:ignore="RtlHardcoded" />
+
+        <Button
+            android:id="@+id/btnEndTrip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Закончить поездку"
+            android:layout_margin="8dp"
+            android:backgroundTint="@color/bg_main"
+            android:textColor="#FFFFFF"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/infoPanel"

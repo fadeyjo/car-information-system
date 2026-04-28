@@ -37,6 +37,8 @@ void ble_hs_unlock(void);
 #define CAN_TX_QUEUE_SIZE 32
 #define CAN_RX_QUEUE_SIZE 32
 
+#define DEBUG false
+
 
 static const char *TAG = "car_gatt";
 
@@ -158,7 +160,7 @@ static void ble_notify_bytes(const uint8_t *data, uint16_t len)
     ble_msg_t msg;
 	memcpy(msg.data, data, len);
 	msg.len = len;
-	// В NimBLE callbacks нельзя блокироваться; не ждём очередь.
+	
 	if (xQueueSend(ble_queue, &msg, portMAX_DELAY) != pdTRUE) {
 		ESP_LOGW(TAG, "ble notify queue full");
 	}
@@ -558,6 +560,17 @@ void stop_session()
 uint8_t i = 40;
 void get_data_by_request(uint8_t mode, uint8_t pid)
 {
+	#if DEBUG
+	twai_message_t message = {
+		.data = {0xFF, 0xDD, 0xDD, 0x91, 0xDD, 0x23, 0xDD, 0x11},
+		.data_length_code = 8,
+		.identifier = 0x7E0
+	};
+	
+	ble_notify_obd_response(&message);
+	return;
+	#endif
+	
 	can_msg_t msg = {
 		.mode = mode,
 		.pid = pid
@@ -572,6 +585,11 @@ void get_data_by_request(uint8_t mode, uint8_t pid)
 // Должна отработать, когда по BLE пришла команда начала сессии, с командой должна передаваться скорость работы
 void start_session(uint16_t can_speed)
 {
+	#if DEBUG
+		ble_notify_session_started(can_speed, 0xffffffff, 0x7e8);
+		return;
+	#endif
+	
 	esp_err_t err;
 	if (!twai_initialized)
 	{

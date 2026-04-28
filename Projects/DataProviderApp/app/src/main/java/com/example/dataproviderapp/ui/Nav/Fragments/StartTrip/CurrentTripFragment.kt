@@ -3,10 +3,16 @@ package com.example.dataproviderapp.ui.Nav.Fragments.StartTrip
 import com.example.dataproviderapp.R
 import android.Manifest
 import android.annotation.SuppressLint
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.PointF
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
@@ -29,23 +35,27 @@ import com.example.dataproviderapp.ui.Nav.NavViewModel
 import com.example.dataproviderapp.ui.Nav.StartTripState
 import com.example.dataproviderapp.utils.Utils
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.gson.Gson
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.geometry.Polyline
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.IconStyle
+import com.yandex.mapkit.map.LineStyle
 import com.yandex.mapkit.map.PlacemarkMapObject
 import com.yandex.mapkit.map.PolylineMapObject
+import com.yandex.mapkit.map.RotationType
 import com.yandex.runtime.image.ImageProvider
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -57,6 +67,8 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
+import androidx.core.graphics.createBitmap
+import com.yandex.mapkit.map.MapType
 
 class CurrentTripFragment : Fragment() {
 
@@ -72,12 +84,31 @@ class CurrentTripFragment : Fragment() {
     private var gpsTask: Job? = null
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var locationCallback: LocationCallback? = null
 
     private var userPlacemark: PlacemarkMapObject? = null
     private var routePolyline: PolylineMapObject? = null
     private val routePoints = mutableListOf<Point>()
+    private var startPlacemark: PlacemarkMapObject? = null
+
+    private enum class CameraMode { FOLLOW, FREE }
+
+    private var cameraMode: CameraMode = CameraMode.FOLLOW
+    private var gestureInProgress: Boolean = false
+    private var lastBearing: Float? = null
+
+    private val positionIconProvider: ImageProvider by lazy(LazyThreadSafetyMode.NONE) {
+        imageProviderFromVector(R.drawable.ic_position)
+    }
+
+    private val startIconProvider: ImageProvider by lazy(LazyThreadSafetyMode.NONE) {
+        imageProviderFromVector(R.drawable.ic_start_point)
+    }
 
     private val gson by lazy { Gson() }
+
+    @Volatile
+    private var lastLocation: Location? = null
 
 
     override fun onCreateView(
@@ -88,40 +119,13 @@ class CurrentTripFragment : Fragment() {
         return binding.root
     }
 
-    override fun onStart() {
-        super.onStart()
-        binding.mapView.onStart()
-        MapKitFactory.getInstance().onStart()
-    }
-
-    override fun onStop() {
-        binding.mapView.onStop()
-        MapKitFactory.getInstance().onStop()
-        super.onStop()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         MapKitFactory.setApiKey(BuildConfig.MAPKIT_API_KEY)
     }
 
-    private fun changeStateNav(locked: Boolean) {
-        val navActivity = activity as? NavActivity
-
-        navActivity?.binding?.drawerLayout?.setDrawerLockMode(
-            if (locked) DrawerLayout.LOCK_MODE_LOCKED_CLOSED else DrawerLayout.LOCK_MODE_UNLOCKED
-        )
-    }
-
-    private inline fun withBinding(block: FragmentCurrentTripBinding.() -> Unit) {
-        _binding?.block()
-    }
-
-    private inline fun postToUi(crossinline block: FragmentCurrentTripBinding.() -> Unit) {
-        _binding?.root?.post { withBinding(block) }
-    }
-
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -157,11 +161,79 @@ class CurrentTripFragment : Fragment() {
             endTrip()
         }
 
+        binding.mapView.mapWindow.map.addCameraListener { _, cameraPosition, reason, finished ->
+            if (reason != com.yandex.mapkit.map.CameraUpdateReason.APPLICATION) {
+                cameraMode = CameraMode.FREE
+                gestureInProgress = !finished
+            } else if (finished) {
+                gestureInProgress = false
+            }
+
+            updatePlacemarkStyleForCamera()
+        }
+
+        binding.mapView.setOnTouchListener { _, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN,
+                MotionEvent.ACTION_POINTER_DOWN,
+                MotionEvent.ACTION_MOVE -> {
+                    cameraMode = CameraMode.FREE
+                    gestureInProgress = true
+                }
+
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_POINTER_UP,
+                MotionEvent.ACTION_CANCEL -> {
+                    gestureInProgress = false
+                }
+            }
+            false
+        }
+
+        binding.btnFollow.setOnClickListener {
+            cameraMode = CameraMode.FOLLOW
+            lastLocation?.let { loc ->
+                updateMap(loc.latitude, loc.longitude, forceMoveCamera = true)
+            }
+        }
+
+        binding.mapView.mapWindow.map.mapType = MapType.MAP
+
         obdClient.startSession(speed) {
             connectionTimeoutToStartSession()
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        binding.mapView.onStart()
+        MapKitFactory.getInstance().onStart()
+    }
+
+    override fun onStop() {
+        binding.mapView.onStop()
+        MapKitFactory.getInstance().onStop()
+        super.onStop()
+    }
+
+    // Управляет доступностью бокового меню
+    private fun changeStateNav(locked: Boolean) {
+        val navActivity = activity as? NavActivity
+
+        navActivity?.binding?.drawerLayout?.setDrawerLockMode(
+            if (locked) DrawerLayout.LOCK_MODE_LOCKED_CLOSED else DrawerLayout.LOCK_MODE_UNLOCKED
+        )
+    }
+
+    private inline fun withBinding(block: FragmentCurrentTripBinding.() -> Unit) {
+        _binding?.block()
+    }
+
+    private inline fun postToUi(crossinline block: FragmentCurrentTripBinding.() -> Unit) {
+        _binding?.root?.post { withBinding(block) }
+    }
+
+    // Остановка сессии
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     private fun endTrip() {
@@ -172,6 +244,36 @@ class CurrentTripFragment : Fragment() {
         }
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    private fun startLocationUpdates() {
+        val request = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            1000
+        ).build()
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                val location = result.lastLocation ?: return
+
+                if (location.accuracy > 15) {
+                    return
+                }
+
+                lastLocation = location
+
+                updateMap(location.latitude, location.longitude)
+                updateDirection(if (location.hasBearing()) location.bearing else null)
+            }
+        }
+
+        fusedLocationClient.requestLocationUpdates(
+            request,
+            locationCallback!!,
+            requireActivity().mainLooper
+        )
+    }
+
+    // Расстояние между двумя точками
     private fun distanceMeters(
         lat1: Double, lon1: Double,
         lat2: Double, lon2: Double
@@ -193,53 +295,125 @@ class CurrentTripFragment : Fragment() {
         return abs(R * c)
     }
 
-    private fun updateMap(lat: Double, lon: Double) {
+    private fun updateMap(lat: Double, lon: Double, forceMoveCamera: Boolean = false) {
         val point = Point(lat, lon)
 
-        val mapObjects = _binding?.mapView?.mapWindow?.map?.mapObjects ?: return
+        val map = binding.mapView.mapWindow.map
+        val mapObjects = map.mapObjects
+
+        if (startPlacemark == null) {
+            startPlacemark = mapObjects.addPlacemark().apply {
+                geometry = point
+                setIcon(startIconProvider)
+                setIconStyle(
+                    IconStyle().apply {
+                        anchor = PointF(0.5f, 0.5f)
+                    }
+                )
+            }
+        }
 
         if (userPlacemark == null) {
             userPlacemark = mapObjects.addPlacemark().apply {
-                geometry = point
-                setIcon(ImageProvider.fromResource(requireContext(), R.drawable.ic_arrow))
+                geometry = Point(point.latitude, point.longitude)
+                setIcon(positionIconProvider)
+                setIconStyle(
+                    IconStyle().apply {
+                        anchor = PointF(0.5f, 0.5f)
+                        rotationType = RotationType.ROTATE
+                    }
+                )
             }
         } else {
             userPlacemark?.geometry = point
         }
 
+        updatePlacemarkStyleForCamera()
 
         val lastPoint = routePoints.lastOrNull()
 
+        var distance = 0.0
 
         if (lastPoint != null) {
-            val distance = distanceMeters(point.latitude, point.longitude, lastPoint.latitude, lastPoint.longitude)
+            distance = distanceMeters(
+            point.latitude, point.longitude,
+            lastPoint.latitude, lastPoint.longitude
+            )
+        }
 
-            if (distance > 3) {
-                routePoints.add(point)
-            }
-        } else {
+        if (lastPoint == null
+            || distance > 2
+        ) {
             routePoints.add(point)
+
+            if (routePolyline == null) {
+                routePolyline = mapObjects.addPolyline(Polyline(routePoints))
+                val lineStyle = LineStyle().apply {
+                    strokeWidth = 12f
+                    outlineWidth = 1f
+                    outlineColor = 0xFF000000.toInt()
+                }
+
+                routePolyline?.style = lineStyle
+                routePolyline?.setStrokeColor(Color.argb(255, 25, 118, 210)) // #1976D2 a = 0
+            } else {
+                routePolyline?.geometry = Polyline(routePoints)
+            }
         }
 
-        if (routePolyline == null) {
-            routePolyline = mapObjects.addPolyline(Polyline(routePoints))
-        } else {
-            routePolyline?.geometry = Polyline(routePoints)
-        }
-
-        withBinding {
-            mapView.mapWindow.map.move(
-                CameraPosition(point, 16f, 0f, 0f)
+        val size = routePoints.size
+        if (cameraMode == CameraMode.FOLLOW || forceMoveCamera) {
+            map.move(
+                CameraPosition(point, 17f, 0f, 0f),
+                com.yandex.mapkit.Animation(
+                    com.yandex.mapkit.Animation.Type.SMOOTH,
+                    0.5f
+                ),
+                null
             )
         }
     }
 
     private fun updateDirection(bearing: Float?) {
-        if (bearing == null) {
-            return
-        }
+        lastBearing = bearing
+        updatePlacemarkDirectionForCamera()
+    }
 
-        userPlacemark?.direction = bearing
+    private fun updatePlacemarkStyleForCamera() {
+        userPlacemark?.setIconStyle(
+            IconStyle().apply {
+                anchor = PointF(0.5f, 0.5f)
+                rotationType = RotationType.ROTATE
+            }
+        )
+
+        updatePlacemarkDirectionForCamera()
+    }
+
+    private fun updatePlacemarkDirectionForCamera() {
+        val bearing = lastBearing ?: return
+        val mapAzimuth = binding.mapView.mapWindow.map.cameraPosition.azimuth
+        userPlacemark?.direction = normalizeDegrees(bearing - mapAzimuth)
+    }
+
+    private fun normalizeDegrees(value: Float): Float {
+        var v = value % 360f
+        if (v < 0f) v += 360f
+        return v
+    }
+
+    private fun imageProviderFromVector(drawableRes: Int): ImageProvider {
+        val drawable = AppCompatResources.getDrawable(requireContext(), drawableRes)
+            ?: error("Drawable not found: $drawableRes")
+
+        val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 64
+        val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 64
+
+        val bitmap = createBitmap(width, height)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return ImageProvider.fromBitmap(bitmap)
     }
 
     private fun connectionTimeoutToStartSession() {
@@ -308,8 +482,11 @@ class CurrentTripFragment : Fragment() {
                             StartTripState.CarNotFound -> goBackWithMessage("Автомобиль не найден")
                             is StartTripState.Data -> {
                                 MqttClient.connectMqtt()
+
                                 fusedLocationClient =
                                     LocationServices.getFusedLocationProviderClient(requireContext())
+
+                                startLocationUpdates()
 
                                 viewModel.currentTrip = state.trip
 
@@ -441,55 +618,29 @@ class CurrentTripFragment : Fragment() {
         }
     }
 
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    private suspend fun getCurrentGpsData(): CreateGpsDataRequest? {
-        if (!::fusedLocationClient.isInitialized) {
-            return null
-        }
-
-        val formatter = DateTimeFormatter.ISO_DATE_TIME
-        val location = fusedLocationClient.lastLocation.await()
-
-        if (location != null) {
-
-            val lat = location.latitude
-            val lon = location.longitude
-            val accuracy = if (location.hasAccuracy()) location.accuracy else null
-            val speed = if (location.hasSpeed()) (location.speed * 3.6).toInt() else null
-            val bearing = if (location.hasBearing()) location.bearing else null
-
-            return CreateGpsDataRequest(
-                LocalDateTime.now(ZoneOffset.UTC).format(formatter), viewModel.currentTrip!!.tripId,
-                lat, lon,
-                accuracy, speed,
-                bearing
-            )
-        }
-
-        return null
-    }
-
     @SuppressLint("MissingPermission")
     private suspend fun sendGpsData() {
+        val formatter = DateTimeFormatter.ISO_DATE_TIME
+
         while (currentCoroutineContext().isActive) {
 
-            val data = getCurrentGpsData()
+            val location = lastLocation
 
-            if (data == null) {
-                delay(50)
+            if (location == null) {
+                delay(200)
                 continue
             }
 
-            withContext(Dispatchers.Main) {
-                updateMap(data.latitudeDeg, data.longitudeDeg)
-                updateDirection(data.bearingDeg)
-            }
+            val data = CreateGpsDataRequest(
+                LocalDateTime.now(ZoneOffset.UTC).format(formatter), viewModel.currentTrip!!.tripId,
+                location.latitude, location.longitude,
+                location.accuracy, (location.speed * 3.6).toInt(),
+                location.bearing
+            )
 
-            val json = gson.toJson(data)
+            MqttClient.publishJson("gps/new-data", gson.toJson(data))
 
-            MqttClient.publishJson("gps/new-data", json)
-
-            delay(100)
+            delay(500)
         }
     }
 
@@ -519,10 +670,19 @@ class CurrentTripFragment : Fragment() {
         viewModel.curDataPids = null
 
         userPlacemark = null
+        startPlacemark = null
         routePolyline = null
         routePoints.clear()
 
         _binding = null
+
+        locationCallback?.let {
+            if (::fusedLocationClient.isInitialized) {
+                fusedLocationClient.removeLocationUpdates(it)
+            }
+        }
+        locationCallback = null
+
         super.onDestroyView()
     }
 }
