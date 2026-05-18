@@ -13,5 +13,6 @@ namespace server.Services.Interfaces
         Task EndTrip(DateTime endDatetime, ulong tripId);
 
         Task DeleteTrip(ulong tripId);
+        Task<AllTripsDto> GetAllTrips();
     }
 }

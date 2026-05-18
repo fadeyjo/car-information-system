@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using server.Contracts.Requests;
 using server.Contracts.Responses;
+using server.Models.Entities;
 using server.Services.Interfaces;
 using server.Utils;
 
@@ -111,6 +112,28 @@ namespace server.Controllers
                 await _service.DeleteTrip(tripId);
 
                 return NoContent();
+            }
+            catch (HttpError er)
+            {
+                return Problem(
+                    title: er.Title,
+                    statusCode: er.StatusCode
+                );
+            }
+            catch
+            {
+                return ServerError();
+            }
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllTrips()
+        {
+            try
+            {
+                var result = await _service.GetAllTrips();
+
+                return Ok(result);
             }
             catch (HttpError er)
             {

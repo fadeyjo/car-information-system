@@ -68,6 +68,8 @@ enum {
 };
 
 
+static volatile bool session_active = false;
+
 typedef struct {
     uint8_t data[66];
     uint16_t len;
@@ -160,6 +162,9 @@ static void ble_notify_bytes(const uint8_t *data, uint16_t len)
     ble_msg_t msg;
 	memcpy(msg.data, data, len);
 	msg.len = len;
+	
+	if (!ble_queue)
+		return;
 	
 	if (xQueueSend(ble_queue, &msg, portMAX_DELAY) != pdTRUE) {
 		ESP_LOGW(TAG, "ble notify queue full");
@@ -329,21 +334,19 @@ void reset_data_request_queue()
 	}
 }
 
-void delete_x_can_rx_task_handle()
+void reset_app_cmd_queue()
 {
-	if (x_can_rx_task_handle != NULL)
+	if (app_cmd_queue != NULL)
 	{
-		vTaskDelete(x_can_rx_task_handle);
-		x_can_rx_task_handle = NULL;
+		xQueueReset(app_cmd_queue);
 	}
 }
 
-void delete_x_can_tx_task_handle()
+void reset_ble_queue()
 {
-	if (x_can_tx_task_handle != NULL)
+	if (ble_queue != NULL)
 	{
-		vTaskDelete(x_can_tx_task_handle);
-		x_can_tx_task_handle = NULL;
+		xQueueReset(ble_queue);
 	}
 }
 
@@ -424,13 +427,15 @@ void can_transmit_task(void *arg)
 {
     can_msg_t msg;
 
-    while (1)
+    while (session_active)
     {
-        if (xQueueReceive(data_request_queue, &msg, portMAX_DELAY))
+        if (xQueueReceive(data_request_queue, &msg, pdMS_TO_TICKS(1000)))
         {
             send_obd_request(msg.mode, msg.pid);
         }
     }
+    
+    vTaskDelete(NULL);
 }
 
 bool is_valid_can_identifier(uint32_t identifier)
@@ -466,7 +471,7 @@ void can_receive_task(void *arg)
 {
     twai_message_t message;
 
-    while (1)
+    while (session_active)
     {
         if (twai_receive(&message, pdMS_TO_TICKS(1000)) == ESP_OK)
         {
@@ -512,6 +517,8 @@ void can_receive_task(void *arg)
 			ble_notify_obd_response(&message);
         }
     }
+    
+    vTaskDelete(NULL);
 }
 
 void get_supported_current_data_pids()
@@ -529,7 +536,7 @@ void get_supported_current_data_pids()
 	bool received;
 	
 	uint8_t try_count = 0;
-	while (try_count < TRIES_COUNT_TO_GET_CURRENT_DATA_SUPPORTED_PIDS)
+	while (try_count < TRIES_COUNT_TO_GET_CURRENT_DATA_SUPPORTED_PIDS && data_request_queue)
 	{
 		xQueueSend(data_request_queue, &data, portMAX_DELAY);
 		vTaskDelay(pdMS_TO_TICKS(DELAY_BETWEEN_TRIES_TO_GET_CURRENT_DATA_SUPPORTED_PIDS_MS));
@@ -545,15 +552,34 @@ void get_supported_current_data_pids()
 	}
 }
 
+void reset_all(void)
+{
+	session_active = false;
+
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+    if (twai_initialized)
+    {
+        twai_stop();
+        twai_driver_uninstall();
+        twai_initialized = false;
+    }
+
+    reset_data_request_queue();
+    reset_app_cmd_queue();
+    reset_ble_queue();
+
+    set_current_data_supported_pids_received(false);
+    set_current_data_supported_pids(0);
+    set_ecu_id(0);
+}
+
 // Должна отработать, когда по BLE пришла команда для окончания сессии
 void stop_session()
 {
-	delete_x_can_rx_task_handle();
-	delete_x_can_tx_task_handle();
-	
-	reset_data_request_queue();
-	
-	ble_notify_session_stopped();
+	reset_all();
+
+    ble_notify_session_stopped();
 }
 
 // Должна отработать, когда по BLE пришла команда для выполнения запроса к OBDII (с командой передается mode и pid)
@@ -597,6 +623,7 @@ void start_session(uint16_t can_speed)
 		
 		if (err != ESP_OK)
 		{
+			reset_all();
 			return;
 		}
 	}
@@ -624,6 +651,8 @@ void start_session(uint16_t can_speed)
 	{
 		ecu_id_mutex = xSemaphoreCreateMutex();	
 	}
+	
+	session_active = true;
 	
 	if (x_can_rx_task_handle == NULL)
 	{
@@ -657,10 +686,7 @@ void start_session(uint16_t can_speed)
 	
 	if (!received || pids == 0)
 	{
-		delete_x_can_rx_task_handle();
-		delete_x_can_tx_task_handle();
-		
-		reset_data_request_queue();
+		reset_all();
 		
 		return;
 	}

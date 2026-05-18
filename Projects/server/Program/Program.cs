@@ -115,9 +115,22 @@ namespace server.Program
 
             builder.Services.AddHostedService<MqttIngestionHostedService>();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("Frontend", policy =>
+                {
+                    policy
+                        .WithOrigins(
+                            "http://localhost:5173"
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
+
             var app = builder.Build();
 
-            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -126,6 +139,8 @@ namespace server.Program
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("Frontend");
 
             app.UseAuthentication();
             app.UseAuthorization();

@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 data class TripDto(
     val tripId: ULong,
     val startDatetime: LocalDateTime,
+    val endDatetime: LocalDateTime?,
     val deviceId: UInt,
-    val carId: UInt,
-    val endDatetime: LocalDateTime?
+    val car: CarDto,
 )

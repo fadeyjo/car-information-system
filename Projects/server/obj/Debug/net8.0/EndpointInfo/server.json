@@ -790,6 +790,18 @@
           }
         }
       }
+    },
+    "/api/Trips/all": {
+      "get": {
+        "tags": [
+          "Trips"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {

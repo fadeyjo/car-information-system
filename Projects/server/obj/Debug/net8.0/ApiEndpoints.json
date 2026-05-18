@@ -464,6 +464,16 @@
   },
   {
     "ContainingType": "server.Controllers.TripsController",
+    "Method": "GetAllTrips",
+    "RelativePath": "api/Trips/all",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "server.Controllers.TripsController",
     "Method": "EndTrip",
     "RelativePath": "api/Trips/end",
     "HttpMethod": "PUT",

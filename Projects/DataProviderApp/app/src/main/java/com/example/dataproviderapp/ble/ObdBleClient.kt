@@ -40,24 +40,17 @@ class ObdBleClient(
 
     var handleObdData: ((DataCallBack) -> Unit)? = null
 
-    var timeoutFun: (() -> Unit)? = null
-
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun connect(timeoutCallback: () -> Unit) {
-        timeoutFun = timeoutCallback
-        startConnectTimeout()
+        startConnectTimeout(timeoutCallback)
         gatt = device.connectGatt(context, false, callback)
     }
 
     @SuppressLint("MissingPermission")
-    private fun startConnectTimeout() {
-        if (timeoutFun == null) {
-            return
-        }
-
+    private fun startConnectTimeout(timeoutFun: (() -> Unit)?) {
         connectTimeoutHandler = Handler(Looper.getMainLooper())
         connectTimeoutRunnable = Runnable {
-            timeoutFun!!()
+            timeoutFun?.let { it() }
         }
         connectTimeoutHandler?.postDelayed(connectTimeoutRunnable!!, 10000)
     }
@@ -66,7 +59,6 @@ class ObdBleClient(
         connectTimeoutHandler?.removeCallbacks(connectTimeoutRunnable!!)
         connectTimeoutHandler = null
         connectTimeoutRunnable = null
-        timeoutFun = null
     }
 
     private val callback = object : BluetoothGattCallback() {
@@ -205,7 +197,6 @@ class ObdBleClient(
             0x01 -> { // SESSION_STARTED
                 cancelConnectTimeout()
 
-                val speed = readLe16(uData, 1)
                 val pids = readLe32(uData, 3)
                 val ecuId = readLeByteArray(7, 4, uData)
 
@@ -234,15 +225,13 @@ class ObdBleClient(
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun startSession(speed: UShort, timeoutCallback: () -> Unit) {
-        timeoutFun = timeoutCallback
-
         val data = ByteArray(3)
         data[0] = 0x01
 
         data[1] = (speed.toInt() and 0xFF).toByte()
         data[2] = ((speed.toInt() shr 8) and 0xFF).toByte()
 
-        write(data)
+        write(data, timeoutCallback)
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
@@ -253,23 +242,22 @@ class ObdBleClient(
             mode.toByte(),
             pid.toByte()
         )
-        write(data)
+        write(data, null)
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun stopSession(timeoutCallback: () -> Unit) {
-        timeoutFun = timeoutCallback
-        write(byteArrayOf(0x03))
+        write(byteArrayOf(0x03), timeoutCallback)
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    private fun write(data: ByteArray) {
+    private fun write(data: ByteArray, timeoutCallback: (() -> Unit)?) {
         if (cmdChar == null || gatt == null) {
             return
         }
 
-        startConnectTimeout()
+        startConnectTimeout(timeoutCallback)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             gatt!!.writeCharacteristic(

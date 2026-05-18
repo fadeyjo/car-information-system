@@ -17,7 +17,7 @@
         public float EngineCapacityL { get; set; }
         public byte TankCapacityL { get; set; }
         public string FuelTypeName { get; set; } = null!;
-        public uint PersonId { get; set; }
+        public PersonDto Person { get; set; } = null!;
         public uint PhotoId { get; set; }
     }
 }

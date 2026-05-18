@@ -5,6 +5,7 @@ using server.Data;
 using server.Models.Entities;
 using server.Services.Interfaces;
 using server.Utils;
+using System;
 using System.Numerics;
 
 namespace server.Services
@@ -181,10 +182,35 @@ namespace server.Services
 
             await _context.SaveChangesAsync();
 
+            var personDto = new PersonDto()
+            {
+                PersonId = person.PersonId,
+                Email = person.Email,
+                Phone = person.Phone,
+                LastName = person.LastName,
+                FirstName = person.FirstName,
+                Patronymic = person.Patronymic,
+                Birth = person.Birth,
+                DriveLicense = person.DriveLicense,
+                RoleId = person.RoleId
+            };
+
+            uint? avatarId =
+                    await _context.Avatars
+                        .Where(a => a.PersonId == person.PersonId)
+                        .OrderByDescending(a => a.CreatedAt)
+                        .Select(a => a.AvatarId)
+                        .FirstOrDefaultAsync();
+
+            if (avatarId is null)
+                throw new Exception();
+
+            personDto.AvatarId = (uint)avatarId;
+
             var car = new CarDto()
             {
                 CarId = newCar.CarId,
-                PersonId = personId,
+                Person = personDto,
                 VinNumber = vinNumber.ToUpper(),
                 StateNumber= stateNumber?.ToUpper(),
                 BodyName = bodyName,
@@ -207,6 +233,40 @@ namespace server.Services
 
         public async Task<CarDto> GetCarById(uint carId)
         {
+            var person = await _context.Cars
+                .Include(c => c.Person)
+                .Where(c => c.CarId == carId)
+                .Select(c => c.Person)
+                .FirstOrDefaultAsync();
+
+            if (person == null)
+                throw new Exception();
+
+            var personDto = new PersonDto()
+            {
+                PersonId = person.PersonId,
+                Email = person.Email,
+                Phone = person.Phone,
+                LastName = person.LastName,
+                FirstName = person.FirstName,
+                Patronymic = person.Patronymic,
+                Birth = person.Birth,
+                DriveLicense = person.DriveLicense,
+                RoleId = person.RoleId
+            };
+
+            uint? avatarId =
+                    await _context.Avatars
+                        .Where(a => a.PersonId == person.PersonId)
+                        .OrderByDescending(a => a.CreatedAt)
+                        .Select(a => a.AvatarId)
+                        .FirstOrDefaultAsync();
+
+            if (avatarId is null)
+                throw new Exception();
+
+            personDto.AvatarId = (uint)avatarId;
+
             var car =
                 await _context.Cars
                     .Where(c => c.CarId == carId)
@@ -227,7 +287,7 @@ namespace server.Services
                         EngineCapacityL = c.CarConfiguration.EngineConfiguration.EngineCapacityL,
                         TankCapacityL = c.CarConfiguration.EngineConfiguration.TankCapacityL,
                         FuelTypeName = c.CarConfiguration.EngineConfiguration.FuelType.TypeName,
-                        PersonId = c.PersonId
+                        Person = personDto
                     })
                     .FirstOrDefaultAsync();
 
@@ -251,11 +311,36 @@ namespace server.Services
 
         public async Task<List<CarDto>> GetCarsByPersonId(uint personId)
         {
-            bool exists =
-                await _context.Persons.AnyAsync(p => p.PersonId == personId);
+            var person =
+                await _context.Persons.FirstOrDefaultAsync(p => p.PersonId == personId);
 
-            if (!exists)
+            if (person == null)
                 throw new HttpError("Пользователь не найден", StatusCodes.Status404NotFound);
+
+            var personDto = new PersonDto()
+            {
+                PersonId = person.PersonId,
+                Email = person.Email,
+                Phone = person.Phone,
+                LastName = person.LastName,
+                FirstName = person.FirstName,
+                Patronymic = person.Patronymic,
+                Birth = person.Birth,
+                DriveLicense = person.DriveLicense,
+                RoleId = person.RoleId
+            };
+
+            uint? avatarId =
+                    await _context.Avatars
+                        .Where(a => a.PersonId == person.PersonId)
+                        .OrderByDescending(a => a.CreatedAt)
+                        .Select(a => a.AvatarId)
+                        .FirstOrDefaultAsync();
+
+            if (avatarId is null)
+                throw new Exception();
+
+            personDto.AvatarId = (uint)avatarId;
 
             var cars =
                 await _context.Cars
@@ -277,7 +362,7 @@ namespace server.Services
                         EngineCapacityL = c.CarConfiguration.EngineConfiguration.EngineCapacityL,
                         TankCapacityL = c.CarConfiguration.EngineConfiguration.TankCapacityL,
                         FuelTypeName = c.CarConfiguration.EngineConfiguration.FuelType.TypeName,
-                        PersonId = c.PersonId
+                        Person = personDto
                     })
                     .ToListAsync();
 

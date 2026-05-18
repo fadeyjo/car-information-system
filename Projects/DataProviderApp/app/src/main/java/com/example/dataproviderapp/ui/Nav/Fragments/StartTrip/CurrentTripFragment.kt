@@ -255,7 +255,7 @@ class CurrentTripFragment : Fragment() {
             override fun onLocationResult(result: LocationResult) {
                 val location = result.lastLocation ?: return
 
-                if (location.accuracy > 15) {
+                if (location.accuracy > 30) {
                     return
                 }
 
@@ -361,7 +361,6 @@ class CurrentTripFragment : Fragment() {
             }
         }
 
-        val size = routePoints.size
         if (cameraMode == CameraMode.FOLLOW || forceMoveCamera) {
             map.move(
                 CameraPosition(point, 17f, 0f, 0f),
@@ -386,8 +385,6 @@ class CurrentTripFragment : Fragment() {
                 rotationType = RotationType.ROTATE
             }
         )
-
-        updatePlacemarkDirectionForCamera()
     }
 
     private fun updatePlacemarkDirectionForCamera() {
@@ -614,7 +611,7 @@ class CurrentTripFragment : Fragment() {
                 i = 0
             }
 
-            delay(100)
+            delay(200)
         }
     }
 

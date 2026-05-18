@@ -1,10 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 using server.Contracts.Requests;
 using server.Contracts.Responses;
 using server.Data;
 using server.Models.Entities;
 using server.Services.Interfaces;
 using server.Utils;
+using System;
+using System.Numerics;
 
 namespace server.Services
 {
@@ -56,19 +59,74 @@ namespace server.Services
         {
             var trip =
                 await _context.Trips
+                    .Include(t => t.Car)
+                    .Include(t => t.Car.Person)
+                    .Include(t => t.Car.CarConfiguration)
+                    .Include(t => t.Car.CarConfiguration.CarBody)
+                    .Include(t => t.Car.CarConfiguration.CarGearbox)
+                    .Include(t => t.Car.CarConfiguration.CarDrive)
+                    .Include(t => t.Car.CarConfiguration.CarBrandModel)
+                    .Include(t => t.Car.CarConfiguration.CarBrandModel.CarBrand)
+                    .Include(t => t.Car.CarConfiguration.EngineConfiguration)
+                    .Include(t => t.Car.CarConfiguration.EngineConfiguration.FuelType)
                     .Where(t => t.TripId == tripId)
                     .Select(t => new TripDto()
                     {
                         TripId = t.TripId,
                         StartDatetime = t.StartDatetime,
                         DeviceId = t.DeviceId,
-                        CarId = t.CarId,
+                        Car = new CarDto()
+                        {
+                            CarId = t.Car.CarId,
+                            Person = new PersonDto()
+                            {
+                                PersonId = t.Car.Person.PersonId,
+                                Email = t.Car.Person.Email,
+                                Phone = t.Car.Person.Phone,
+                                LastName = t.Car.Person.LastName,
+                                FirstName = t.Car.Person.FirstName,
+                                Patronymic = t.Car.Person.Patronymic,
+                                Birth = t.Car.Person.Birth,
+                                DriveLicense = t.Car.Person.DriveLicense,
+                                RoleId = t.Car.Person.RoleId
+                            },
+                            VinNumber = t.Car.VinNumber.ToUpper(),
+                            StateNumber = t.Car.StateNumber,
+                            BodyName = t.Car.CarConfiguration.CarBody.BodyName,
+                            ReleaseYear = t.Car.CarConfiguration.ReleaseYear,
+                            GearboxName= t.Car.CarConfiguration.CarGearbox.GearboxName,
+                            DriveName= t.Car.CarConfiguration.CarDrive.DriveName,
+                            VehicleWeightKg= t.Car.CarConfiguration.VehicleWeightKg,
+                            BrandName= t.Car.CarConfiguration.CarBrandModel.CarBrand.BrandName,
+                            ModelName= t.Car.CarConfiguration.CarBrandModel.ModelName,
+                            EnginePowerHp= t.Car.CarConfiguration.EngineConfiguration.EnginePowerHp,
+                            EnginePowerKw = t.Car.CarConfiguration.EngineConfiguration.EnginePowerKw,
+                            EngineCapacityL= t.Car.CarConfiguration.EngineConfiguration.EngineCapacityL,
+                            TankCapacityL= t.Car.CarConfiguration.EngineConfiguration.TankCapacityL,
+                            FuelTypeName = t.Car.CarConfiguration.EngineConfiguration.FuelType.TypeName
+                        },
                         EndDatetime = t.EndDatetime
                     })
                     .FirstOrDefaultAsync();
 
             if (trip == null)
                 throw new HttpError("Поездка не найдена", StatusCodes.Status404NotFound);
+
+            var photoId = await _context.CarPhotos
+                .Where(p => p.CarId == trip.Car.CarId)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => p.PhotoId)
+                .FirstOrDefaultAsync();
+
+            trip.Car.PhotoId = photoId;
+
+            var avatarId = await _context.Avatars
+                .Where(a => a.PersonId == trip.Car.Person.PersonId)
+                .OrderByDescending(a => a.CreatedAt)
+                .Select(a => a.AvatarId)
+                .FirstOrDefaultAsync();
+
+            trip.Car.Person.AvatarId = avatarId;
 
             return trip;
         }
@@ -139,12 +197,103 @@ namespace server.Services
             _context.TelemetryData.Add(supportedPidsData);
             await _context.SaveChangesAsync();
 
-            return new TripDto()
+            var trip =
+                await _context.Trips
+                    .Include(t => t.Car)
+                    .Include(t => t.Car.Person)
+                    .Include(t => t.Car.CarConfiguration)
+                    .Include(t => t.Car.CarConfiguration.CarBody)
+                    .Include(t => t.Car.CarConfiguration.CarGearbox)
+                    .Include(t => t.Car.CarConfiguration.CarDrive)
+                    .Include(t => t.Car.CarConfiguration.CarBrandModel)
+                    .Include(t => t.Car.CarConfiguration.CarBrandModel.CarBrand)
+                    .Include(t => t.Car.CarConfiguration.EngineConfiguration)
+                    .Include(t => t.Car.CarConfiguration.EngineConfiguration.FuelType)
+                    .Where(t => t.TripId == newTrip.TripId)
+                    .Select(t => new TripDto()
+                    {
+                        TripId = t.TripId,
+                        StartDatetime = t.StartDatetime,
+                        DeviceId = t.DeviceId,
+                        Car = new CarDto()
+                        {
+                            CarId = t.Car.CarId,
+                            Person = new PersonDto()
+                            {
+                                PersonId = t.Car.Person.PersonId,
+                                Email = t.Car.Person.Email,
+                                Phone = t.Car.Person.Phone,
+                                LastName = t.Car.Person.LastName,
+                                FirstName = t.Car.Person.FirstName,
+                                Patronymic = t.Car.Person.Patronymic,
+                                Birth = t.Car.Person.Birth,
+                                DriveLicense = t.Car.Person.DriveLicense,
+                                RoleId = t.Car.Person.RoleId
+                            },
+                            VinNumber = t.Car.VinNumber.ToUpper(),
+                            StateNumber = t.Car.StateNumber,
+                            BodyName = t.Car.CarConfiguration.CarBody.BodyName,
+                            ReleaseYear = t.Car.CarConfiguration.ReleaseYear,
+                            GearboxName= t.Car.CarConfiguration.CarGearbox.GearboxName,
+                            DriveName= t.Car.CarConfiguration.CarDrive.DriveName,
+                            VehicleWeightKg= t.Car.CarConfiguration.VehicleWeightKg,
+                            BrandName= t.Car.CarConfiguration.CarBrandModel.CarBrand.BrandName,
+                            ModelName= t.Car.CarConfiguration.CarBrandModel.ModelName,
+                            EnginePowerHp= t.Car.CarConfiguration.EngineConfiguration.EnginePowerHp,
+                            EnginePowerKw = t.Car.CarConfiguration.EngineConfiguration.EnginePowerKw,
+                            EngineCapacityL= t.Car.CarConfiguration.EngineConfiguration.EngineCapacityL,
+                            TankCapacityL= t.Car.CarConfiguration.EngineConfiguration.TankCapacityL,
+                            FuelTypeName = t.Car.CarConfiguration.EngineConfiguration.FuelType.TypeName
+                        },
+                        EndDatetime = t.EndDatetime
+                    })
+                    .FirstOrDefaultAsync();
+
+            if (trip == null)
+                throw new HttpError("Поездка не найдена", StatusCodes.Status404NotFound);
+
+            var photoId = await _context.CarPhotos
+                .Where(p => p.CarId == trip.Car.CarId)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => p.PhotoId)
+                .FirstOrDefaultAsync();
+
+            trip.Car.PhotoId = photoId;
+
+            var avatarId = await _context.Avatars
+                .Where(a => a.PersonId == trip.Car.Person.PersonId)
+                .OrderByDescending(a => a.CreatedAt)
+                .Select(a => a.AvatarId)
+                .FirstOrDefaultAsync();
+
+            trip.Car.Person.AvatarId = avatarId;
+
+            return trip;
+        }
+
+        public async Task<AllTripsDto> GetAllTrips()
+        {
+            var id = await _context.Trips.Select(t => t.TripId).ToListAsync();
+
+            var current = new List<TripDto>();
+            var ended = new List<TripDto>();
+            foreach (var tripId in id)
             {
-                TripId = newTrip.TripId,
-                StartDatetime = startDatetime,
-                DeviceId = device.DeviceId,
-                CarId = carId
+                var trip = await GetTripById(tripId);
+
+                if (trip.EndDatetime == null)
+                {
+                    current.Add(trip);
+                    continue;
+                }
+
+                ended.Add(trip);
+            }
+
+            return new AllTripsDto()
+            {
+                current = current,
+                ended = ended
             };
         }
     }
