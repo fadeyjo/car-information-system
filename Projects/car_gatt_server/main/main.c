@@ -37,7 +37,7 @@ void ble_hs_unlock(void);
 #define CAN_TX_QUEUE_SIZE 32
 #define CAN_RX_QUEUE_SIZE 32
 
-#define DEBUG false
+#define DEBUG true
 
 
 static const char *TAG = "car_gatt";

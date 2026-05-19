@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using server.Contracts.Requests;
 using server.Contracts.Responses;
 using server.Data;
 using server.Models.Entities;
+using server.mqtt;
 using server.Services.Interfaces;
 using server.Utils;
 using System;
@@ -17,10 +19,20 @@ namespace server.Services
 
         private readonly IOBDIIPIDSService _service;
 
-        public TripsService(AppDbContext context, IOBDIIPIDSService service)
+        private readonly IMqttOutboundPublisher _mqttOutbound;
+
+        private readonly ILogger<TripsService> _logger;
+
+        public TripsService(
+            AppDbContext context,
+            IOBDIIPIDSService service,
+            IMqttOutboundPublisher mqttOutbound,
+            ILogger<TripsService> logger)
         {
             _context = context;
             _service = service;
+            _mqttOutbound = mqttOutbound;
+            _logger = logger;
         }
 
         public async Task DeleteTrip(ulong tripId)
@@ -53,6 +65,16 @@ namespace server.Services
 
             trip.EndDatetime = endDatetime;
             await _context.SaveChangesAsync();
+
+            try
+            {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                await _mqttOutbound.PublishEmptyAsync($"end-trip/{tripId}", cts.Token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Не удалось опубликовать MQTT-топик end-trip для поездки {tripId}", tripId);
+            }
         }
 
         public async Task<TripDto> GetTripById(ulong tripId)
@@ -268,12 +290,22 @@ namespace server.Services
 
             trip.Car.Person.AvatarId = avatarId;
 
+            try
+            {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                await _mqttOutbound.PublishEmptyAsync($"new-trip/{newTrip.TripId}", cts.Token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Не удалось опубликовать MQTT-топик new-trip для поездки {TripId}", newTrip.TripId);
+            }
+
             return trip;
         }
 
         public async Task<AllTripsDto> GetAllTrips()
         {
-            var id = await _context.Trips.Select(t => t.TripId).ToListAsync();
+            var id = await _context.Trips.OrderByDescending(t => t.StartDatetime).Select(t => t.TripId).ToListAsync();
 
             var current = new List<TripDto>();
             var ended = new List<TripDto>();

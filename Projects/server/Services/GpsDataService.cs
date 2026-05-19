@@ -55,6 +55,37 @@ namespace server.Services
             };
         }
 
+        public async Task<List<GpsDataDto>> GetAllGpsData(ulong tripId)
+        {
+            var exists = await _context.Trips.AnyAsync(t => t.TripId == tripId);
+
+            if (!exists)
+                throw new HttpError("Поездка не найдена", StatusCodes.Status404NotFound);
+
+            var records = await _context.GPSData.Where(g => g.TripId == tripId).ToListAsync();
+
+            var result = new List<GpsDataDto>();
+
+            foreach (var record in records)
+            {
+                var buf = new GpsDataDto()
+                {
+                    RecId = record.RecId,
+                    RecDatetime = record.RecDatetime,
+                    TripId = record.TripId,
+                    LatitudeDeg = record.LatitudeDeg,
+                    LongitudeDeg = record.LongitudeDeg,
+                    AccuracyM = record.AccuracyM,
+                    SpeedKmh = record.SpeedKmh,
+                    BearingDeg = record.BearingDeg
+                };
+
+                result.Add(buf);
+            }
+
+            return result;
+        }
+
         public async Task<GpsDataDto> GetGpsDataById(ulong recordId)
         {
             var record =

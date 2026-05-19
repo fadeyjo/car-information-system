@@ -56,7 +56,8 @@ namespace server.Services
                 {
                     ServiceId = serviceId,
                     PID = PID,
-                    PIDDescription = "Неизвестный PID"
+                    PIDDescription = "Неизвестный PID",
+                    Once = false
                 };
                 _context.OBDIIPIDs.Add(OBDIIPID);
                 await _context.SaveChangesAsync();

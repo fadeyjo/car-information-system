@@ -11,5 +11,7 @@ namespace server.Services.Interfaces
             float? bearingDeg
         );
         Task<GpsDataDto> GetGpsDataById(ulong recordId);
+
+        Task<List<GpsDataDto>> GetAllGpsData(ulong tripId);
     }
 }

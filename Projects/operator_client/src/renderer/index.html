@@ -2,11 +2,18 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Electron</title>
+    <title>Monitoring System</title>
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; connect-src 'self' https://95.31.48.71.nip.io:8443;script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https:"
+      content="
+        default-src 'self';
+        connect-src 'self' https://95.31.48.71.nip.io:8443 wss://95.31.48.71.nip.io:8443;
+        script-src 'self' 'unsafe-inline';
+        worker-src 'self' blob:;
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' blob: data: https:;
+      "
     />
   </head>
 

@@ -441,6 +441,29 @@
         }
       }
     },
+    "/api/gps-data/trip/{tripId}": {
+      "get": {
+        "tags": [
+          "GpsData"
+        ],
+        "parameters": [
+          {
+            "name": "tripId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/obdii-pids/current-data-service/{supportedPidsUint}": {
       "get": {
         "tags": [

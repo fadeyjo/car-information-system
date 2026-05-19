@@ -1,6 +1,6 @@
-import { AllTrips, AllTripsDto, Trip, TripDto } from "@renderer/types/trip.types";
+import { AllTrips, AllTripsDto, GPSData, GPSDataDto, Trip, TripDto } from "@renderer/types/trip.types";
 import api from "./axios";
-import { mapAllTripsDto, mapTripDto } from "@renderer/mappers/trip.mappers";
+import { mapAllTripsDto, mapGpsDataList, mapTripDto } from "@renderer/mappers/trip.mappers";
 
 export const tripApi = {
 
@@ -35,5 +35,15 @@ export const tripApi = {
         );
         
       return mapAllTripsDto(response.data)
+    },
+  
+  async getAllGpsData(tripId: number): Promise<GPSData[]> {
+  
+      const response =
+        await api.get<GPSDataDto[]>(
+          `/gps-data/trip/${tripId}`
+        );
+        
+      return mapGpsDataList(response.data)
     },
 };

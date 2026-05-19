@@ -45,3 +45,35 @@ export interface AllTrips {
     current: Trip[];
     ended: Trip[];
 }
+
+export interface GPSDataMqtt {
+    recDatetime: string;
+    tripId: number;
+    latitudeDeg: number;
+    longitudeDeg:number;
+    accuracyM: number | null | undefined;
+    speedKmh: number | null | undefined;
+    bearingDeg: number | null | undefined;
+}
+
+export interface GPSDataDto {
+    recId: number;
+    recDatetime: string;
+    tripId: number;
+    latitudeDeg: number;
+    longitudeDeg: number;
+    accuracyM: number | null | undefined;
+    speedKmh: number | null | undefined;
+    bearingDeg: number | null | undefined;
+}
+
+export interface GPSData {
+    recId: number;
+    recDatetime: Date;
+    tripId: number;
+    latitudeDeg: number;
+    longitudeDeg: number;
+    accuracyM: number | null | undefined;
+    speedKmh: number | null | undefined;
+    bearingDeg: number | null | undefined;
+}

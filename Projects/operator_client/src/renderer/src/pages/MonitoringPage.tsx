@@ -14,12 +14,32 @@ import {
   Divider,
   CircularProgress,
 } from "@mui/material";
+import { mqttService } from "@renderer/services/mqtt.service";
 
 function MonitoringPage(): React.JSX.Element {
   const [endedTrips, setEndedTrips] = useState<Trip[]>([]);
   const [currentTrips, setCurrentTrips] = useState<Trip[]>([]);
 
   const [loading, setLoading] = useState(true);
+
+  const newTripCallback = (newTripId: number) => {
+    const fetchTrip = async (): Promise<void> => {
+      const trip = await tripApi.getTrip(newTripId)
+      setCurrentTrips(prev => [trip, ...prev])
+    }
+
+    fetchTrip()
+  }
+
+  const endTripCallback = (endTripId: number) => {
+    const fetchTrip = async (): Promise<void> => {
+      const trip = await tripApi.getTrip(endTripId)
+      setEndedTrips(prev => [...prev, trip])
+    }
+
+    setCurrentTrips((prev) => prev.filter(item => item.tripId !== endTripId));
+    fetchTrip()
+  }
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -37,8 +57,22 @@ function MonitoringPage(): React.JSX.Element {
       }
     };
 
+    mqttService.connect()
+
+    mqttService.newTripCallback = newTripCallback
+    mqttService.subscribe("new-trip/+")
+
+    mqttService.endTripCallback = endTripCallback
+    mqttService.subscribe("end-trip/+")
+
     fetchTrips();
+    
+    return () => {
+      mqttService.disconnect()
+    }
   }, []);
+
+
 
   if (loading) {
     return (
@@ -67,7 +101,7 @@ function MonitoringPage(): React.JSX.Element {
         p: 4,
         width: "100%",
         backgroundColor: "#f5f5f5",
-        height: "100vh",
+        height: "98vh",
         overflow: "hidden",
         boxSizing: "border-box",
       }}
@@ -78,13 +112,11 @@ function MonitoringPage(): React.JSX.Element {
           mb: 4,
           p: 3,
           borderRadius: 4,
+          
         }}
       >
         <Stack
           direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          flexWrap="wrap"
           gap={2}
         >
           <Box>
@@ -120,8 +152,7 @@ function MonitoringPage(): React.JSX.Element {
             elevation={2}
             sx={{
               p: 3,
-              borderRadius: 4,
-              height: "100%",
+              borderRadius: 4
             }}
           >
             <Typography
@@ -134,7 +165,7 @@ function MonitoringPage(): React.JSX.Element {
 
             <Divider sx={{ mb: 3 }} />
 
-            <Stack spacing={3}>
+            <Stack spacing={3} sx={{overflowY: "auto", height: "70vh"}}>
               {currentTrips.length > 0 ? (
                 currentTrips.map((trip) => (
                   <TripCard
@@ -157,8 +188,7 @@ function MonitoringPage(): React.JSX.Element {
             elevation={2}
             sx={{
               p: 3,
-              borderRadius: 4,
-              height: "100%",
+              borderRadius: 4
             }}
           >
             <Typography
@@ -171,7 +201,7 @@ function MonitoringPage(): React.JSX.Element {
 
             <Divider sx={{ mb: 3 }} />
 
-            <Stack spacing={3}>
+            <Stack spacing={3} sx={{overflowY: "auto", height: "70vh"}}>
               {endedTrips.length > 0 ? (
                 endedTrips.map((trip) => (
                   <TripCard

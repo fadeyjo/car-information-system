@@ -19,8 +19,8 @@ public sealed class MqttIngestionHostedService : BackgroundService
     private IMqttClient? _client;
     private Channel<MqttInboundMessage>? _channel;
 
-    public const string NEW_TELEMETRY_DATA_TOPIC = "telemetry/new-data";
-    public const string NEW_GPS_DATA_TOPIC = "gps/new-data";
+    public const string NEW_TELEMETRY_DATA_TOPIC = "telemetry/new-data/+";
+    public const string NEW_GPS_DATA_TOPIC = "gps/new-data/+";
 
     public MqttIngestionHostedService(
         IServiceScopeFactory scopeFactory,
@@ -161,40 +161,31 @@ public sealed class MqttIngestionHostedService : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
 
-        switch (msg.Topic)
+        if (msg.Topic.StartsWith("telemetry/new-data/"))
         {
-            case NEW_TELEMETRY_DATA_TOPIC:
-                {
-                    var telemetryService = scope.ServiceProvider.GetRequiredService<ITelemetryDataService>();
-                    var data = Deserialize<CreateTelemetryDataRequest>(msg.Payload);
-                    if (data == null) return;
+            var telemetryService = scope.ServiceProvider.GetRequiredService<ITelemetryDataService>();
+            var data = Deserialize<CreateTelemetryDataRequest>(msg.Payload);
+            if (data == null) return;
 
-                    await telemetryService.CreateTelemetryData(
-                        data.RecDatetime, data.ServiceId, data.PID,
-                        data.EcuId, data.ResponseDlc, data.Response,
-                        data.TripId
-                    );
+            await telemetryService.CreateTelemetryData(
+                data.RecDatetime, data.ServiceId, data.PID,
+                data.EcuId, data.ResponseDlc, data.Response,
+                data.TripId
+            );
 
-                    await TryPublishDerivedTelemetryAsync(data, ct);
-                    break;
-                }
+            await TryPublishDerivedTelemetryAsync(data, ct);
+        }
+        else if (msg.Topic.StartsWith("gps/new-data/"))
+        {
+            var gpsService = scope.ServiceProvider.GetRequiredService<IGpsDataService>();
+            var data = Deserialize<CreateGpsDataRequest>(msg.Payload);
+            if (data == null) return;
 
-            case NEW_GPS_DATA_TOPIC:
-                {
-                    var gpsService = scope.ServiceProvider.GetRequiredService<IGpsDataService>();
-                    var data = Deserialize<CreateGpsDataRequest>(msg.Payload);
-                    if (data == null) return;
-
-                    await gpsService.CreateGpsData(
-                        data.RecDateTime, data.TripId, data.LatitudeDeg,
-                        data.LongitudeDeg, data.AccuracyM, data.SpeedKmh,
-                        data.BearingDeg
-                    );
-                    break;
-                }
-
-            default:
-                break;
+            await gpsService.CreateGpsData(
+                data.RecDateTime, data.TripId, data.LatitudeDeg,
+                data.LongitudeDeg, data.AccuracyM, data.SpeedKmh,
+                data.BearingDeg
+            );
         }
     }
 

@@ -113,6 +113,7 @@ namespace server.Program
             builder.Services.Configure<MqttSettings>(
                 builder.Configuration.GetSection("Mqtt"));
 
+            builder.Services.AddSingleton<IMqttOutboundPublisher, MqttOutboundPublisher>();
             builder.Services.AddHostedService<MqttIngestionHostedService>();
 
             builder.Services.AddCors(options =>

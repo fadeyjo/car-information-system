@@ -10,10 +10,13 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { tripApi } from "@renderer/api/trip.api";
+import { useNavigate } from "react-router-dom";
 
 function TripCard({trip}: {trip: Trip | null | undefined}) {
     if (!trip)
         return <></>
+
+    const navigate = useNavigate()
     
     const [photo, setPhoto] = useState('')
 
@@ -41,7 +44,8 @@ function TripCard({trip}: {trip: Trip | null | undefined}) {
                 alignItems: "stretch",
                 borderRadius: 3,
                 boxShadow: 3,
-                overflow: "hidden"
+                overflow: "hidden",
+                minHeight: "20vh"
             }}
         >
             <CardMedia
@@ -84,7 +88,7 @@ function TripCard({trip}: {trip: Trip | null | undefined}) {
                 </CardContent>
 
                 <Box sx={{ p: 2, pt: 0 }}>
-                    <Button variant="contained">
+                    <Button variant="contained" onClick={() => navigate(`/monitoring/${trip.tripId}`)}>
                         Открыть
                     </Button>
                 </Box>

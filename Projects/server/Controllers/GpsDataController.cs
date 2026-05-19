@@ -76,5 +76,27 @@ namespace server.Controllers
                 return ServerError();
             }
         }
+
+        [HttpGet("trip/{tripId}")]
+        public async Task<IActionResult> GetAllGpsData(ulong tripId)
+        {
+            try
+            {
+                var records = await _service.GetAllGpsData(tripId);
+
+                return Ok(records);
+            }
+            catch (HttpError er)
+            {
+                return Problem(
+                    title: er.Title,
+                    statusCode: er.StatusCode
+                );
+            }
+            catch
+            {
+                return ServerError();
+            }
+        }
     }
 }

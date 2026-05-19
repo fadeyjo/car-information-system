@@ -283,6 +283,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "server.Controllers.GpsDataController",
+    "Method": "GetAllGpsData",
+    "RelativePath": "api/gps-data/trip/{tripId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tripId",
+        "Type": "System.UInt64",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "server.Controllers.OBDIIPIDSController",
     "Method": "GetCurrentDataPidsDetail",
     "RelativePath": "api/obdii-pids/current-data-service/{supportedPidsUint}",

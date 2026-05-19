@@ -454,7 +454,7 @@ class CurrentTripFragment : Fragment() {
 
                 val json = gson.toJson(content)
 
-                MqttClient.publishJson("telemetry/new-data", json)
+                MqttClient.publishJson("telemetry/new-data/${viewModel.currentTrip!!.tripId}", json)
             }
             ObdBleClient.DataCallBack.SessionStopped -> {
                 viewModel.endTrip(LocalDateTime.now(ZoneOffset.UTC), viewModel.currentTrip!!.tripId)
@@ -635,7 +635,7 @@ class CurrentTripFragment : Fragment() {
                 location.bearing
             )
 
-            MqttClient.publishJson("gps/new-data", gson.toJson(data))
+            MqttClient.publishJson("gps/new-data/${viewModel.currentTrip!!.tripId}", gson.toJson(data))
 
             delay(500)
         }

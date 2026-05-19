@@ -1,5 +1,6 @@
 {
   "name": "operator_client",
+  "productName": "Monitoring System",
   "version": "1.0.0",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
@@ -28,6 +29,8 @@
     "@mui/icons-material": "^9.0.1",
     "@mui/material": "^9.0.1",
     "axios": "^1.16.1",
+    "leaflet": "^1.9.4",
+    "mqtt": "^5.15.1",
     "prop-types": "^15.8.1",
     "react-router-dom": "^7.15.1"
   },
@@ -36,6 +39,8 @@
     "@electron-toolkit/eslint-config-ts": "^3.1.0",
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@types/axios": "^0.9.36",
+    "@types/leaflet": "^1.9.21",
+    "@types/mqtt": "^0.0.34",
     "@types/node": "^22.19.1",
     "@types/prop-types": "^15.7.15",
     "@types/react": "^19.2.7",
@@ -54,5 +59,20 @@
     "react-dom": "^19.2.1",
     "typescript": "^5.9.3",
     "vite": "^7.2.6"
+  },
+  "build": {
+    "appId": "com.monitoring.system",
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build/icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns"
+    }
   }
 }

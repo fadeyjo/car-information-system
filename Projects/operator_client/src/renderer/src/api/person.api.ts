@@ -10,8 +10,6 @@ export const personApi = {
       await api.get<PersonDto>(
         '/persons'
       );
-    
-      console.log(response.data)
 
     return mapPersonDto(
       response.data
@@ -25,8 +23,6 @@ export const personApi = {
         responseType: "blob",
       }
     );
-
-    console.log(response.data instanceof Blob);
 
     return URL.createObjectURL(response.data);
   }
